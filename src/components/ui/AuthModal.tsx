@@ -19,11 +19,11 @@ interface InputFieldProps {
 function InputField({ label, icon: Icon, type = 'text', placeholder, required, value, onChange, rightEl }: InputFieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-primary)' }}>
+      <label className="block text-sm font-medium mb-1.5 text-text-primary">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted">
           <Icon size={16} />
         </span>
         <input
@@ -32,11 +32,10 @@ function InputField({ label, icon: Icon, type = 'text', placeholder, required, v
           value={value}
           onChange={onChange}
           required={required}
-          className="w-full pl-10 pr-10 py-3 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
-          style={{ background: 'var(--bg-alt)', borderColor: 'var(--border-rgba)', color: 'var(--text-primary)' }}
+          className="w-full pl-10 pr-10 py-3 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all bg-bg-alt border-border-subtle text-text-primary"
         />
         {rightEl && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer" style={{ color: 'var(--text-muted)' }}>
+          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted">
             {rightEl}
           </span>
         )}
@@ -49,8 +48,7 @@ function InputField({ label, icon: Icon, type = 'text', placeholder, required, v
 function SocialBtn({ label, icon }: { label: string; icon: React.ReactNode }) {
   return (
     <button type="button"
-      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-medium transition-all hover:border-blue-400"
-      style={{ borderColor: 'var(--border-rgba)', background: 'var(--bg-alt)', color: 'var(--text-primary)' }}>
+      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-medium transition-all hover:border-blue-400 border-border-subtle bg-bg-alt text-text-primary">
       {icon}
       {label}
     </button>
@@ -69,12 +67,10 @@ function LoginForm({ switchTo }: { switchTo: () => void }) {
     e.preventDefault()
     setLoading(true); setError('')
     try {
-      // In a real app, you'd handle authentication here
       console.log('Login attempt:', { email, password });
-      // Simulate success
       setTimeout(() => {
         setLoading(false);
-        window.location.href = '/admin'; // Redirect to admin panel
+        window.location.href = '/admin';
       }, 1000);
     } catch (err: any) {
       setError(err.message)
@@ -85,7 +81,7 @@ function LoginForm({ switchTo }: { switchTo: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 text-sm">
+        <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}
@@ -105,9 +101,9 @@ function LoginForm({ switchTo }: { switchTo: () => void }) {
       </button>
 
       <div className="relative flex items-center gap-3">
-        <div className="flex-1 h-px" style={{ background: 'var(--border-rgba)' }} />
-        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Or login with</span>
-        <div className="flex-1 h-px" style={{ background: 'var(--border-rgba)' }} />
+        <div className="flex-1 h-px bg-border-subtle" />
+        <span className="text-xs text-text-muted">Or login with</span>
+        <div className="flex-1 h-px bg-border-subtle" />
       </div>
 
       <div className="flex gap-3">
@@ -119,7 +115,7 @@ function LoginForm({ switchTo }: { switchTo: () => void }) {
         } />
       </div>
 
-      <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+      <p className="text-center text-sm text-text-muted">
         Don't have an account?{' '}
         <button type="button" onClick={switchTo} className="text-blue-600 font-semibold hover:underline">Register</button>
       </p>
@@ -158,7 +154,7 @@ function RegisterForm({ switchTo }: { switchTo: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 text-sm">
+        <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}
@@ -179,7 +175,7 @@ function RegisterForm({ switchTo }: { switchTo: () => void }) {
       <label className="flex items-start gap-3 cursor-pointer">
         <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
           className="mt-0.5 w-4 h-4 rounded accent-blue-600" />
-        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <span className="text-sm text-text-secondary">
           I agree to Ai-CFO{' '}
           <a href="#" className="text-blue-600 font-semibold hover:underline">Terms of Service</a>
           {' '}and{' '}
@@ -192,7 +188,7 @@ function RegisterForm({ switchTo }: { switchTo: () => void }) {
         {loading ? 'Creating account...' : 'Continue'}
       </button>
 
-      <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+      <p className="text-center text-sm text-text-muted">
         Already have an account?{' '}
         <button type="button" onClick={switchTo} className="text-blue-600 font-semibold hover:underline">Login</button>
       </p>
@@ -209,7 +205,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: { 
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 modal-backdrop"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={onClose}>
 
           <motion.div
@@ -217,23 +213,21 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: { 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="relative w-full max-w-md rounded-2xl p-8 shadow-2xl"
-            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-rgba)' }}
+            className="relative w-full max-w-md rounded-2xl p-8 shadow-2xl bg-bg-secondary border border-border-subtle"
             onClick={e => e.stopPropagation()}>
 
             {/* Close */}
             <button onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-              style={{ color: 'var(--text-muted)' }}>
+              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors text-text-muted">
               <X size={18} />
             </button>
 
             {/* Header */}
             <div className="text-center mb-7">
-              <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'var(--text-primary)' }}>
-                Welcome to <span className="text-gradient">Ai-CFO</span>
+              <h2 className="text-2xl font-extrabold mb-1 text-text-primary">
+                Welcome to <span className="bg-gradient-to-br from-[#1d4ed8] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">Ai-CFO</span>
               </h2>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm text-text-muted">
                 {mode === 'login' ? 'Enter your email and password to Login' : 'Create your free account'}
               </p>
             </div>

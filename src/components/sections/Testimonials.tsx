@@ -35,7 +35,7 @@ export default function Testimonials() {
               </div>
               <p className="text-sm leading-relaxed mb-7 italic" style={{ color: 'var(--text-secondary)' }}>"{t.quote}"</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-600/20 flex items-center justify-center text-sm font-bold text-blue-600">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600">
                   {t.initials}
                 </div>
                 <div>

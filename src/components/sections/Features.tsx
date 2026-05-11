@@ -13,24 +13,24 @@ const features = [
 ]
 
 const colors = {
-  blue:   { bg: 'bg-blue-100 dark:bg-blue-500/10',   icon: 'text-blue-600' },
-  indigo: { bg: 'bg-indigo-100 dark:bg-indigo-500/10',icon: 'text-indigo-600' },
-  violet: { bg: 'bg-violet-100 dark:bg-violet-500/10',icon: 'text-violet-600' },
-  emerald:{ bg: 'bg-emerald-100 dark:bg-emerald-500/10',icon:'text-emerald-600' },
-  cyan:   { bg: 'bg-cyan-100 dark:bg-cyan-500/10',   icon: 'text-cyan-600' },
-  amber:  { bg: 'bg-amber-100 dark:bg-amber-500/10', icon: 'text-amber-600' },
+  blue:   { bg: 'bg-blue-100',   icon: 'text-blue-600' },
+  indigo: { bg: 'bg-indigo-100', icon: 'text-indigo-600' },
+  violet: { bg: 'bg-violet-100', icon: 'text-violet-600' },
+  emerald:{ bg: 'bg-emerald-100', icon: 'text-emerald-600' },
+  cyan:   { bg: 'bg-cyan-100',   icon: 'text-cyan-600' },
+  amber:  { bg: 'bg-amber-100',  icon: 'text-amber-600' },
 }
 
 export default function Features() {
   return (
-    <section id="features" className="py-28" style={{ background: 'var(--bg-alt)' }}>
+    <section id="features" className="py-28 bg-bg-alt">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4" style={{ color: 'var(--text-primary)' }}>
-            Powerful Features for <span className="text-gradient">Smarter</span> Financial Decisions
+          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-text-primary">
+            Powerful Features for <span className="bg-gradient-to-br from-[#1d4ed8] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">Smarter</span> Financial Decisions
           </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-lg max-w-xl mx-auto text-text-secondary">
             Everything you need to analyze, predict, and optimize your finances.
           </p>
         </motion.div>
@@ -42,12 +42,12 @@ export default function Features() {
               <motion.div key={f.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.6 }}
-                className="rounded-2xl p-7 card card-hover group">
+                className="rounded-2xl p-7 bg-[var(--bg-card)] border border-[var(--border-rgba)] shadow-[var(--card-shadow)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--card-hover)] hover:border-blue-400/30 group">
                 <div className={`w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
                   <Icon size={22} className={c.icon} />
                 </div>
-                <h3 className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+                <h3 className="text-lg font-bold mb-3 text-text-primary">{f.title}</h3>
+                <p className="text-sm leading-relaxed text-text-secondary">{f.desc}</p>
               </motion.div>
             )
           })}

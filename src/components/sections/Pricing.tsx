@@ -27,12 +27,12 @@ export default function Pricing() {
   const [yearly, setYearly] = useState(false)
 
   return (
-    <section id="pricing" className="py-28" style={{ background: 'var(--bg-alt)' }}>
+    <section id="pricing" className="py-28 bg-bg-alt">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4" style={{ color: 'var(--text-primary)' }}>Pricing</h2>
-          <p className="text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>Simple, powerful, and built for clarity</p>
-          <div className="inline-flex items-center rounded-2xl p-1.5 gap-1 border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border-rgba)' }}>
+          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-text-primary">Pricing</h2>
+          <p className="text-lg mb-8 text-text-secondary">Simple, powerful, and built for clarity</p>
+          <div className="inline-flex items-center rounded-2xl p-1.5 gap-1 border bg-bg-card border-border-subtle">
             {['Monthly','Yearly'].map((t, i) => (
               <button key={t} onClick={() => setYearly(i === 1)}
                 className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
@@ -50,7 +50,7 @@ export default function Pricing() {
             <motion.div key={plan.name}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className={`rounded-2xl p-7 relative ${plan.popular ? 'scale-[1.04]' : 'card card-hover'}`}
+              className={`rounded-2xl p-7 relative ${plan.popular ? 'scale-[1.04]' : 'bg-[var(--bg-card)] border border-[var(--border-rgba)] shadow-[var(--card-shadow)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--card-hover)] hover:border-blue-400/30'}`}
               style={plan.popular ? { background: '#2563eb', border: '2px solid rgba(147,197,253,0.4)' } : {}}>
               {plan.popular && plan.badge && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blue-700 text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg">
@@ -58,23 +58,23 @@ export default function Pricing() {
                 </div>
               )}
               <p className="text-2xl mb-3">{plan.icon}</p>
-              <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : ''}`} style={!plan.popular ? { color: 'var(--text-primary)' } : {}}>
+              <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-text-primary'}`}>
                 {plan.name}
               </h3>
               <div className="flex items-baseline gap-1 mb-7">
-                <span className={`text-3xl font-extrabold ${plan.popular ? 'text-white' : ''}`} style={!plan.popular ? { color: 'var(--text-primary)' } : {}}>
+                <span className={`text-3xl font-extrabold ${plan.popular ? 'text-white' : 'text-text-primary'}`}>
                   ${yearly ? plan.yearlyPrice : plan.monthlyPrice}
                 </span>
-                <span className={`text-sm ${plan.popular ? 'text-blue-100' : ''}`} style={!plan.popular ? { color: 'var(--text-muted)' } : {}}>/month</span>
+                <span className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-text-muted'}`}>/month</span>
               </div>
               <p className={`text-xs font-semibold uppercase tracking-wider mb-4 ${plan.popular ? 'text-blue-100' : 'text-blue-600'}`}>Features:</p>
               <ul className="space-y-3 mb-8">
                 {plan.features.map(feat => (
                   <li key={feat} className="flex items-start gap-2.5">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${plan.popular ? 'bg-white/20' : 'bg-blue-100 dark:bg-blue-500/15'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${plan.popular ? 'bg-white/20' : 'bg-blue-100'}`}>
                       <Check size={11} className={plan.popular ? 'text-white' : 'text-blue-600'} />
                     </span>
-                    <span className={`text-sm ${plan.popular ? 'text-blue-50' : ''}`} style={!plan.popular ? { color: 'var(--text-secondary)' } : {}}>{feat}</span>
+                    <span className={`text-sm ${plan.popular ? 'text-blue-50' : 'text-text-secondary'}`}>{feat}</span>
                   </li>
                 ))}
               </ul>

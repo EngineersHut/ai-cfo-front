@@ -7,7 +7,7 @@ import DashboardPreview from '../ui/DashboardPreview'
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
 })
 
 export default function Hero() {
@@ -18,20 +18,19 @@ export default function Hero() {
           {/* Left */}
           <div>
             <motion.div {...fadeUp(0.1)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-blue text-blue-600 dark:text-blue-400 text-sm font-semibold mb-8 shadow-sm">
+              className="inline-flex items-center gap-2 px-0 py-2 text-blue-600 font-normal text-[12px] leading-[16px]"
+              style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse-slow" />
               AI CFO • Financial Intelligence
             </motion.div>
 
             <motion.h1 {...fadeUp(0.2)}
-              className="text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6"
-              style={{ color: 'var(--text-primary)' }}>
+              className="text-[48px] font-semibold leading-[60px] text-text-primary"
+              style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               Your{' '}
-              <span className="text-gradient">AI-Powered</span>
+              <span >AI-Powered</span>
               <br />
-              Financial Intelligence
-              <br />
-              Platform
+              Financial Intelligence Platform
             </motion.h1>
 
             <motion.p {...fadeUp(0.3)}
@@ -48,7 +47,7 @@ export default function Hero() {
               </a>
               <a href="#" onClick={e => e.preventDefault()}
                 className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl border font-semibold transition-all hover:border-blue-400"
-                style={{ color: 'var(--text-primary)', borderColor: 'var(--border-rgba)', background: 'var(--bg-card)' }}>
+                style={{ color: 'var(--text-primary)', borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
                 <span className="w-9 h-9 rounded-full bg-blue-600/10 flex items-center justify-center group-hover:bg-blue-600/20 transition-colors">
                   <Play size={14} className="text-blue-600 ml-0.5" fill="#2563eb" />
                 </span>

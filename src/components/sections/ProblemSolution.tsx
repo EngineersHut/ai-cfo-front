@@ -18,15 +18,15 @@ const solutions = [
 
 export default function ProblemSolution() {
   return (
-    <section id="about" className="py-28" style={{ background: 'var(--bg-primary)' }}>
+    <section id="about" className="py-28 bg-bg-primary">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
           <p className="text-blue-600 text-sm font-bold tracking-wider uppercase mb-4">Our Next Gen AI</p>
-          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4" style={{ color: 'var(--text-primary)' }}>
-            Solve Finance <span className="text-gradient">Problem</span>
+          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-text-primary">
+            Solve Finance <span className="bg-gradient-to-br from-[#1d4ed8] via-[#3b82f6] to-[#6366f1] bg-clip-text text-transparent">Problem</span>
           </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-lg max-w-xl mx-auto text-text-secondary">
             Everything you need to analyze, predict, and optimize your finances.
           </p>
         </motion.div>
@@ -34,16 +34,16 @@ export default function ProblemSolution() {
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="rounded-2xl p-8 card card-hover">
-            <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>The Problem</h3>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Spreadsheets are slowing you down</p>
+            className="rounded-2xl p-8 bg-[var(--bg-card)] border border-[var(--border-rgba)] shadow-[var(--card-shadow)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--card-hover)] hover:border-blue-400/30 group">
+            <h3 className="text-xl font-bold mb-2 text-text-primary">The Problem</h3>
+            <p className="text-sm mb-6 text-text-muted">Spreadsheets are slowing you down</p>
             <ul className="space-y-4">
               {problems.map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-500/15 border border-red-200 dark:border-red-500/30 flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-red-100 border border-red-200 flex items-center justify-center shrink-0">
                     <X size={12} className="text-red-500" />
                   </span>
-                  <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{item}</span>
+                  <span className="text-sm text-text-secondary">{item}</span>
                 </li>
               ))}
             </ul>
@@ -51,7 +51,7 @@ export default function ProblemSolution() {
 
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="rounded-2xl p-8 card-hover relative overflow-hidden bg-blue-600">
+            className="rounded-2xl p-8 relative overflow-hidden bg-blue-600 transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-blue-500/20">
             <div className="absolute right-4 top-2 text-[120px] font-black text-white/10 leading-none select-none">N</div>
             <h3 className="text-xl font-bold text-white mb-2">The Solution</h3>
             <p className="text-sm text-blue-100 mb-6">AI CFO gives you clarity instantly</p>

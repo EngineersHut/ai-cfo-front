@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Sun, Moon } from 'lucide-react'
-import { useTheme } from '@/lib/ThemeContext'
+import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -23,7 +22,6 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
-  const { isDark, toggleTheme } = useTheme()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -62,8 +60,7 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map(link => (
               <a key={link.label} href={link.href}
-                className="px-4 py-2 text-sm rounded-lg transition-all font-medium hover:text-blue-600"
-                style={{ color: 'var(--text-secondary)' }}>
+                className="px-4 py-2 text-sm rounded-lg transition-all font-medium hover:text-blue-600 text-text-secondary">
                 {link.label}
               </a>
             ))}
@@ -71,14 +68,8 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="hidden md:flex items-center gap-3">
-            <button onClick={toggleTheme}
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-all border hover:border-blue-400"
-              style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-rgba)', background: 'var(--bg-alt)' }}>
-              {isDark ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
             <button onClick={() => openAuth('login')}
-              className="px-4 py-2 text-sm font-medium transition-colors hover:text-blue-600"
-              style={{ color: 'var(--text-secondary)' }}>
+              className="px-4 py-2 text-sm font-medium transition-colors hover:text-blue-600 text-text-secondary">
               Login
             </button>
             <button onClick={() => openAuth('register')}
@@ -89,10 +80,7 @@ export default function Navbar() {
 
           {/* Mobile */}
           <div className="md:hidden flex items-center gap-2">
-            <button onClick={toggleTheme} className="p-2" style={{ color: 'var(--text-secondary)' }}>
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <button className="p-2" style={{ color: 'var(--text-secondary)' }} onClick={() => setMobileOpen(!mobileOpen)}>
+            <button className="p-2 text-text-secondary" onClick={() => setMobileOpen(!mobileOpen)}>
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
@@ -108,14 +96,14 @@ export default function Navbar() {
               <nav className="flex flex-col gap-1 mb-4">
                 {navLinks.map(link => (
                   <a key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
-                    className="px-4 py-3 text-sm rounded-lg hover:text-blue-600" style={{ color: 'var(--text-secondary)' }}>
+                    className="px-4 py-3 text-sm rounded-lg hover:text-blue-600 text-text-secondary">
                     {link.label}
                   </a>
                 ))}
               </nav>
               <div className="flex flex-col gap-2">
                 <button onClick={() => { openAuth('login'); setMobileOpen(false) }}
-                  className="px-4 py-3 text-sm font-medium rounded-xl border" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-rgba)' }}>
+                  className="px-4 py-3 text-sm font-medium rounded-xl border text-text-primary border-border-subtle">
                   Login
                 </button>
                 <button onClick={() => { openAuth('register'); setMobileOpen(false) }}

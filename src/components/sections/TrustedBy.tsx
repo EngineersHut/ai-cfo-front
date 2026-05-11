@@ -17,7 +17,7 @@ export default function TrustedBy() {
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.08 }}
               className="flex items-center gap-2 transition-opacity hover:opacity-70">
-              <div className="w-6 h-6 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="w-6 h-6 rounded bg-gray-200" />
               <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>{logo}</span>
             </motion.div>
           ))}
