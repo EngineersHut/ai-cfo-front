@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
+import Image from 'next/image'
 
 const testimonials = [
   { name: 'Marcus Thorne', title: 'CFO, Aether Logistics', initials: 'MT',
@@ -14,35 +15,54 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-28" style={{ background: 'var(--bg-secondary)' }}>
+    <section className="py-28" style={{ background: 'rgba(248, 250, 252, 1)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4" style={{ color: 'var(--text-primary)' }}>
-            Commanding <span className="text-gradient">Trust</span>
+          <h2 className="text-[32px] font-semibold leading-[40px] text-[#0f172a] mb-4"
+            style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
+            Commanding Trust
           </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-[16px] font-normal leading-[24px] text-slate-500 max-w-2xl mx-auto"
+            style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             See how visionary financial leaders are utilizing Sovereign to gain unprecedented control over their operations.
           </p>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((t, i) => (
             <motion.div key={t.name}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-2xl p-7 card card-hover">
-              <div className="flex gap-1 mb-5">
-                {[...Array(5)].map((_, j) => <Star key={j} size={14} className="text-amber-400" fill="#f59e0b" />)}
+              className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center"
+            >
+              {/* Avatar */}
+              <div className="w-16 h-16 rounded-full bg-[#0f172a] mb-4 flex items-center justify-center overflow-hidden border-2 border-slate-50 shadow-sm relative">
+                <Image 
+                  src="/client-portrait.png" 
+                  alt={t.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <p className="text-sm leading-relaxed mb-7 italic" style={{ color: 'var(--text-secondary)' }}>"{t.quote}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600">
-                  {t.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t.name}</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.title}</p>
-                </div>
+
+              {/* User Info */}
+              <h4 className="text-[16px] font-bold text-[#0f172a] mb-0.5" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+                {t.name}
+              </h4>
+              <p className="text-[12px] text-slate-400 mb-4" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+                {t.title}
+              </p>
+
+              {/* Stars */}
+              <div className="flex gap-1 mb-5 justify-center">
+                {[...Array(5)].map((_, j) => (
+                  <Star key={j} size={16} className="text-[#f97316]" fill="#f97316" />
+                ))}
               </div>
+
+              {/* Quote */}
+              <p className="text-[14px] leading-[22px] text-slate-600 font-normal" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+                "{t.quote}"
+              </p>
             </motion.div>
           ))}
         </div>

@@ -1,58 +1,68 @@
 import Image from 'next/image'
 
-const links = ['Blogs', 'FAQ', 'Contact', 'Help Center', 'Privacy Policy', 'Terms of Service']
+const links = ['Blogs', 'Faq', 'Contact', 'Help Center', 'Privacy Policy', 'Terms of Service']
 
-const TwitterIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+const TwitterIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z" />
   </svg>
 );
 
-const LinkedinIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect width="4" height="12" x="2" y="9" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
-
-const GithubIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-    <path d="M9 18c-4.51 2-5-2-7-2" />
+const GithubIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 1.27a11 11 0 00-3.48 21.46c.55.09.73-.24.73-.53v-1.84c-3.03.66-3.67-1.46-3.67-1.46-.5-1.26-1.2-1.6-1.2-1.6-1-.68.07-.66.07-.66 1.1.07 1.68 1.13 1.68 1.13.98 1.68 2.58 1.2 3.2 1 .1-.7.38-1.2.69-1.48-2.42-.28-4.97-1.21-4.97-5.38 0-1.2.43-2.16 1.13-2.92-.1-.27-.48-1.39.1-2.88 0 0 .92-.3 3 1.12a10.5 10.5 0 015.5 0c2.1-1.42 3-1.12 3-1.12.58 1.49.2 2.61.1 2.88.7.76 1.13 1.72 1.13 2.92 0 4.18-2.55 5.1-4.98 5.37.39.33.74.98.74 1.97v2.93c0 .3.18.63.74.53A11 11 0 0012 1.27" />
   </svg>
 );
 
 export default function Footer() {
   return (
-    <footer className="py-10 border-t" style={{ borderColor: 'var(--border-rgba)', background: 'var(--bg-secondary)' }}>
+    <footer className="py-8 bg-white border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-          <div className="flex items-center">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
+          {/* Logo */}
+          <div className="flex items-center shrink-0">
             <Image
               src="/upscale.png"
-              alt="AI CFO Logo"
-              width={100}
-              height={32}
-              className="h-8 w-auto object-contain"
+              alt="North Quest Solutions Logo"
+              width={160}
+              height={48}
+              className="h-12 w-auto object-contain"
+              priority
             />
           </div>
-          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+
+          {/* Navigation */}
+          <nav className="flex flex-wrap justify-center gap-x-8 gap-y-4">
             {links.map(l => (
-              <a key={l} href="#" className="text-xs hover:text-blue-600 transition-colors" style={{ color: 'var(--text-muted)' }}>{l}</a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-4">
-            {[TwitterIcon, LinkedinIcon, GithubIcon].map((Icon, i) => (
-              <a key={i} href="#" className="hover:text-blue-600 transition-colors" style={{ color: 'var(--text-muted)' }}>
-                <Icon size={16} />
+              <a
+                key={l}
+                href="#"
+                className="text-[16px] font-normal leading-[24px] text-slate-600 hover:text-blue-600 transition-colors"
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}
+              >
+                {l}
               </a>
             ))}
+          </nav>
+
+          {/* Social */}
+          <div className="flex items-center gap-6 text-slate-900">
+            <a href="#" className="hover:text-blue-600 transition-all hover:scale-110">
+              <TwitterIcon size={20} />
+            </a>
+            <a href="#" className="hover:text-blue-600 transition-all hover:scale-110">
+              <GithubIcon size={22} />
+            </a>
           </div>
         </div>
-        <p className="text-center text-xs" style={{ color: 'var(--text-muted)' }}>
-          © 2026 North Quest Solution. All rights reserved.
-        </p>
+
+        {/* Copyright */}
+        <div className=" border-t border-slate-50">
+          <p className="text-center text-[14px] text-slate-400 font-normal leading-[20px]"
+            style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+            © 2026 North Quest Solution. All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   )

@@ -12,11 +12,12 @@ const fadeUp = (delay = 0) => ({
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen hero-bg grid-overlay flex items-center pt-24 pb-16 overflow-hidden">
+    <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
+      style={{ background: 'linear-gradient(270deg, #E5F0FF 0%, #EFF6FF 100%)' }}>
       <div className="max-w-7xl mx-auto px-6 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 items-center gap-12 lg:gap-0">
           {/* Left */}
-          <div>
+          <div className="text-center lg:text-left">
             <motion.div {...fadeUp(0.1)}
               className="inline-flex items-center gap-2 px-0 py-2 text-blue-600 font-normal text-[12px] leading-[16px]"
               style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
@@ -25,47 +26,47 @@ export default function Hero() {
             </motion.div>
 
             <motion.h1 {...fadeUp(0.2)}
-              className="text-[48px] font-semibold leading-[60px] text-text-primary"
-              style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
-              Your{' '}
-              <span >AI-Powered</span>
-              <br />
+              className="text-[32px] sm:text-[48px] font-semibold leading-[42px] sm:leading-[60px] text-text-primary"
+              style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '-0.02em' }}>
+              Your AI-Powered <br className="hidden sm:block" />
               Financial Intelligence Platform
             </motion.h1>
 
             <motion.p {...fadeUp(0.3)}
-              className="text-lg leading-relaxed mb-10 max-w-lg"
-              style={{ color: 'var(--text-secondary)' }}>
-              Upload financial reports. Get instant insights, risks, and forecasts.
+              className="mt-6 text-[16px] sm:text-[18px] leading-[24px] sm:leading-[28px] text-text-secondary max-w-xl mx-auto lg:mx-0">
+              Master your finances with AI-driven insights, real-time tracking, 
+              and predictive forecasting built for modern businesses.
             </motion.p>
 
-            <motion.div {...fadeUp(0.4)} className="flex flex-wrap items-center gap-4 mb-8">
+            <motion.div {...fadeUp(0.4)}
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-[12px] pt-7 mb-8">
               <a href="#" onClick={e => e.preventDefault()}
-                className="group inline-flex items-center gap-2 px-7 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-xl shadow-blue-500/25 hover:scale-105 active:scale-100">
+                className="inline-flex items-center justify-center w-[136px] h-[36px] bg-blue-600 hover:bg-blue-700 text-white font-medium text-[14px] leading-[20px] rounded-[8px] transition-all border border-blue-600 shadow-sm active:scale-95">
                 Get Started Free
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </a>
               <a href="#" onClick={e => e.preventDefault()}
-                className="group inline-flex items-center gap-3 px-6 py-4 rounded-2xl border font-semibold transition-all hover:border-blue-400"
-                style={{ color: 'var(--text-primary)', borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
-                <span className="w-9 h-9 rounded-full bg-blue-600/10 flex items-center justify-center group-hover:bg-blue-600/20 transition-colors">
-                  <Play size={14} className="text-blue-600 ml-0.5" fill="#2563eb" />
-                </span>
+                className="inline-flex items-center justify-center w-[138px] h-[36px] border border-border-subtle bg-white hover:bg-slate-50 text-text-primary font-medium text-[14px] leading-[20px] rounded-[10px] transition-all active:scale-95 gap-[10px]">
                 View Demo
+                <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
+                  <path d="M5 3l14 9-14 9V3z" fill="currentColor" />
+                </svg>
               </a>
             </motion.div>
 
-            <motion.p {...fadeUp(0.5)} className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            <motion.p {...fadeUp(0.5)}
+              className="text-[12px] leading-[16px] pt-2"
+              style={{ color: 'rgba(148, 163, 184, 1)', fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               No credit card required • Setup in 2 minutes
             </motion.p>
           </div>
 
           {/* Right — dashboard */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.3 }}
-            className="animate-float hidden lg:block">
+            className="animate-float mt-16 lg:mt-0">
             <DashboardPreview />
           </motion.div>
         </div>

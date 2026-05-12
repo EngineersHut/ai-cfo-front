@@ -33,34 +33,30 @@ export default function Navbar() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{
-          background: scrolled ? 'var(--nav-bg)' : 'transparent',
-          backdropFilter: scrolled ? 'blur(16px)' : 'none',
-          borderBottom: scrolled ? '1px solid var(--border-rgba)' : 'none',
-        }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'py-3 shadow-sm' : 'py-5'}`}>
-
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <header className="absolute top-0 left-0 right-0 z-[100] flex justify-center pt-6 px-4 pointer-events-none">
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex items-center justify-between px-[15px] py-[15px] rounded-[16px] transition-all duration-500 border w-full max-w-[1250px] h-[72px] pointer-events-auto bg-white/80 backdrop-blur-md shadow-md border-slate-100/50"
+        >
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
-            <Image
-              src="/upscale.png"
-              alt="AI CFO Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
-            />
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 bg-[#0f172a] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+              N
+            </div>
+            <div className="hidden lg:flex flex-col leading-none">
+              <span className="text-[14px] font-bold text-[#0f172a]">North Quest</span>
+              <span className="text-[10px] text-slate-500">Solutions</span>
+            </div>
           </Link>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map(link => (
               <a key={link.label} href={link.href}
-                className="px-4 py-2 text-sm rounded-lg transition-all font-medium hover:text-blue-600 text-text-secondary">
+                className="px-4 py-2 text-[14px] font-medium transition-all hover:text-blue-600 text-slate-600"
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 {link.label}
               </a>
             ))}
@@ -68,53 +64,62 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="hidden md:flex items-center gap-3">
-            <button onClick={() => openAuth('login')}
-              className="px-4 py-2 text-sm font-medium transition-colors hover:text-blue-600 text-text-secondary">
+            <button 
+              onClick={() => openAuth('login')}
+              className="px-6 py-2 text-[14px] font-medium leading-[20px] border border-slate-200 rounded-[12px] hover:bg-slate-50 transition-colors text-slate-700"
+              style={{ fontFamily: 'var(--font-inter), sans-serif' }}
+            >
               Login
             </button>
-            <button onClick={() => openAuth('register')}
-              className="px-5 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-100">
+            <button 
+              onClick={() => openAuth('register')}
+              className="px-6 py-2 text-[14px] font-medium leading-[20px] bg-[#2563eb] text-white rounded-[12px] transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95"
+              style={{ fontFamily: 'var(--font-inter), sans-serif' }}
+            >
               Get Started Free
             </button>
           </div>
 
           {/* Mobile */}
-          <div className="md:hidden flex items-center gap-2">
-            <button className="p-2 text-text-secondary" onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          <div className="md:hidden flex items-center">
+            <button className="p-2 text-slate-600" onClick={() => setMobileOpen(!mobileOpen)}>
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Mobile menu */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              style={{ background: 'var(--nav-bg)', borderTop: '1px solid var(--border-rgba)' }}
-              className="md:hidden px-6 py-4">
-              <nav className="flex flex-col gap-1 mb-4">
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="absolute top-full mt-4 left-4 right-4 bg-white/95 backdrop-blur-xl rounded-[24px] border border-slate-200 shadow-2xl overflow-hidden md:hidden pointer-events-auto"
+            >
+              <div className="px-6 py-6 flex flex-col gap-2">
                 {navLinks.map(link => (
                   <a key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
-                    className="px-4 py-3 text-sm rounded-lg hover:text-blue-600 text-text-secondary">
+                    className="px-4 py-3 text-[14px] font-medium rounded-xl hover:bg-slate-50 text-slate-700">
                     {link.label}
                   </a>
                 ))}
-              </nav>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => { openAuth('login'); setMobileOpen(false) }}
-                  className="px-4 py-3 text-sm font-medium rounded-xl border text-text-primary border-border-subtle">
-                  Login
-                </button>
-                <button onClick={() => { openAuth('register'); setMobileOpen(false) }}
-                  className="px-4 py-3 text-sm font-semibold bg-blue-600 text-white rounded-xl">
-                  Get Started Free
-                </button>
+                <div className="h-[1px] bg-slate-100 my-2" />
+                <div className="grid grid-cols-2 gap-3">
+                  <button onClick={() => { openAuth('login'); setMobileOpen(false) }}
+                    className="py-3 text-sm font-medium rounded-xl border border-slate-200 text-slate-700">
+                    Login
+                  </button>
+                  <button onClick={() => { openAuth('register'); setMobileOpen(false) }}
+                    className="py-3 text-sm font-semibold bg-[#2563eb] text-white rounded-xl">
+                    Sign Up
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </header>
 
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} defaultMode={authMode} />
     </>
