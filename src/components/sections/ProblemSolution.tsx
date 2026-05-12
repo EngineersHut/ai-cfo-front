@@ -42,8 +42,9 @@ export default function ProblemSolution() {
             <div>
               <p className="text-[12px] font-normal leading-[16px] text-slate-400 mb-2"
                 style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>The Problem</p>
-              <h3 className="text-[20px] font-medium leading-[28px] text-[#0f172a] mb-6"
+              <h3 className="text-[20px] font-medium leading-[28px] text-slate-900 mb-4"
                 style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>Spreadsheets are slowing you down</h3>
+              <div className="w-full h-[1px] bg-slate-200 mb-6" />
             </div>
             <ul className="space-y-3">
               {problems.map(item => (
@@ -64,13 +65,13 @@ export default function ProblemSolution() {
             style={{ height: 260, padding: 30, borderRadius: 16 }}
             className="relative z-10 overflow-hidden bg-[#1D4ED8] shadow-xl shadow-blue-100 flex flex-col justify-between">
             {/* Background Watermark Asset (Exact Specs) */}
-            <div className="absolute left-[400px] top-[88px] z-0 select-none pointer-events-none opacity-[0.25]"
+            <div className="absolute left-[400px] top-[120px] z-0 select-none pointer-events-none opacity-[0.25]"
               style={{ transform: 'rotate(360deg)' }}>
               <Image
                 src="/images/Mask group.png"
                 alt="Watermark"
-                width={190}
-                height={264}
+                width={250}
+                height={304}
                 className="object-contain"
               />
             </div>
@@ -86,10 +87,9 @@ export default function ProblemSolution() {
             <ul className="space-y-3 relative z-10">
               {solutions.map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <span className="relative w-[20px] h-[20px] rounded-[7px] bg-[#3B82F6] flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C12 7.52285 7.52285 12 2 12C7.52285 12 12 16.4772 12 22C12 16.4772 16.4772 12 22 12C16.4772 12 12 7.52285 12 2Z" fill="white" />
-                      <path d="M19 3C19 4.65685 17.6569 6 16 6C17.6569 6 19 7.34315 19 9C19 7.34315 20.3431 6 22 6C20.3431 6 19 4.65685 19 3Z" fill="white" />
+                  <span className="relative w-[22px] h-[22px] rounded-[8px] bg-white flex items-center justify-center shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </span>
                   <span className="text-[14px] leading-[20px] text-white font-normal"
