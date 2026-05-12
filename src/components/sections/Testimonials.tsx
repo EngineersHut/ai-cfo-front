@@ -16,7 +16,7 @@ const testimonials = [
 export default function Testimonials() {
   return (
     <section className="py-28" style={{ background: 'rgba(248, 250, 252, 1)' }}>
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
           <h2 className="text-[32px] font-semibold leading-[40px] text-[#0f172a] mb-4"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>

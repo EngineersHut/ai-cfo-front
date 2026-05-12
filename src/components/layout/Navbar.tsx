@@ -38,7 +38,7 @@ export default function Navbar() {
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex items-center justify-between px-[15px] py-[15px] rounded-[16px] transition-all duration-500 border w-full max-w-[1250px] h-[72px] pointer-events-auto bg-white/80 backdrop-blur-md shadow-md border-slate-100/50"
+          className="flex items-center justify-between px-[15px] py-[15px] rounded-[16px] transition-all duration-500 border w-full max-w-[1200px] h-[72px] pointer-events-auto bg-white/80 backdrop-blur-md shadow-md border-slate-100/50"
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
@@ -64,14 +64,14 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="hidden md:flex items-center gap-3">
-            <button 
+            <button
               onClick={() => openAuth('login')}
               className="px-6 py-2 text-[14px] font-medium leading-[20px] border border-slate-200 rounded-[12px] hover:bg-slate-50 transition-colors text-slate-700"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}
             >
               Login
             </button>
-            <button 
+            <button
               onClick={() => openAuth('register')}
               className="px-6 py-2 text-[14px] font-medium leading-[20px] bg-[#2563eb] text-white rounded-[12px] transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}

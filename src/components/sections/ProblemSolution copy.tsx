@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion'
-import { X, Check, Sparkles } from 'lucide-react'
+import { X, Check } from 'lucide-react'
 import Image from 'next/image'
 
 const problems = [
@@ -20,7 +20,7 @@ const solutions = [
 export default function ProblemSolution() {
   return (
     <section id="about" className="py-28 bg-bg-primary">
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
           <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
@@ -33,7 +33,7 @@ export default function ProblemSolution() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-[1200px] mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Problem Card */}
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -41,18 +41,18 @@ export default function ProblemSolution() {
             className="bg-[#f8fafc] border border-slate-100 shadow-sm flex flex-col justify-between">
             <div>
               <p className="text-[12px] font-normal leading-[16px] text-slate-400 mb-2"
-                style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>The Problem</p>
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}>The Problem</p>
               <h3 className="text-[20px] font-medium leading-[28px] text-[#0f172a] mb-6"
-                style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>Spreadsheets are slowing you down</h3>
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Spreadsheets are slowing you down</h3>
             </div>
             <ul className="space-y-3">
               {problems.map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <span className="relative w-[20px] h-[20px] rounded-[7px] bg-[#ef4444] flex items-center justify-center shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-[#ef4444] flex items-center justify-center shrink-0">
                     <X size={12} className="text-white" />
                   </span>
                   <span className="text-[14px] leading-[20px] text-slate-500 font-normal"
-                    style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>{item}</span>
+                    style={{ fontFamily: 'var(--font-inter), sans-serif' }}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -62,41 +62,40 @@ export default function ProblemSolution() {
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.15 }}
             style={{ height: 260, padding: 30, borderRadius: 16 }}
-            className="relative z-10 overflow-hidden bg-[#1D4ED8] shadow-xl shadow-blue-100 flex flex-col justify-between">
-            {/* Background Watermark Asset (Exact Specs) */}
-            <div className="absolute left-[400px] top-[88px] z-0 select-none pointer-events-none opacity-[0.25]"
-              style={{ transform: 'rotate(360deg)' }}>
+            className="relative z-10 overflow-hidden bg-[#2563eb] shadow-xl shadow-blue-100 flex flex-col justify-between">
+            {/* Background Image */}
+            <div className="absolute right-[-30px] bottom-[-30px] z-0">
               <Image
-                src="/images/Mask group.png"
+                src="/images/solutioncard.png"
                 alt="Watermark"
-                width={190}
-                height={264}
-                className="object-contain"
+                width={240}
+                height={240}
+                priority
+                className="object-contain opacity-30"
               />
             </div>
 
-            <div className="relative z-10">
-              <p className="text-[12px] font-normal leading-[16px] text-blue-100/80 mb-2"
-                style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>The Solution</p>
+
+
+            {/* <div>
+              <p className="text-[12px] font-normal leading-[16px] text-blue-100 mb-2"
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}>The Solution</p>
               <h3 className="text-[20px] font-medium leading-[28px] text-white mb-4"
-                style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>AI CFO gives you clarity instantly</h3>
-              <div className="w-full h-[1px] bg-white/20 mb-6" />
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}>AI CFO gives you clarity instantly</h3>
+              <div className="w-full h-[1px] bg-white/20 mb-0" />
             </div>
 
             <ul className="space-y-3 relative z-10">
               {solutions.map(item => (
                 <li key={item} className="flex items-center gap-3">
-                  <span className="relative w-[20px] h-[20px] rounded-[7px] bg-[#3B82F6] flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C12 7.52285 7.52285 12 2 12C7.52285 12 12 16.4772 12 22C12 16.4772 16.4772 12 22 12C16.4772 12 12 7.52285 12 2Z" fill="white" />
-                      <path d="M19 3C19 4.65685 17.6569 6 16 6C17.6569 6 19 7.34315 19 9C19 7.34315 20.3431 6 22 6C20.3431 6 19 4.65685 19 3Z" fill="white" />
-                    </svg>
+                  <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0">
+                    <Check size={12} className="text-[#2563eb]" />
                   </span>
                   <span className="text-[14px] leading-[20px] text-white font-normal"
-                    style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>{item}</span>
+                    style={{ fontFamily: 'var(--font-inter), sans-serif' }}>{item}</span>
                 </li>
               ))}
-            </ul>
+            </ul> */}
           </motion.div>
         </div>
       </div>

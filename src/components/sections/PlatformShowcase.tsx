@@ -1,5 +1,6 @@
 "use client";
 
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { motion } from 'framer-motion'
 import { LayoutDashboard, Users, Settings, Shield, FolderSync, ClipboardList } from 'lucide-react'
 import Image from 'next/image';
@@ -30,12 +31,14 @@ const tagColor = {
 }
 
 export default function PlatformShowcase() {
+  const isMobile = useIsMobile();
+
   return (
     <section id="ai-cfo" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6 mb-12">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          className="text-center ">
-          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
+          className="text-center">
+          <h2 className="text-[28px] md:text-[32px] font-semibold leading-[36px] md:leading-[40px] mb-4 text-[#0f172a]"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             See Your Financial Data Come to Life
           </h2>
@@ -44,17 +47,21 @@ export default function PlatformShowcase() {
             Simple, powerful, and built for clarity
           </p>
         </motion.div>
+      </div>
 
-
-
-        <div className="h-[800px] w-[1300px]">
+      <div className="w-full flex justify-center px-4">
+        <div
+          className={isMobile
+            ? "w-full h-auto mx-auto px-4"
+            : "w-[1200px] h-auto mx-auto"
+          }
+        >
           <img
             src="/images/Dashboard.png"
             alt="Dashboard"
             className="w-full h-full object-cover"
           />
         </div>
-
       </div>
     </section>
   )

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Play, ArrowRight } from 'lucide-react'
-import DashboardPreview from '../ui/DashboardPreview'
+import DashboardPreview from '../ui/DashboardPreview';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -14,8 +14,8 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
       style={{ background: 'linear-gradient(270deg, #E5F0FF 0%, #EFF6FF 100%)' }}>
-      <div className="max-w-7xl mx-auto px-6 w-full">
-        <div className="grid lg:grid-cols-2 items-center gap-12 lg:gap-0">
+      <div className="max-w-[1200px] mx-auto px-6 w-full">
+        <div className="grid lg:grid-cols-2 items-center gap-12 lg:gap-20">
           {/* Left */}
           <div className="text-center lg:text-left">
             <motion.div {...fadeUp(0.1)}
@@ -34,14 +34,15 @@ export default function Hero() {
 
             <motion.p {...fadeUp(0.3)}
               className="mt-6 text-[16px] sm:text-[18px] leading-[24px] sm:leading-[28px] text-text-secondary max-w-xl mx-auto lg:mx-0">
-              Master your finances with AI-driven insights, real-time tracking, 
+              Master your finances with AI-driven insights, real-time tracking,
               and predictive forecasting built for modern businesses.
             </motion.p>
 
             <motion.div {...fadeUp(0.4)}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-[12px] pt-7 mb-8">
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-[12px] pt-7 mb-3">
               <a href="#" onClick={e => e.preventDefault()}
-                className="inline-flex items-center justify-center w-[136px] h-[36px] bg-blue-600 hover:bg-blue-700 text-white font-medium text-[14px] leading-[20px] rounded-[8px] transition-all border border-blue-600 shadow-sm active:scale-95">
+                className="inline-flex items-center justify-center w-[136px] h-[36px] bg-[#2563eb] hover:bg-blue-700 text-white font-medium text-[14px] leading-[20px] rounded-[8px] border border-[#2563eb] transition-all shadow-sm active:scale-95 gap-[6px] px-[12px] py-[4px]"
+                style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
                 Get Started Free
               </a>
               <a href="#" onClick={e => e.preventDefault()}
@@ -54,7 +55,7 @@ export default function Hero() {
             </motion.div>
 
             <motion.p {...fadeUp(0.5)}
-              className="text-[12px] leading-[16px] pt-2"
+              className="text-[12px] leading-[16px] "
               style={{ color: 'rgba(148, 163, 184, 1)', fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               No credit card required • Setup in 2 minutes
             </motion.p>
@@ -69,6 +70,8 @@ export default function Hero() {
             className="animate-float mt-16 lg:mt-0">
             <DashboardPreview />
           </motion.div>
+
+
         </div>
       </div>
     </section>

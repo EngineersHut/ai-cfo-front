@@ -11,7 +11,7 @@ export default function CTABanner() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative overflow-hidden rounded-[20px] text-center h-[400px] flex flex-col items-center justify-center bg-[#2563eb]"
+          className="relative overflow-hidden rounded-[20px] text-center min-h-[400px] md:h-[400px] flex flex-col items-center justify-center bg-[#2563eb]"
         >
           {/* Subtle stripe pattern */}
           <div
@@ -28,13 +28,13 @@ export default function CTABanner() {
           />
 
           {/* Content Container */}
-          <div className="relative z-10 flex flex-col items-center gap-[40px] px-[80px] py-[100px]">
-            <h2 className="text-[48px] font-semibold text-white leading-[60px] max-w-4xl text-center"
+          <div className="relative z-10 flex flex-col items-center px-6 py-10 md:px-[80px] md:py-[100px] w-full space-y-8">
+            <h2 className="text-[32px] md:text-[48px] font-semibold text-white leading-[40px] md:leading-[60px] max-w-4xl text-center"
               style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               Start Making Smarter Financial Decisions Today
             </h2>
 
-            <button className="w-[144px] h-[40px] px-[16px] py-[10px] bg-white text-[#0f172a] text-[14px] font-medium leading-[20px] rounded-[10px] shadow-lg hover:bg-blue-50 transition-all flex items-center justify-center"
+            <button className="w-[144px] h-[40px] px-[16px] py-[10px] bg-white text-[#0f172a] text-[14px] font-medium leading-[20px] rounded-[10px] shadow-lg hover:bg-blue-50 transition-all flex items-center justify-center shrink-0"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
               Get Started Free
             </button>

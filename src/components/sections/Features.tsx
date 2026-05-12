@@ -111,7 +111,7 @@ const features = [
 export default function Features() {
   return (
     <section id="features" className="py-24 bg-[#f8fafc]">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
           <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
@@ -124,7 +124,7 @@ export default function Features() {
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
           {features.map((f, i) => (
             <motion.div key={f.title}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}

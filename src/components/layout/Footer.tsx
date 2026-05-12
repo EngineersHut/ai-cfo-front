@@ -17,7 +17,7 @@ const GithubIcon = ({ size = 20 }) => (
 export default function Footer() {
   return (
     <footer className="py-8 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
           {/* Logo */}
           <div className="flex items-center shrink-0">

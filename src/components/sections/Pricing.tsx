@@ -28,7 +28,7 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="py-20 bg-bg-alt">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-4">
           <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
@@ -61,7 +61,7 @@ export default function Pricing() {
           </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-center gap-8 items-end max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-center gap-8 items-end max-w-[1200px] mx-auto">
           {plans.map((plan, i) => (
             <motion.div key={plan.name}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
