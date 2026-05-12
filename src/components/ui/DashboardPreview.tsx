@@ -16,6 +16,8 @@ interface TooltipData {
   data: MonthlyData;
 }
 
+
+
 const monthlyData: MonthlyData[] = [
   { month: "Jan", revenue: 28000, profit: 8000, expense: 20000 },
   { month: "Feb", revenue: 22000, profit: 6000, expense: 16000 },
@@ -219,10 +221,10 @@ export default function DashboardPreview() {
 
   const card = {
     background: "white",
-    borderRadius: 14,
-    padding: "16px 18px",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-    border: "1px solid #f0f0f4",
+    borderRadius: 10,
+    padding: "12px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+    border: "1px solid rgba(226, 232, 240, 1)",
   };
 
   const label = {
@@ -280,7 +282,7 @@ export default function DashboardPreview() {
           borderRadius: 24,
           padding: 20,
           width: "100%",
-          maxWidth: 620,
+          maxWidth: 750,
           boxShadow: "0px 0px 220px 0px rgba(197, 221, 255, 1)",
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)",
@@ -288,131 +290,135 @@ export default function DashboardPreview() {
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
-          {/* Top KPI row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-[10px] mb-[10px]">
-            {/* Revenue */}
-            <div style={card}>
-              <div style={label}>Revenue</div>
-              <div style={bigNum}>$128,400</div>
-              <div style={upBadge}><span>↑</span> +12.5%</div>
-            </div>
-            {/* Profit */}
-            <div style={card}>
-              <div style={label}>Profit</div>
-              <div style={bigNum}>$32,800</div>
-              <div style={upBadge}><span>↑</span> +8.2%</div>
-            </div>
-            {/* Expenses */}
-            <div style={card}>
-              <div style={label}>Expenses</div>
-              <div style={bigNum}>$95,600</div>
-              <div style={downBadge}><span>↓</span> -3.1%</div>
+        {/* Top KPI row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[10px] mb-[10px]">
+          {/* Revenue */}
+          <div style={card}>
+            <div style={label}>Revenue</div>
+            <div style={bigNum}>$128,400</div>
+            <div style={upBadge}><span>↑</span> +12.5%</div>
+          </div>
+          {/* Profit */}
+          <div style={card}>
+            <div style={label}>Profit</div>
+            <div style={bigNum}>$32,800</div>
+            <div style={upBadge}><span>↑</span> +8.2%</div>
+          </div>
+          {/* Expenses */}
+          <div style={card}>
+            <div style={label}>Expenses</div>
+            <div style={bigNum}>$95,600</div>
+            <div style={downBadge}><span>↓</span> -3.1%</div>
+          </div>
+        </div>
+
+        {/* Revenue Trend Chart */}
+        <div style={{ ...card, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 10 }}>
+            Revenue Trend
+          </div>
+          <LineChart data={monthlyData} />
+        </div>
+
+        {/* Cash metrics row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[10px] mb-[10px]">
+          {/* Cash Burn Rate */}
+          <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash Burn Rate</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>-$10,400</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "#22c55e", lineHeight: "1" }}>/ Month</span>
             </div>
           </div>
-
-          {/* Revenue Trend Chart */}
-          <div style={{ ...card, marginBottom: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 10 }}>
-              Revenue Trend
-            </div>
-            <LineChart data={monthlyData} />
-          </div>
-
-          {/* Cash metrics row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-[10px] mb-[10px]">
-            <div style={{ ...card, height: 59, padding: "12px", borderRadius: 10, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={{ ...label, fontSize: 12, marginBottom: 4, lineHeight: "16px", fontWeight: 500 }}>Cash Burn Rate</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                <span style={{ fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>-$10,400</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#22c55e" }}>/ Month</span>
-              </div>
-            </div>
-            <div style={{ ...card, height: 59, padding: "12px", borderRadius: 10, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={{ ...label, fontSize: 12, marginBottom: 4, lineHeight: "16px", fontWeight: 500 }}>Cash Runway</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                <span style={{ fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>10.00</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#22c55e" }}>/ Month</span>
-              </div>
-            </div>
-            <div style={{ ...card, height: 59, padding: "12px", borderRadius: 10, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={{ ...label, fontSize: 12, marginBottom: 4, lineHeight: "16px", fontWeight: 500 }}>Cash in Hand</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                <span style={{ fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>$95,600</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#22c55e", display: "flex", alignItems: "center", gap: 1 }}>
-                  ↑ +12.4%
-                </span>
-              </div>
+          {/* Cash Runway */}
+          <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash Runway</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>10.00</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "#22c55e", lineHeight: "1" }}>/ Month</span>
             </div>
           </div>
-
-          {/* Forecast + Budget row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px] mb-[10px]">
-            {/* Forecast */}
-            <div style={card}>
-              <div style={label}>Forecast</div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ ...bigNum, fontSize: 22 }}>$5,600 M</div>
-                <div style={{ ...upBadge, fontSize: 13 }}>↑ 94%</div>
-              </div>
-            </div>
-
-            {/* Budget vs Actual vs Forecast */}
-            <div style={card}>
-              <div style={label}>Budget vs Actual vs Forecast</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <DonutRing pct={80} color="#2563eb" size={36} stroke={5} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>80%</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <DonutRing pct={75} color="#2563eb" size={36} stroke={5} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>75%</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <DonutRing pct={100} color="#2563eb" size={36} stroke={5} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>100%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Insight */}
-          <div
-            style={{
-              background: "#eff6ff",
-              borderRadius: 14,
-              padding: "14px 16px",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              border: "1px solid #dbeafe",
-            }}
-          >
-            <div
-              style={{
-                width: 38, height: 38,
-                borderRadius: 10,
-                background: "#2563eb",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-                boxShadow: "0 4px 12px rgba(37,99,235,0.2)",
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L13.09 8.26L19 7L15.45 11.91L21 14L15.45 16.09L19 21L13.09 15.74L12 22L10.91 15.74L5 21L8.55 16.09L3 14L8.55 11.91L5 7L10.91 8.26L12 2Z"
-                  fill="white" />
-              </svg>
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a8a", marginBottom: 2 }}>
-                AI Insight
-              </div>
-              <div style={{ fontSize: 11.5, color: "#64748b", lineHeight: 1.5 }}>
-                Revenue increased 12% over the last 3 months driven by higher client retention.
+          {/* Cash in Hand */}
+          <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash in Hand</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>$95,600</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#22c55e", fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, lineHeight: "1" }}>
+                <span>↑</span>
+                <span>+12.4%</span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Forecast + Budget row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px] mb-[10px]">
+          {/* Forecast */}
+          <div style={card}>
+            <div style={label}>Forecast</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ ...bigNum, fontSize: 22 }}>$5,600 M</div>
+              <div style={{ ...upBadge, fontSize: 13 }}>↑ 94%</div>
+            </div>
+          </div>
+
+          {/* Budget vs Actual vs Forecast */}
+          <div style={card}>
+            <div style={label}>Budget vs Actual vs Forecast</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <DonutRing pct={80} color="#2563eb" size={36} stroke={5} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>80%</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <DonutRing pct={75} color="#2563eb" size={36} stroke={5} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>75%</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <DonutRing pct={100} color="#2563eb" size={36} stroke={5} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Insight */}
+        <div
+          style={{
+            background: "#eff6ff",
+            borderRadius: 14,
+            padding: "14px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            border: "1px solid #dbeafe",
+          }}
+        >
+          <div
+            style={{
+              width: 38, height: 38,
+              borderRadius: 10,
+              background: "#2563eb",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: "0 4px 12px rgba(37,99,235,0.2)",
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L13.09 8.26L19 7L15.45 11.91L21 14L15.45 16.09L19 21L13.09 15.74L12 22L10.91 15.74L5 21L8.55 16.09L3 14L8.55 11.91L5 7L10.91 8.26L12 2Z"
+                fill="white" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a8a", marginBottom: 2 }}>
+              AI Insight
+            </div>
+            <div style={{ fontSize: 11.5, color: "#64748b", lineHeight: 1.5 }}>
+              Revenue increased 12% over the last 3 months driven by higher client retention.
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -15,7 +15,7 @@ export default function Hero() {
     <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
       style={{ background: 'linear-gradient(270deg, #E5F0FF 0%, #EFF6FF 100%)' }}>
       <div className="max-w-[1200px] mx-auto px-6 w-full">
-        <div className="grid lg:grid-cols-2 items-center gap-12 lg:gap-20">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] items-center gap-12 lg:gap-20">
           {/* Left */}
           <div className="text-center lg:text-left">
             <motion.div {...fadeUp(0.1)}
