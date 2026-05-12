@@ -50,7 +50,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center ">
       <div
-        className="absolute inset-0 bg-black/60  transition-opacity duration-300"
+        className="absolute inset-0 bg-black/30 duration-300"
         onClick={() => {
           onClose();
         }}
@@ -66,14 +66,14 @@ const Modal: React.FC<ModalProps> = ({
         relative z-10 flex flex-col
         w-full
         bg-white
-        border border-gray-600
+        border border-gray-400
         
-        rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+        rounded-[12px] 
         transition-all duration-300
         overflow-hidden
         ${className}
       `}
-        style={{ 
+        style={{
           maxWidth: width || '420px',
           width: '95%',
           height: height || 'auto',
@@ -92,7 +92,7 @@ const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-auto min-h-0">{children}</div>
+        <div className="flex-1 min-h-0">{children}</div>
       </div>
     </div>
   );

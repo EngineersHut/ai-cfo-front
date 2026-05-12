@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from 'react';
 import { motion } from 'framer-motion'
-import { Play, ArrowRight } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import DashboardPreview from '../ui/DashboardPreview';
-import AuthModal from '../ui/AuthModal';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -13,12 +11,19 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function Hero() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const openRegister = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('modal', 'register');
+    router.push(`?${params.toString()}`);
+  };
+
+
 
   return (
-    <>
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
+    <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
       style={{ background: 'linear-gradient(270deg, #E5F0FF 0%, #EFF6FF 100%)' }}>
       <div className="max-w-[1200px] mx-auto px-6 w-full">
         <div className="grid lg:grid-cols-[1fr_1.4fr] items-center gap-12 lg:gap-20">
@@ -46,8 +51,8 @@ export default function Hero() {
 
             <motion.div {...fadeUp(0.4)}
               className="flex flex-wrap items-center justify-center lg:justify-start gap-[12px] pt-7 mb-3">
-              <button 
-                onClick={() => setIsAuthModalOpen(true)}
+              <button
+                onClick={openRegister}
                 className="inline-flex items-center justify-center w-[136px] h-[36px] bg-[#2563eb] hover:bg-blue-700 text-white font-medium text-[14px] leading-[20px] rounded-[8px] border border-[#2563eb] transition-all shadow-sm active:scale-95 gap-[6px] px-[12px] py-[4px]"
                 style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
                 Get Started Free
@@ -77,11 +82,8 @@ export default function Hero() {
             className="animate-float mt-16 lg:mt-0">
             <DashboardPreview />
           </motion.div>
-
-
         </div>
       </div>
-      </section>
-    </>
+    </section>
   )
 }

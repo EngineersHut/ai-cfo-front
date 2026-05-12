@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import AuthModal from '@/components/ui/AuthModal'
+import ForgotPasswordModal from '@/components/ui/ForgotPasswordModal'
+import WorkspaceModal from '@/components/ui/WorkspaceModal'
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -17,11 +19,21 @@ const navLinks = [
   { label: 'Pricing', href: '#pricing' },
 ]
 
+function ModalHandler() {
+  return (
+    <>
+      <AuthModal />
+      <ForgotPasswordModal />
+      <WorkspaceModal />
+    </>
+  )
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [authOpen, setAuthOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -29,7 +41,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const openAuth = (mode: 'login' | 'register') => { setAuthMode(mode); setAuthOpen(true) }
+  const openModal = (mode: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('modal', mode)
+    router.push(`?${params.toString()}`)
+  }
 
   return (
     <>
@@ -65,14 +81,14 @@ export default function Navbar() {
           {/* Right */}
           <div className="hidden md:flex items-center gap-3">
             <button
-              onClick={() => openAuth('login')}
+              onClick={() => openModal('login')}
               className="px-6 py-2 text-[14px] font-medium leading-[20px] border border-slate-200 rounded-[12px] hover:bg-slate-50 transition-colors text-slate-700"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}
             >
               Login
             </button>
             <button
-              onClick={() => openAuth('register')}
+              onClick={() => openModal('register')}
               className="px-6 py-2 text-[14px] font-medium leading-[20px] bg-[#2563eb] text-white rounded-[12px] transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}
             >
@@ -106,11 +122,11 @@ export default function Navbar() {
                 ))}
                 <div className="h-[1px] bg-slate-100 my-2" />
                 <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => { openAuth('login'); setMobileOpen(false) }}
+                  <button onClick={() => { openModal('login'); setMobileOpen(false) }}
                     className="py-3 text-sm font-medium rounded-xl border border-slate-200 text-slate-700">
                     Login
                   </button>
-                  <button onClick={() => { openAuth('register'); setMobileOpen(false) }}
+                  <button onClick={() => { openModal('register'); setMobileOpen(false) }}
                     className="py-3 text-sm font-semibold bg-[#2563eb] text-white rounded-xl">
                     Sign Up
                   </button>
@@ -121,7 +137,10 @@ export default function Navbar() {
         </AnimatePresence>
       </header>
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} defaultMode={authMode} />
+      {/* Wrap modals in Suspense to fix "not working" issue in Next.js */}
+      <Suspense fallback={null}>
+        <ModalHandler />
+      </Suspense>
     </>
   )
 }

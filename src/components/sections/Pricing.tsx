@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Sparkles, User, Building2 } from 'lucide-react'
+import AuthModal from '../ui/AuthModal';
+import ForgotPasswordModal from '../ui/ForgotPasswordModal';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const plans = [
   {
@@ -25,8 +28,34 @@ const plans = [
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  return (
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const openModal = (mode: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('modal', mode)
+    router.push(`?${params.toString()}`)
+  }
+
+
+  function ModalHandler() {
+    return (
+      <>
+        <AuthModal />
+        <ForgotPasswordModal />
+      </>
+    )
+  }
+
+  return (<>
     <section id="pricing" className="py-20 bg-bg-alt">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-4">
@@ -115,7 +144,7 @@ export default function Pricing() {
                 </ul>
 
                 <div className="mt-auto flex justify-center">
-                  <button className={`w-[336px] h-[40px] px-[16px] py-[10px] rounded-[10px] font-medium text-[14px] leading-[20px] transition-all flex items-center justify-center ${plan.popular
+                  <button onClick={() => { openModal('register'); setMobileOpen(false) }} className={`w-[336px] h-[40px] px-[16px] py-[10px] rounded-[10px] font-medium text-[14px] leading-[20px] transition-all flex items-center justify-center ${plan.popular
                     ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-200'
                     : 'bg-[#e0ebff] text-[#2563eb] hover:bg-[#d1e3ff]'
                     }`} style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
@@ -128,5 +157,9 @@ export default function Pricing() {
         </div>
       </div>
     </section>
+    <Suspense fallback={null}>
+      <ModalHandler />
+    </Suspense>
+  </>
   )
 }
