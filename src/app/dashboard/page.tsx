@@ -36,7 +36,8 @@ import {
   Pie
 } from 'recharts';
 import { useDashboardSettings } from '@/context/DashboardContext';
-import { revenueData, healthData } from '@/data/dashboardData';
+import { revenueData, healthData, aiInsightsData } from '@/data/dashboardData';
+import AIInsights from './components/AIInsights';
 import { KPICardProps } from '@/types/dashboard';
 
 // Custom Gauge Needle Component - Proportional to Compact Gauge
@@ -165,7 +166,7 @@ export default function ReportPage() {
       </div>
 
       {/* Charts & Widgets Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Revenue Over Time Chart (Span 2) */}
         {visibility['rev-time'] && (
@@ -397,8 +398,14 @@ export default function ReportPage() {
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
           </div>
         </div>
-
       </div>
+
+      {/* AI Insights Row */}
+      {visibility['aiInsights'] !== false && (
+        <div className="pb-8">
+          <AIInsights />
+        </div>
+      )}
     </div>
   );
 }

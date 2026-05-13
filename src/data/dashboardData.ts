@@ -19,3 +19,33 @@ export const healthData = [
   { name: 'GOOD', value: 25, color: '#FECA57' },
   { name: 'EXCELLENT', value: 25, color: '#2ECC71' },
 ];
+
+export const aiInsightsData = [
+  {
+    id: 1,
+    title: 'Bank statements',
+    percentage: '(40%)',
+    description: 'Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.',
+    color: '#2563eb',
+    bgColor: '#eff6ff',
+    textColor: '#1d4ed8'
+  },
+  {
+    id: 2,
+    title: 'Income statements',
+    percentage: '(40%)',
+    description: 'Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.',
+    color: '#f59e0b',
+    bgColor: '#fffbeb',
+    textColor: '#b45309'
+  },
+  {
+    id: 3,
+    title: 'Tax Document',
+    percentage: '(10%)',
+    description: 'Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.',
+    color: '#10b981',
+    bgColor: '#ecfdf5',
+    textColor: '#047857'
+  }
+];
