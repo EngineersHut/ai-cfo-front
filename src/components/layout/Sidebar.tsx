@@ -6,6 +6,9 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+
+import Link from 'next/link';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -14,7 +17,7 @@ interface SidebarProps {
 
 function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" }: { icon: React.ReactNode, label: string, active?: boolean, isCollapsed?: boolean, href?: string }) {
   return (
-    <a
+    <Link
       href={href}
       className={`flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
         } h-[40px] ${active
@@ -31,11 +34,13 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
       >
         {label}
       </span>
-    </a>
+    </Link>
   );
 }
 
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+  const pathname = usePathname();
+
   return (
     <aside
       className={`bg-white flex flex-col h-full  transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
@@ -86,13 +91,55 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           }`}>
           Main
         </p>
-        <NavItem icon={<DashboardIcon />} label="Dashboard" isCollapsed={isCollapsed} active />
-        <NavItem icon={<OperationalIcon />} label="Operational Overview" isCollapsed={isCollapsed} />
-        <NavItem icon={<ReportIcon />} label="Report" isCollapsed={isCollapsed} />
-        <NavItem icon={<GrowthIcon />} label="Growth Overview" isCollapsed={isCollapsed} />
-        <NavItem icon={<BudgetIcon />} label="Budget vs Actual" isCollapsed={isCollapsed} />
-        <NavItem icon={<ForcastIcon />} label="Forcast" isCollapsed={isCollapsed} />
-        <NavItem icon={<ForcastIcon />} label="Forcast Reports" isCollapsed={isCollapsed} />
+        <NavItem 
+          icon={<DashboardIcon />} 
+          label="Dashboard" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard" 
+          active={pathname === '/dashboard'} 
+        />
+        <NavItem 
+          icon={<OperationalIcon />} 
+          label="Operational Overview" 
+          isCollapsed={isCollapsed} 
+          href="/operational-overview" 
+          active={pathname === '/operational-overview'} 
+        />
+        <NavItem 
+          icon={<ReportIcon />} 
+          label="Report" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard/report" 
+          active={pathname === '/dashboard/report'} 
+        />
+        <NavItem 
+          icon={<GrowthIcon />} 
+          label="Growth Overview" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard/growth-overview" 
+          active={pathname === '/dashboard/growth-overview'} 
+        />
+        <NavItem 
+          icon={<BudgetIcon />} 
+          label="Budget vs Actual" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard/budget" 
+          active={pathname === '/dashboard/budget'} 
+        />
+        <NavItem 
+          icon={<ForcastIcon />} 
+          label="Forcast" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard/forecast" 
+          active={pathname === '/dashboard/forecast'} 
+        />
+        <NavItem 
+          icon={<ForcastIcon />} 
+          label="Forcast Reports" 
+          isCollapsed={isCollapsed} 
+          href="/dashboard/forecast-reports" 
+          active={pathname === '/dashboard/forecast-reports'} 
+        />
       </nav>
 
       {/* User Section - Restoring sequence while maintaining size parity */}
