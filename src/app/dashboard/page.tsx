@@ -38,6 +38,7 @@ import {
 import { useDashboardSettings } from '@/context/DashboardContext';
 import { revenueData, healthData, aiInsightsData } from '@/data/dashboardData';
 import AIInsights from './components/AIInsights';
+import CostEfficiencyAnalysis from './components/Cost-Efficiency-Analysis';
 import { KPICardProps } from '@/types/dashboard';
 
 // Custom Gauge Needle Component - Proportional to Compact Gauge
@@ -402,8 +403,15 @@ export default function ReportPage() {
 
       {/* AI Insights Row */}
       {visibility['aiInsights'] !== false && (
-        <div className="pb-8">
+        <div className="">
           <AIInsights />
+        </div>
+      )}
+
+      {/* Cost & Efficiency Analysis Row */}
+      {visibility['costAnalysis'] !== false && (
+        <div className="pb-12">
+          <CostEfficiencyAnalysis />
         </div>
       )}
     </div>
