@@ -11,6 +11,7 @@ import {
     Play
 } from 'lucide-react';
 import { detailedCostData } from '@/data/dashboardData';
+import { useDashboardSettings } from '@/context/DashboardContext';
 
 const IconMap: any = {
     ShieldCheck: ShieldCheck,
@@ -21,11 +22,12 @@ const IconMap: any = {
 
 export default function CostEfficiencyAnalysis() {
     const { summary, breakdown, unitEconomics, insights } = detailedCostData;
+    const { visibility } = useDashboardSettings();
 
     return (
         <div className="w-full bg-white rounded-[16px] border border-slate-100 shadow-sm p-[16px]">
             {/* Header Row */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                     <Pin size={18} className="text-slate-300 -rotate-45" />
                     <div className="flex items-baseline gap-3">
@@ -33,27 +35,31 @@ export default function CostEfficiencyAnalysis() {
                         <span className="text-[12px] text-slate-400 font-normal font-inter leading-[16px] tracking-[0%]">Q2 2026 · Auto-refreshed every 15 min</span>
                     </div>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-[8px] border border-slate-200 bg-white text-slate-600 text-[14px] font-medium hover:bg-slate-50 transition-all shadow-sm">
+                <button className="w-[130px] h-[36px] flex items-center pt-[4px] pr-[16px] pb-[4px] pl-[12px] gap-[6px] rounded-[8px] border border-slate-200 bg-white text-slate-600 text-[14px] font-normal font-inter leading-[20px] tracking-[0%] hover:bg-slate-50 transition-all shadow-sm">
                     <FileDown size={16} />
                     Export CSV
                 </button>
             </div>
 
-            {/* Summary Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                {summary.map((card, i) => (
-                    <div key={i} className="p-4 rounded-[12px] border border-slate-100 bg-slate-50/20 flex flex-col gap-3">
-                        <span className="text-[12px] font-normal text-slate-400 uppercase tracking-wider">{card.label}</span>
-                        <div className="flex items-center justify-between">
-                            <span className="text-[24px] font-bold text-slate-900 font-inter">{card.value}</span>
-                            <div className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium flex items-center gap-1 ${card.isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
-                                }`}>
-                                {card.trend}
+            {visibility['expenseBreakdown'] !== false && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+                    {summary.map((card, i) => (
+                        <div key={i} className=" h-[84px] p-[12px] rounded-[12px] border border-slate-100 bg-slate-50/20 flex flex-col gap-[10px]">
+                            <span className="text-[10.5px] font-medium text-slate-400 uppercase font-inter leading-[15.75px] tracking-[0px]">{card.label}</span>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[24px] font-medium text-slate-900 font-inter leading-[32px] tracking-[0%]">{card.value}</span>
+                                <div className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium flex items-center gap-1 ${card.isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
+                                    }`}>
+                                    {card.trend}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Summary Row */}
+
 
             {/* Two-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -82,7 +88,7 @@ export default function CostEfficiencyAnalysis() {
                                     </div>
                                     <div className="col-span-2 flex justify-center">
                                         <div className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border ${item.trend.includes('+') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                item.trend === 'Stable' ? 'bg-slate-50 text-slate-500 border-slate-100' : 'bg-red-50 text-red-500 border-red-100'
+                                            item.trend === 'Stable' ? 'bg-slate-50 text-slate-500 border-slate-100' : 'bg-red-50 text-red-500 border-red-100'
                                             }`}>
                                             {item.trend}
                                         </div>

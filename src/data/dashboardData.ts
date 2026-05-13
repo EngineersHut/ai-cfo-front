@@ -52,10 +52,10 @@ export const aiInsightsData = [
 
 export const detailedCostData = {
   summary: [
-    { label: 'Total Expenses', value: '$320K', trend: '+12.5%', isUp: false },
-    { label: 'Cost of Revenue', value: '40%', trend: '-1.2%', isUp: false },
-    { label: 'Cost per Client', value: '$120', trend: '+12.5%', isUp: true },
-    { label: 'Operating Expense Ratio', value: '45%', trend: '-1.2%', isUp: false },
+    { id: 'totalExpenses', label: 'Total Expenses', value: '$320K', trend: '+12.5%', isUp: false },
+    { id: 'costRevenue', label: 'Cost of Revenue', value: '40%', trend: '-1.2%', isUp: false },
+    { id: 'costClient', label: 'Cost per Client', value: '$120', trend: '+12.5%', isUp: true },
+    { id: 'opExpRatio', label: 'Operating Expense Ratio', value: '45%', trend: '-1.2%', isUp: false },
   ],
   breakdown: [
     { metric: 'Total Expenses', value: '$320,000', sub: '40% of revenue', trend: '+3.5%', distribution: 85, color: '#6366f1' },
