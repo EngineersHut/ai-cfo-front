@@ -38,7 +38,7 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   return (
     <aside
-      className={`bg-white border-r border-slate-100 flex flex-col fixed h-full z-20 transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
+      className={`bg-white flex flex-col fixed h-full z-20 transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
         }`}
     >
       {/* Branding & Toggle Section */}
@@ -76,7 +76,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Indented Separator Line */}
-      <div className={`px-5 mb-4 ${isCollapsed ? 'px-4' : 'px-5'}`}>
+      <div className={`px-5 mb-2 ${isCollapsed ? 'px-4' : 'px-5'}`}>
         <div className="h-px bg-slate-100 w-full" />
       </div>
 
