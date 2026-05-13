@@ -169,7 +169,7 @@ export default function ReportPage() {
 
         {/* Revenue Over Time Chart (Span 2) */}
         {visibility['rev-time'] && (
-          <div className="lg:col-span-2 max-w-[726px] w-full h-[480px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
+          <div className="lg:col-span-2 max-w-[726px] w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
             {/* Chart Header - 68px */}
             <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
               <div className="flex items-center gap-3">
@@ -343,7 +343,7 @@ export default function ReportPage() {
                   </div>
                 </div>
 
-                <div className="text-center mt-[-10px] mb-3">
+                <div className="text-center mt-[-10px] mb-2">
                   <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
@@ -352,7 +352,7 @@ export default function ReportPage() {
                 </div>
 
                 {/* Health Metrics Details */}
-                <div className="px-5 space-y-4 border-t border-slate-50 pt-3">
+                <div className="px-5 space-y-3 border-t border-slate-50 pt-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
                     <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
@@ -367,13 +367,13 @@ export default function ReportPage() {
           )}
 
           {/* Forecast vs Reality - Blue Card */}
-          <div className="bg-[#1e40af] p-6 rounded-[24px] text-white shadow-lg flex flex-col gap-6 relative overflow-hidden group cursor-pointer hover:bg-[#1d4ed8] transition-all">
+          <div className="  bg-[#1e40af] p-[12px] rounded-[24px] text-white shadow-lg flex flex-col gap-3 relative overflow-hidden group cursor-pointer hover:bg-[#1d4ed8] transition-all">
             <div className="flex items-center justify-between relative z-10">
-              <h3 className="text-[16px] font-semibold">Forecast vs Reality</h3>
+              <h3 className="text-[16px] font-normal text-white font-inter leading-[24px] tracking-[0%]">Forecast vs Reality</h3>
               <Target size={20} className="text-white/40" />
             </div>
 
-            <div className="space-y-4 relative z-10">
+            <div className="relative z-10">
               <div className="flex items-center justify-between text-[11px] font-medium text-white/70">
                 <span>Market Penetration Goal</span>
                 <span>40% achieved</span>
@@ -383,10 +383,10 @@ export default function ReportPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-4 relative z-10">
+            <div className="flex items-center justify-between  relative z-10">
               <div>
-                <p className="text-[10px] text-white/60 font-black uppercase tracking-widest mb-1">Current Progress</p>
-                <h4 className="text-[18px] font-bold">Achieved 2% of 5% target</h4>
+                <p className="text-[12px] text-white/60 font-normal font-inter uppercase leading-[16px] tracking-[0%] align-middle mb-1">Current Progress</p>
+                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">Achieved 2% of 5% target</h4>
               </div>
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
                 <ArrowRight size={18} />
