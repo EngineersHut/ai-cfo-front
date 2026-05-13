@@ -274,7 +274,7 @@ export default function ReportPage() {
         <div className="space-y-4">
           {/* Company Health Meter */}
           {visibility['health'] && (
-            <div className="h-[338.72px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+            <div className="h-[330px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
               {/* Header - 54px */}
               <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
                 <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
