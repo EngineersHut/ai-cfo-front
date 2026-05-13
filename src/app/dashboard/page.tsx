@@ -169,7 +169,7 @@ export default function ReportPage() {
 
         {/* Revenue Over Time Chart (Span 2) */}
         {visibility['rev-time'] && (
-          <div className="lg:col-span-2 max-w-[726px] w-full h-[526.72px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
+          <div className="lg:col-span-2 max-w-[726px] w-full h-[480px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
             {/* Chart Header - 68px */}
             <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
               <div className="flex items-center gap-3">
@@ -203,8 +203,8 @@ export default function ReportPage() {
               </div>
             </div>
 
-            {/* Chart Body - 463px */}
-            <div className="h-[463px] flex-1 w-full border border-[rgba(26,21,83,0.08)] relative py-[12px] px-[16px] flex flex-col gap-[16px]">
+            {/* Chart Body - 412px */}
+            <div className="h-[412px] flex-1 w-full border border-[rgba(26,21,83,0.08)] relative py-[12px] px-[16px] flex flex-col gap-[12px]">
               <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
                 <div className="flex-1 w-full relative p-2">
                   <ResponsiveContainer width="100%" height="100%">
@@ -283,9 +283,9 @@ export default function ReportPage() {
               </div>
 
               {/* Body */}
-              <div className="flex-1  flex flex-col">
-                <div className="relative h-[200px] w-full flex items-center justify-center">
-                  <div className="w-[300px] h-[200px] relative mx-auto">
+              <div className="flex-1 flex flex-col">
+                <div className="relative h-[180px] w-full flex items-center justify-center">
+                  <div className="w-[260px] h-[180px] relative mx-auto">
                     {/* Compact Gauge Chart with ZERO Gaps */}
                     <ResponsiveContainer width="100%" height="100%">
                       <RePieChart>
@@ -301,12 +301,12 @@ export default function ReportPage() {
                         {/* Outer Arc - Touching the inner arc (No Gap) */}
                         <Pie
                           data={outerHealthData}
-                          cx={150}
-                          cy={155}
+                          cx={130}
+                          cy={140}
                           startAngle={180}
                           endAngle={0}
-                          innerRadius={100}
-                          outerRadius={135}
+                          innerRadius={85}
+                          outerRadius={115}
                           paddingAngle={0}
                           dataKey="value"
                           stroke="none"
@@ -320,12 +320,12 @@ export default function ReportPage() {
                         {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
                         <Pie
                           data={healthData}
-                          cx={150}
-                          cy={155}
+                          cx={130}
+                          cy={140}
                           startAngle={180}
                           endAngle={0}
-                          innerRadius={40}
-                          outerRadius={100}
+                          innerRadius={30}
+                          outerRadius={85}
                           paddingAngle={0}
                           dataKey="value"
                           stroke="none"
@@ -339,27 +339,27 @@ export default function ReportPage() {
                     </ResponsiveContainer>
 
                     {/* Independent Needle Layer */}
-                    <NeedleLayer value={84} cx={150} cy={155} iR={40} oR={100} />
+                    <NeedleLayer value={84} cx={130} cy={140} iR={30} oR={85} />
                   </div>
                 </div>
 
-                <div className="text-center mb-4">
-                  <p className="text-[12px] font-normal text-slate-600 mb-1 font-inter leading-none tracking-[0%]">Today Health</p>
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-[9.47px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-[13.53px] text-center">EXCELLENT</span>
-                    <span className="text-[16px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
+                <div className="text-center mt-[-10px] mb-3">
+                  <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
+                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
                   </div>
                 </div>
 
                 {/* Health Metrics Details */}
-                <div className="px-6 pb-4 space-y-3 border-t border-slate-50 pt-4">
+                <div className="px-5 space-y-4 border-t border-slate-50 pt-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[14px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
-                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none">98%</span>
+                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
+                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[14px] font-normal text-slate-700 font-inter leading-none">Equity Health</span>
-                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none">84%</span>
+                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Equity Health</span>
+                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
                   </div>
                 </div>
               </div>

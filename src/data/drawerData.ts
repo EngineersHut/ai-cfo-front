@@ -61,5 +61,21 @@ export const drawerGroups = [
         ]
       }
     ]
+  },
+  {
+    title: 'DATA SECTIONS',
+    sections: [
+      {
+        id: 'analytics-insights',
+        title: 'Analytics & Insights',
+        icon: Activity,
+        count: '3/3',
+        items: [
+          { id: 'expenseBreakdown', icon: '🥧', label: 'Expense Breakdown', sub: 'Donut chart + cost details' },
+          { id: 'aiInsights', icon: '✨', label: 'AI Insights', sub: 'AI-generated financial insights' },
+          { id: 'costAnalysis', icon: '📋', label: 'Cost & Efficiency Analysis', sub: 'Detailed metrics + CFO insights' },
+        ]
+      }
+    ]
   }
 ];
