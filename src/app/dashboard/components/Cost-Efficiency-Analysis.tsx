@@ -64,29 +64,32 @@ export default function CostEfficiencyAnalysis() {
             {/* Two-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left: Table Column */}
-                <div className="lg:col-span-7 flex flex-col">
-                    <div className="grid grid-cols-12 mb-6 border-b border-slate-50 pb-4">
-                        <div className="col-span-5 text-[11px] font-semibold text-slate-300 uppercase tracking-widest">Metric</div>
-                        <div className="col-span-3 text-[11px] font-semibold text-slate-300 uppercase tracking-widest text-center">Value</div>
-                        <div className="col-span-2 text-[11px] font-semibold text-slate-300 uppercase tracking-widest text-center">Vs Prior</div>
-                        <div className="col-span-2 text-[11px] font-semibold text-slate-300 uppercase tracking-widest text-right">Distribution</div>
+                <div className="lg:col-span-7 py-[19px] px-[17px] flex border border-t border-[#e2e8f0] rounded-[12px] flex-col">
+                    <div className="grid grid-cols-12 mb-3">
+                        <div className="col-span-5 text-[10px] font-semibold text-slate-300 uppercase font-inter leading-[15px] tracking-[0.7px]">Metric</div>
+                        <div className="col-span-3 text-[10px] font-semibold text-slate-300 uppercase font-inter leading-[15px] tracking-[0.7px] text-left">Value</div>
+                        <div className="col-span-2 text-[10px] font-semibold text-slate-300 uppercase font-inter leading-[15px] tracking-[0.7px] text-left">Vs Prior</div>
+                        <div className="col-span-2 text-[10px] font-semibold text-slate-300 uppercase font-inter leading-[15px] tracking-[0.7px] text-right">Distribution</div>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-4">
                         {/* Cost Breakdown */}
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Cost Breakdown</h3>
+                            <div className="flex items-center gap-3 ">
+                                <h3 className="text-[10px] font-semibold text-slate-500 uppercase font-inter leading-[15px] tracking-[0.8px] shrink-0">Cost Breakdown</h3>
+                                <div className="flex-1 h-px bg-slate-50" />
+                            </div>
                             {breakdown.map((item, i) => (
                                 <div key={i} className="grid grid-cols-12 items-center group py-1">
                                     <div className="col-span-5 flex items-center gap-2">
-                                        <span className="text-[14px] font-medium text-slate-700">{item.metric}</span>
+                                        <span className="text-[12.5px] font-normal text-slate-700 font-inter leading-[18.75px] tracking-[0px]">{item.metric}</span>
                                         <Info size={14} className="text-slate-300 cursor-help" />
                                     </div>
-                                    <div className="col-span-3 flex flex-col items-center">
-                                        <span className="text-[14px] font-bold text-slate-800">{item.value}</span>
-                                        <span className="text-[11px] text-slate-400">{item.sub}</span>
+                                    <div className="col-span-3 flex flex-col items-start">
+                                        <span className="text-[12.5px] font-semibold text-slate-800 font-inter leading-[18.75px] tracking-[0px]">{item.value}</span>
+                                        <span className="text-[10.5px] font-normal text-slate-400 font-inter leading-[15.75px] tracking-[0px]">{item.sub}</span>
                                     </div>
-                                    <div className="col-span-2 flex justify-center">
+                                    <div className="col-span-2 flex justify-start">
                                         <div className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border ${item.trend.includes('+') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                             item.trend === 'Stable' ? 'bg-slate-50 text-slate-500 border-slate-100' : 'bg-red-50 text-red-500 border-red-100'
                                             }`}>
@@ -107,18 +110,21 @@ export default function CostEfficiencyAnalysis() {
 
                         {/* Unit Economics */}
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Unit Economics</h3>
+                            <div className="flex items-center gap-3 mb-4">
+                                <h3 className="text-[10px] font-semibold text-slate-500 uppercase font-inter leading-[15px] tracking-[0.8px] shrink-0">Unit Economics</h3>
+                                <div className="flex-1 h-px bg-slate-50" />
+                            </div>
                             {unitEconomics.map((item, i) => (
                                 <div key={i} className="grid grid-cols-12 items-center py-1">
                                     <div className="col-span-5 flex items-center gap-2">
-                                        <span className="text-[14px] font-medium text-slate-700">{item.metric}</span>
+                                        <span className="text-[12.5px] font-normal text-slate-700 font-inter leading-[18.75px] tracking-[0px]">{item.metric}</span>
                                         <Info size={14} className="text-slate-300 cursor-help" />
                                     </div>
-                                    <div className="col-span-3 flex flex-col items-center">
-                                        <span className="text-[14px] font-bold text-slate-800">{item.value}</span>
-                                        <span className="text-[11px] text-slate-400">{item.sub}</span>
+                                    <div className="col-span-3 flex flex-col items-start">
+                                        <span className="text-[12.5px] font-semibold text-slate-800 font-inter leading-[18.75px] tracking-[0px]">{item.value}</span>
+                                        <span className="text-[10.5px] font-normal text-slate-400 font-inter leading-[15.75px] tracking-[0px]">{item.sub}</span>
                                     </div>
-                                    <div className="col-span-2 flex justify-center">
+                                    <div className="col-span-2 flex justify-start">
                                         <div className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border ${item.trend.includes('-') ? 'bg-red-50 text-red-500 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                             }`}>
                                             {item.trend}
@@ -138,20 +144,20 @@ export default function CostEfficiencyAnalysis() {
                     </div>
 
                     {/* Legend */}
-                    <div className="mt-8 flex items-center gap-6 pt-6">
-                        <span className="text-[11px] text-slate-400">Legend:</span>
+                    <div className="mt-8 flex items-center gap-6 pt-6 border-t border-slate-50">
+                        <span className="text-[12.5px] font-normal text-slate-400 font-inter leading-[18.75px] tracking-[0px]">Legend:</span>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-1 bg-indigo-500 rounded-full" />
-                                <span className="text-[11px] text-slate-500">Normal</span>
+                                <div className="w-[18px] h-[5px] bg-blue-600 rounded-full" />
+                                <span className="text-[12.5px] font-normal text-slate-500 font-inter leading-[18.75px] tracking-[0px]">Normal</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-1 bg-amber-500 rounded-full" />
-                                <span className="text-[11px] text-slate-500">Near limit</span>
+                                <div className="w-[18px] h-[5px] bg-orange-500 rounded-full" />
+                                <span className="text-[12.5px] font-normal text-slate-500 font-inter leading-[18.75px] tracking-[0px]">Near limit</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-1 bg-red-500 rounded-full" />
-                                <span className="text-[11px] text-slate-500">Above target</span>
+                                <div className="w-[18px] h-[5px] bg-red-600 rounded-full" />
+                                <span className="text-[12.5px] font-normal text-slate-500 font-inter leading-[18.75px] tracking-[0px]">Above target</span>
                             </div>
                         </div>
                     </div>
