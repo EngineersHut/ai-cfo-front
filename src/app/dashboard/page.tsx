@@ -409,11 +409,11 @@ export default function ReportPage() {
       )}
 
       {/* Cost & Efficiency Analysis Row */}
-      {visibility['costAnalysis'] !== false && (
-        <div className="pb-12">
-          <CostEfficiencyAnalysis />
-        </div>
-      )}
+
+      <div className="pb-12">
+        <CostEfficiencyAnalysis />
+      </div>
+
     </div>
   );
 }
