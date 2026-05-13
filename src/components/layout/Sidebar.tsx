@@ -17,7 +17,7 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
     <a
       href={href}
       className={`flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
-        } h-[36px] ${active
+        } h-[40px] ${active
           ? 'bg-[#2563eb] text-white shadow-sm font-medium'
           : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
         }`}
@@ -38,7 +38,7 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   return (
     <aside
-      className={`bg-white flex flex-col fixed h-full z-20 transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
+      className={`bg-white flex flex-col h-full  transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
         }`}
     >
       {/* Branding & Toggle Section */}
@@ -47,7 +47,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <div className={`relative transition-all duration-300 ${isCollapsed ? 'w-11 h-11' : 'w-auto h-11'}`}>
             <img
               src="/logo.png"
-              alt="North Quest Solutions"
+              alt="Logo"
               className={`h-full object-contain transition-all duration-300 ${isCollapsed ? 'scale-125' : 'w-auto'
                 }`}
             />
@@ -95,28 +95,30 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         <NavItem icon={<ForcastIcon />} label="Forcast Reports" isCollapsed={isCollapsed} />
       </nav>
 
-      {/* User Section */}
-      <div className="p-[20px] border-t border-slate-50">
+      {/* User Section - Restoring sequence while maintaining size parity */}
+      <div className={`p-[20px] border-t border-slate-50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
         <NavItem icon={<SettingsIcon />} label="Settings" isCollapsed={isCollapsed} />
         <NavItem icon={<LogoutIcon />} label="Logout" isCollapsed={isCollapsed} />
 
-        <div className={`mt-4 bg-[#2563eb] rounded-[14px] flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-10 h-10 mx-auto justify-center p-0' : 'p-2.5 gap-2.5 w-full'
+        <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
           }`}>
-          <div className="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center font-bold text-sm border-2 border-white/20 shrink-0">M</div>
-          <div className={`flex items-center flex-1 transition-all duration-300 ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-[12px] font-semibold truncate whitespace-nowrap">Michale</p>
-              <p className="text-[9px] opacity-70 truncate uppercase tracking-tighter whitespace-nowrap">Admin Account</p>
+          <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[12px] border border-white/20 shrink-0">M</div>
+          {!isCollapsed && (
+            <div className="flex items-center flex-1 transition-all duration-300 min-w-0">
+              <div className="flex-1 overflow-hidden">
+                <p className="text-[12px] font-semibold truncate leading-none mb-0.5">Michale</p>
+                <p className="text-[9px] opacity-70 truncate uppercase tracking-tighter leading-none">Admin Account</p>
+              </div>
+              <ChevronDown size={14} className="opacity-70 ml-1 shrink-0" />
             </div>
-            <ChevronDown size={14} className="opacity-70 mr-1 shrink-0" />
-          </div>
+          )}
         </div>
       </div>
     </aside>
   );
 }
 
-// Custom SVGs to match the screenshot exactly
+// Custom SVGs (No changes here)
 const DashboardIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" /><path d="m16 10-4 4-1-1" /><path d="M7 12c0-2.8 2.2-5 5-5s5 2.2 5 5" />
