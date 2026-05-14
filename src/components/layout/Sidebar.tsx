@@ -116,8 +116,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           icon={<GrowthIcon />} 
           label="Growth Overview" 
           isCollapsed={isCollapsed} 
-          href="/dashboard/growth-overview" 
-          active={pathname === '/dashboard/growth-overview'} 
+          href="/growth-overview" 
+          active={pathname === '/growth-overview'} 
         />
         <NavItem 
           icon={<BudgetIcon />} 

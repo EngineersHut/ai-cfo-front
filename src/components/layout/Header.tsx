@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  ChevronDown, 
-  Sun, 
-  Settings, 
-  Bell, 
+import {
+  ChevronDown,
+  Sun,
+  Settings,
+  Bell,
   SlidersHorizontal,
   Download,
   Plus,
   Menu,
   Check
 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { workspaceOptions, WorkspaceOption } from '@/components/common/Option';
 
 interface HeaderProps {
@@ -23,6 +24,18 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceOption>(workspaceOptions[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Determine page title based on current path
+  const getPageTitle = () => {
+    if (pathname.includes('growth-overview')) return 'Growth Overview';
+    if (pathname.includes('operational-overview')) return 'Operational Overview';
+    if (pathname === '/dashboard' || pathname === '/') return 'Dashboard';
+
+    // Fallback: convert slug to Title Case
+    const lastSegment = pathname.split('/').pop() || 'Overview';
+    return lastSegment.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -36,11 +49,11 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
   return (
     <header className="h-[60px] bg-white flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
-      
+
       {/* Left Section: Mobile Menu + Workspace Selector */}
       <div className="flex items-center gap-2 md:gap-4">
         {/* Mobile Menu Toggle - Only visible on small screens */}
-        <button 
+        <button
           onClick={onToggleMenu}
           className="lg:hidden p-2 hover:bg-slate-50 rounded-lg text-slate-500"
         >
@@ -48,7 +61,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
         </button>
 
         <div className="flex items-center gap-1 md:gap-3 relative" ref={dropdownRef}>
-          <div 
+          <div
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 cursor-pointer group"
           >
@@ -58,9 +71,9 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
             <span className="text-[14px] md:text-[15px] font-normal text-[#1e293b] font-inter truncate max-w-[100px] md:max-w-none">
               {selectedWorkspace.label}
             </span>
-            <ChevronDown 
-              size={14} 
-              className={`text-slate-400 transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`} 
+            <ChevronDown
+              size={14}
+              className={`text-slate-400 transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
             />
           </div>
 
@@ -78,21 +91,18 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
                       setSelectedWorkspace(option);
                       setIsOpen(false);
                     }}
-                    className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${
-                      selectedWorkspace.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
-                    }`}
+                    className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
+                      }`}
                   >
-                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${
-                      selectedWorkspace.id === option.id 
-                        ? 'bg-white border-blue-200 text-blue-600 shadow-sm' 
+                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${selectedWorkspace.id === option.id
+                        ? 'bg-white border-blue-200 text-blue-600 shadow-sm'
                         : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600'
-                    }`}>
+                      }`}>
                       {option.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-[14px] truncate ${
-                        selectedWorkspace.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
-                      }`}>
+                      <p className={`text-[14px] truncate ${selectedWorkspace.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
+                        }`}>
                         {option.label}
                       </p>
                       <p className="text-[11px] text-slate-400 truncate">{option.description}</p>
@@ -108,7 +118,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
           <div className="h-4 md:h-6 w-px bg-slate-200 mx-1 md:mx-2" />
           <span className="text-[14px] md:text-[15px] font-normal text-slate-500 font-inter hidden sm:inline">
-            Overview
+            {getPageTitle()}
           </span>
         </div>
       </div>
@@ -126,7 +136,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
         {/* Buttons Group - Selective Visibility or Responsive Scaling */}
         <div className="flex items-center gap-2 md:gap-[10px]">
-          <button 
+          <button
             onClick={onOpenCustomize}
             className="h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] bg-white border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-all text-slate-900 group whitespace-nowrap"
           >
