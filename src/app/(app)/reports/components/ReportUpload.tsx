@@ -1,13 +1,13 @@
 "use client";
 
 import React from 'react';
-import { 
-    Calendar, 
-    CheckCircle2, 
-    FileText, 
-    UploadCloud, 
-    Search, 
-    Info 
+import {
+    Calendar,
+    CheckCircle2,
+    FileText,
+    UploadCloud,
+    Search,
+    Info
 } from 'lucide-react';
 
 interface ReportUploadProps {
@@ -24,21 +24,21 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
             </div>
 
             {/* Grid for Metadata and Precision Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 {/* Metadata Card */}
-                <div className="lg:col-span-2 bg-white rounded-[12px] border border-slate-100 p-8 shadow-sm flex flex-col gap-8">
-                    <div className="space-y-1">
-                        <h3 className="text-[18px] font-semibold text-slate-800 font-inter">Report metadata</h3>
-                        <p className="text-[14px] text-slate-400 font-inter">Enter your email and password to Login</p>
+                <div className="lg:col-span-2 bg-white rounded-[12px] border border-slate-100 p-[24px] pb-[16px] shadow-sm flex flex-col gap-6">
+                    <div className="border-b border-[#f1f5f9] pb-4">
+                        <h3 className="text-[18px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Report metadata</h3>
+                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%]">Enter your email and password to Login</p>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="space-y-2">
+                    <div className="space-y-8">
+                        <div className="space-y-6">
                             <label className="text-[14px] font-medium text-slate-600 font-inter">Report name</label>
                             <input
                                 type="text"
                                 placeholder="e.g. Q3 Architecture Sustainability Audit"
-                                className="w-full h-[52px] px-4 rounded-[10px] border border-slate-200 bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
+                                className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
                             />
                         </div>
 
@@ -50,7 +50,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                                 <input
                                     type="text"
                                     placeholder="mm/dd/yyyy"
-                                    className="w-full h-[52px] px-4 rounded-[10px] border border-slate-200 bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
+                                    className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors">
                                     <Calendar size={20} />
@@ -61,15 +61,15 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                 </div>
 
                 {/* Precision Analysis Active Card (Blue) */}
-                <div className="bg-[#2563eb] rounded-[12px] p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                <div className="bg-[#2563eb] rounded-[12px] p-[18px] text-white shadow-xl flex flex-col justify-between relative overflow-hidden group">
                     {/* Subtle Background Pattern */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700" />
 
-                    <div className="space-y-6 relative z-10">
-                        <h3 className="text-[20px] font-semibold font-inter">Precision Analysis Active</h3>
-                        <p className="text-[14px] text-blue-100 font-inter leading-[22px]">Uploaded reports are automatically processed by our proprietary AI engine to extract quantitative architectural data.</p>
+                    <div className="space-y-4 relative z-10">
+                        <h3 className="text-[16px] font-normal font-inter leading-[24px] tracking-[0%] text-white">Precision Analysis Active</h3>
+                        <p className="text-[12px] font-normal text-white font-inter leading-[16px] tracking-[0%]">Uploaded reports are automatically processed by our proprietary AI engine to extract quantitative architectural data.</p>
 
-                        <div className="space-y-4 pt-2">
+                        <div className="space-y-2 ">
                             {[
                                 'Real-time verification',
                                 'Cross-ledger auditing',
@@ -79,13 +79,13 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                                     <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                                         <CheckCircle2 size={14} className="text-white" />
                                     </div>
-                                    <span className="text-[15px] font-medium font-inter">{feature}</span>
+                                    <span className="text-[14px] font-medium font-inter leading-[20px] tracking-[0%] text-white">{feature}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="mt-10 pt-8 border-t border-white/10 flex items-center justify-between relative z-10">
+                    <div className="mt-3 pt-5 border-t border-white/10 flex items-center justify-between relative z-10">
                         <div className="flex -space-x-3">
                             {[1, 2, 3, 4].map((i) => (
                                 <div key={i} className="w-10 h-10 rounded-full border-2 border-[#2563eb] bg-slate-200 overflow-hidden ring-2 ring-white/10 hover:translate-y-[-4px] transition-transform cursor-pointer">
