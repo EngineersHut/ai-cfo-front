@@ -107,10 +107,10 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         />
         <NavItem 
           icon={<ReportIcon />} 
-          label="Report" 
+          label="Reports" 
           isCollapsed={isCollapsed} 
-          href="/dashboard/report" 
-          active={pathname === '/dashboard/report'} 
+          href="/reports" 
+          active={pathname === '/reports'} 
         />
         <NavItem 
           icon={<GrowthIcon />} 

@@ -87,9 +87,9 @@ export default function BudgetVsActual() {
 
             {/* Budget vs Actual Summary Table */}
             <div className="w-full h-[410px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-                <div className="h-[64px] flex items-center justify-between px-6 border-b border-slate-50 bg-slate-50/20">
+                <div className="min-h-[64px] py-3 sm:py-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 border-b border-slate-50 bg-slate-50/20 gap-3 sm:gap-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
                             <DollarSign size={16} />
                         </div>
                         <div className="flex flex-col">
@@ -103,8 +103,8 @@ export default function BudgetVsActual() {
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-auto">
-                    <table className="w-full text-left border-collapse">
+                <div className="flex-1 overflow-x-auto overflow-y-auto">
+                    <table className="w-full min-w-[800px] lg:min-w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-[#f8fafc] border-b border-[#e2e3f0] h-[36.75px]">
                                 <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Metric</th>
@@ -155,9 +155,9 @@ export default function BudgetVsActual() {
             {/* Budget Planning Table */}
 
             <div className="w-full bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden mb-6">
-                <div className="h-[65.25px] flex items-center justify-between pt-[14px] pr-[18px] pb-[14px] pl-[18px] border-b border-[#e2e8f0] bg-[#fafbfc]">
+                <div className="min-h-[65.25px] flex flex-col sm:flex-row items-start sm:items-center justify-between pt-[14px] pr-[18px] pb-[14px] pl-[18px] border-b border-[#e2e8f0] bg-[#fafbfc] gap-4 sm:gap-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
                             <DollarSign size={16} />
                         </div>
                         <div className="flex flex-col">
@@ -165,14 +165,14 @@ export default function BudgetVsActual() {
                             <span className="text-[10.5px] text-slate-400 font-normal font-inter leading-[15.75px] tracking-normal">Editable spreadsheet · changes reflect in forecast summary</span>
                         </div>
                     </div>
-                    <button className="w-[121.8px] h-[32px] flex items-center justify-center gap-2 rounded-[7px] border border-[#2563eb] bg-[#eff6ff] text-[#2563eb] text-[12px] font-medium font-inter leading-[18px] transition-colors hover:bg-blue-100">
+                    <button className="w-[121.8px] h-[32px] flex items-center justify-center gap-2 rounded-[7px] border border-[#2563eb] bg-[#eff6ff] text-[#2563eb] text-[12px] font-medium font-inter leading-[18px] transition-colors hover:bg-blue-100 shrink-0">
                         <Plus size={14} />
                         Add Line Item
                     </button>
                 </div>
 
-                <div className="overflow-auto h-[1070px]">
-                    <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto overflow-y-auto h-[1070px]">
+                    <table className="w-full min-w-[1000px] lg:min-w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-[#f8fafc] border-b border-[#e2e8f0] h-[52.5px]">
                                 <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[60%]">Metric / Category</th>
