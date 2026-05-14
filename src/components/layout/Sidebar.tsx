@@ -123,8 +123,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           icon={<BudgetIcon />} 
           label="Budget vs Actual" 
           isCollapsed={isCollapsed} 
-          href="/dashboard/budget" 
-          active={pathname === '/dashboard/budget'} 
+          href="/budget-vs-actual" 
+          active={pathname === '/budget-vs-actual'} 
         />
         <NavItem 
           icon={<ForcastIcon />} 

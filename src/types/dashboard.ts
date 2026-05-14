@@ -9,6 +9,7 @@ export interface KPICardProps {
   sub: string;
   isDown?: boolean;
   noTrendIcon?: boolean;
+  showTrend?:boolean
 }
 
 export interface RevenueDataItem {

@@ -35,7 +35,8 @@ import {
     additionalGrowthMetrics,
     channelGrowthData,
     segmentPerformanceData,
-    growthHealthData
+    growthHealthData,
+    growthTrendData
 } from '@/data/growthData';
 import { healthData, revenueData } from '@/data/dashboardData';
 import AIInsights from '../dashboard/components/AIInsights';
@@ -153,14 +154,17 @@ export default function GrowthOverview() {
             {/* Summary Grid - Row 2 (Compact) - Inline Implementation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {additionalGrowthMetrics.map((metric, i) => (
-                    <div key={i} className="h-[110px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col p-4 hover:shadow-md transition-all duration-300">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                    <div key={i} className="h-[110px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col p-0 hover:shadow-md transition-all duration-300 overflow-hidden">
+                        {/* Top Section - 50% (55px) */}
+                        <div className="h-[55px] flex items-center gap-3 border-b border-slate-100 px-4 bg-slate-50/30">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400">
                                 {metric.icon}
                             </div>
                             <span className="text-[14px] font-normal text-slate-500 font-inter leading-[20px] tracking-[0%]">{metric.label}</span>
                         </div>
-                        <div className="flex items-center justify-between">
+
+                        {/* Bottom Section - 50% (55px) */}
+                        <div className="h-[55px] flex items-center justify-between px-4">
                             <span className="text-[24px] font-medium text-slate-900 font-inter leading-[32px] tracking-[0%]">{metric.value}</span>
                             <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] border text-[12px] font-medium ${metric.isUp ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-500 border-red-100'
                                 }`}>
@@ -196,15 +200,19 @@ export default function GrowthOverview() {
                         <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
                             <div className="flex-1 w-full relative p-2">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <AreaChart data={growthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
-                                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                            <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                                             </linearGradient>
-                                            <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+                                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#ffcc99" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#ffcc99" stopOpacity={0} />
+                                            </linearGradient>
+                                            <linearGradient id="colorClient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -213,7 +221,7 @@ export default function GrowthOverview() {
                                             axisLine={false}
                                             tickLine={false}
                                             tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                            tickFormatter={(value) => `${value / 100}k`}
+                                            tickFormatter={(value) => `${value}%`}
                                         />
                                         <Tooltip
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
@@ -221,35 +229,57 @@ export default function GrowthOverview() {
                                         />
                                         <Area
                                             type="monotone"
-                                            dataKey="revenue"
-                                            stroke="#8b5cf6"
+                                            dataKey="monthly"
+                                            stroke="#2563eb"
                                             strokeWidth={3}
                                             fillOpacity={1}
-                                            fill="url(#colorRevenue)"
-                                            activeDot={{ r: 6, fill: "#fff", stroke: "#8b5cf6", strokeWidth: 3 }}
+                                            fill="url(#colorMonthly)"
                                         />
                                         <Area
                                             type="monotone"
-                                            dataKey="profit"
-                                            stroke="#fbbf24"
+                                            dataKey="revenue"
+                                            stroke="#ffcc99"
                                             strokeWidth={3}
                                             fillOpacity={1}
-                                            fill="url(#colorProfit)"
-                                            activeDot={{ r: 6, fill: "#fff", stroke: "#fbbf24", strokeWidth: 3 }}
+                                            fill="url(#colorRevenue)"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="client"
+                                            stroke="#f97316"
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#colorClient)"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="target"
+                                            stroke="#94a3b8"
+                                            strokeWidth={2}
+                                            strokeDasharray="5 5"
+                                            fill="none"
                                         />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
 
                             {/* Chart Legend - Styled inside the inner box */}
-                            <div className="flex items-center justify-center gap-8 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
+                            <div className="flex items-center justify-center gap-6 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Revenue</span>
+                                    <div className="w-3 h-3 rounded-full bg-[#2563eb]" />
+                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Monthly Growth %</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-[#fbbf24]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Net Profit</span>
+                                    <div className="w-3 h-3 rounded-full bg-[#ffcc99]" />
+                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Revenue Growth %</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-[#f97316]" />
+                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Client Growth %</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-[#94a3b8]" />
+                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Target (8%)</span>
                                 </div>
                             </div>
                         </div>

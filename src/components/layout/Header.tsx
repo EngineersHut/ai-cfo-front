@@ -30,6 +30,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const getPageTitle = () => {
     if (pathname.includes('growth-overview')) return 'Growth Overview';
     if (pathname.includes('operational-overview')) return 'Operational Overview';
+    if (pathname.includes('budget-vs-actual')) return 'Budget vs Actual';
     if (pathname === '/dashboard' || pathname === '/') return 'Dashboard';
 
     // Fallback: convert slug to Title Case

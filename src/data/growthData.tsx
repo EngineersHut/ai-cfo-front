@@ -12,7 +12,9 @@ import {
     DollarSign,
     UserPlus,
     UserCheck,
-    Briefcase
+    Briefcase,
+    Banknote,
+    Wallet
 } from 'lucide-react';
 
 export const growthMetrics = [
@@ -138,13 +140,28 @@ export const growthHealthData = {
     ]
 };
 
+export const growthTrendData = [
+    { name: 'Jan', monthly: 12, revenue: 15, client: 10, target: 8 },
+    { name: 'Feb', monthly: 15, revenue: 12, client: 14, target: 8 },
+    { name: 'Mar', monthly: 10, revenue: 18, client: 12, target: 8 },
+    { name: 'Apr', monthly: 18, revenue: 20, client: 16, target: 8 },
+    { name: 'May', monthly: 14, revenue: 16, client: 15, target: 8 },
+    { name: 'Jun', monthly: 20, revenue: 22, client: 18, target: 8 },
+    { name: 'Jul', monthly: 16, revenue: 18, client: 14, target: 8 },
+    { name: 'Aug', monthly: 22, revenue: 25, client: 20, target: 8 },
+    { name: 'Sep', monthly: 18, revenue: 21, client: 16, target: 8 },
+    { name: 'Oct', monthly: 25, revenue: 28, client: 22, target: 8 },
+    { name: 'Nov', monthly: 20, revenue: 24, client: 18, target: 8 },
+    { name: 'Dec', monthly: 30, revenue: 32, client: 25, target: 8 },
+];
+
 export const additionalGrowthMetrics = [
     {
         label: 'Revenue per Employee',
         value: '$4,500',
         trend: '+12.5%',
         isUp: true,
-        icon: <Briefcase size={18} />,
+        icon: <Banknote size={18} />,
         sub: 'Efficiency metric'
     },
     {
@@ -152,16 +169,16 @@ export const additionalGrowthMetrics = [
         value: '6%',
         trend: '+12.5%',
         isUp: true,
-        icon: <UserPlus size={18} />,
+        icon: <TrendingUp size={18} />,
         sub: 'Team expansion'
     },
     {
         label: 'Client Growth',
-        value: '12%',
-        trend: '-1.2%',
-        isUp: false,
-        icon: <UserCheck size={18} />,
-        sub: 'New logos acquired'
+        value: '8%',
+        trend: '+12.5%',
+        isUp: true,
+        icon: <Wallet size={18} />,
+        sub: 'Retention rate'
     },
 ];
 
