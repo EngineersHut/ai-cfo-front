@@ -1,12 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Calendar,
     CheckCircle2,
     FileText,
     UploadCloud,
-    Search,
+    Paperclip,
     Info
 } from 'lucide-react';
 
@@ -15,6 +15,29 @@ interface ReportUploadProps {
 }
 
 export default function ReportUpload({ onCancel }: ReportUploadProps) {
+    const [formData, setFormData] = useState({
+        reportName: "",
+        reportingPeriod: "",
+        files: [] as any[]
+    });
+
+    const handleInputChange = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleGenerate = () => {
+        console.log("Generate Report Payload (FormData):", formData);
+        alert("Payload logged to console! Check your browser console.");
+    };
+
+    const handleFileBrowse = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+            handleInputChange('files', newFiles);
+            console.log("Files selected:", newFiles);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
             {/* New Report Upload Header */}
@@ -37,6 +60,8 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                             <label className="text-[14px] font-medium text-slate-600 font-inter">Report name</label>
                             <input
                                 type="text"
+                                value={formData.reportName}
+                                onChange={(e) => handleInputChange('reportName', e.target.value)}
                                 placeholder="e.g. Q3 Architecture Sustainability Audit"
                                 className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
                             />
@@ -49,6 +74,8 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                             <div className="relative group">
                                 <input
                                     type="text"
+                                    value={formData.reportingPeriod}
+                                    onChange={(e) => handleInputChange('reportingPeriod', e.target.value)}
                                     placeholder="mm/dd/yyyy"
                                     className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
                                 />
@@ -99,52 +126,60 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
             </div>
 
             {/* Document Assets Card */}
-            <div className="bg-white rounded-[12px] border border-slate-100 p-8 shadow-sm flex flex-col gap-8">
+            <div className="bg-white rounded-[12px] border border-slate-100 p-[16px] shadow-sm flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
                             <FileText size={20} />
                         </div>
-                        <h3 className="text-[18px] font-semibold text-slate-800 font-inter">Document Assets</h3>
+                        <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Document Assets</h3>
                     </div>
-                    <div className="px-4 py-1.5 bg-slate-50 text-[11px] font-bold text-slate-400 rounded-[6px] tracking-[0.1em] border border-slate-100 shadow-sm uppercase">
+                    <div className="w-[100px] h-[23px] rounded-[2px] bg-[#f6f8fa] flex items-center justify-center text-[10px] font-semibold text-[#64748b] font-inter leading-[15px] tracking-[0px] uppercase">
                         Secure Upload
                     </div>
                 </div>
 
-                <div className="border-2 border-dashed border-slate-200 rounded-[16px] p-16 flex flex-col items-center justify-center gap-6 bg-slate-50/20 hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer group">
-                    <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-[#2563eb] group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-500 shadow-sm">
-                        <UploadCloud size={40} />
+                <div className="border-2 border-dashed border-slate-200 rounded-[16px] p-8 flex flex-col items-center justify-center gap-6 bg-slate-50/20 hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer group">
+                    <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
+                        <UploadCloud width={44} height={32} className="text-[#94a3b8]" />
                     </div>
                     <div className="text-center space-y-2">
-                        <h4 className="text-[18px] font-semibold text-slate-800 font-inter">Drag and drop documents here</h4>
-                        <p className="text-[14px] text-slate-400 font-inter">PDF, CSV, or XLSX formats supported (Max 50MB)</p>
+                        <h4 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Drag and drop documents here</h4>
+                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] text-center">PDF, CSV, or XLSX formats supported (Max 50MB)</p>
                     </div>
-                    <button className="mt-4 h-[44px] px-8 bg-white border border-slate-200 rounded-[10px] text-[14px] font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm flex items-center gap-3 active:scale-95">
-                        <Search size={16} className="text-slate-400" />
-                        Browse Files
-                    </button>
+                    <div className="relative">
+                        <input 
+                            type="file" 
+                            multiple 
+                            onChange={handleFileBrowse}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        />
+                        <button className="mt-4 w-[140px] h-[40px] pt-[4px] pr-[16px] pb-[4px] pl-[12px] gap-[6px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-normal text-[#0f172a] font-inter leading-[20px] tracking-[0%] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all flex items-center pointer-events-none">
+                            <Paperclip size={16} className="text-[#64748b]" />
+                            Browse Files
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Footer Section */}
-            <div className="flex items-center justify-between py-6 border-t border-slate-100 mt-2">
-                <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
-                        <Info size={18} />
+            <div className="flex flex-col gap-6 ">
+                <div className="w-full h-[68px] px-4 rounded-[12px] border border-[#f2f2f3] bg-white flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3 text-slate-500">
+                        <div className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                            <Info size={18} />
+                        </div>
+                        <p className="text-[14px] font-inter text-[#434654] font-normal leading-[20px] tracking-[0px]">Final submission will trigger an email notification to the compliance team.</p>
                     </div>
-                    <p className="text-[14px] font-inter text-slate-500 font-medium">Final submission will trigger an email notification to the compliance team.</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onCancel}
-                        className="h-[48px] px-10 text-slate-600 font-semibold hover:bg-slate-100 rounded-[12px] transition-all active:scale-95"
-                    >
-                        Cancel
-                    </button>
-                    <button className="h-[48px] px-10 bg-[#2563eb] text-white font-semibold rounded-[12px] shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95 flex items-center gap-2">
-                        Generate Report
-                    </button>
+                    <div className="flex items-center gap-4">
+
+                        <button 
+                            onClick={handleGenerate}
+                            className="w-[140px] h-[36px] px-[12px] py-[4px] gap-[6px] bg-[#2563eb] text-[#f8fafc] font-normal font-inter text-[14px] leading-[20px] tracking-[0%] rounded-[8px] border border-white/10 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all flex items-center justify-center active:scale-95"
+                        >
+                            Generate Report
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
