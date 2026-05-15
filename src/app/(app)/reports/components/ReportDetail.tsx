@@ -263,6 +263,83 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Insights and Comparison Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                {/* AI Insights */}
+                <div className="lg:col-span-3 bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+                    <div className="h-[54px] flex items-center p-[12px] gap-3 border-b border-slate-50">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                            <Sparkles size={16} />
+                        </div>
+                        <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">AI Insights</h3>
+                    </div>
+                    <div className="p-6 space-y-6">
+                        <div className="flex gap-4">
+                            <div className="w-1 bg-[#2563eb] rounded-full shrink-0" />
+                            <div className="space-y-2">
+                                <span className="px-2 py-0.5 bg-[#eff6ff] text-[#2563eb] text-[11px] font-bold rounded-[4px] font-inter">Bank statements (40%)</span>
+                                <p className="text-[14px] text-slate-600 font-inter leading-[22px]">
+                                    Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="w-1 bg-[#f59e0b] rounded-full shrink-0" />
+                            <div className="space-y-2">
+                                <span className="px-2 py-0.5 bg-[#fffbeb] text-[#f59e0b] text-[11px] font-bold rounded-[4px] font-inter">Income statements (40%)</span>
+                                <p className="text-[14px] text-slate-600 font-inter leading-[22px]">
+                                    Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="w-1 bg-[#22c55e] rounded-full shrink-0" />
+                            <div className="space-y-2">
+                                <span className="px-2 py-0.5 bg-[#f0fdf4] text-[#22c55e] text-[11px] font-bold rounded-[4px] font-inter">Tax Document (10%)</span>
+                                <p className="text-[14px] text-slate-600 font-inter leading-[22px]">
+                                    Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Comparison Card */}
+                <div className="lg:col-span-2 bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+                    <div className="h-[54px] flex items-center p-[12px] gap-3 border-b border-slate-50">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                            <TrendingUp size={16} />
+                        </div>
+                        <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Comparison with Prev. Period</h3>
+                    </div>
+                    <div className="px-[33px] py-[16px] space-y-6">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[14px] font-normal text-[#0f172a] font-inter leading-[20px] tracking-[0%]">Revenue</span>
+                            <div className="flex items-center gap-2 text-[#22c55e]">
+                                <ArrowUpRight size={16} />
+                                <span className="text-[14px] font-bold font-inter">10%</span>
+                            </div>
+                        </div>
+                        <div className="w-full h-[1px] bg-slate-50" />
+                        <div className="flex items-center justify-between">
+                            <span className="text-[14px] font-normal text-[#0f172a] font-inter leading-[20px] tracking-[0%]">Profit</span>
+                            <div className="flex items-center gap-2 text-[#22c55e]">
+                                <ArrowUpRight size={16} />
+                                <span className="text-[14px] font-bold font-inter">8%</span>
+                            </div>
+                        </div>
+                        <div className="w-full h-[1px] bg-slate-50" />
+                        <div className="flex items-center justify-between">
+                            <span className="text-[14px] font-normal text-[#0f172a] font-inter leading-[20px] tracking-[0%]">Expenses</span>
+                            <div className="flex items-center gap-2 text-[#22c55e]">
+                                <ArrowDownRight size={16} />
+                                <span className="text-[14px] font-bold font-inter">3%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
