@@ -144,7 +144,13 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* User Section - Restoring sequence while maintaining size parity */}
       <div className={`p-[20px] border-t border-slate-50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
-        <NavItem icon={<SettingsIcon />} label="Settings" isCollapsed={isCollapsed} />
+        <NavItem 
+          icon={<SettingsIcon />} 
+          label="Settings" 
+          isCollapsed={isCollapsed} 
+          href="/settings"
+          active={pathname === '/settings'}
+        />
         <NavItem icon={<LogoutIcon />} label="Logout" isCollapsed={isCollapsed} />
 
         <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
