@@ -97,9 +97,9 @@ export default function SettingsPage() {
 
             {/* Main Content Grid: Masonry Style with Bottom Alignment */}
             <div className="grid grid-cols-3 gap-4 items-stretch">
-                {/* Left Column (2/3) */}
+
                 <div className="col-span-2 flex flex-col gap-4">
-                    {/* Company Settings */}
+
                     <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
                         <div className="p-4 flex items-center justify-between">
                             <div className="space-y-0.5">
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {/* Payment Details */}
+
                     <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
                         <div className="p-4 flex items-center justify-between">
                             <div className="space-y-0.5">
@@ -176,7 +176,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {/* Notification Settings - Fills remaining space */}
+
                     <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] flex-grow">
                         <h2 className="text-[18px] pb-2 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Notification Settings</h2>
                         <div className="space-y-6">
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                                         <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">{setting.title}</h3>
                                         <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">{setting.desc}</p>
                                     </div>
-                                    <div 
+                                    <div
                                         onClick={() => toggleNotification(setting.id)}
                                         className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}
                                     >
@@ -198,9 +198,7 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Right Column (1/3) */}
                 <div className="col-span-1 flex flex-col gap-4">
-                    {/* Subscription Card */}
                     <div className="bg-[#2563eb] rounded-[16px] p-[16px] text-white flex flex-col shadow-lg shadow-blue-200 h-fit">
                         <p className="text-[16px] font-normal text-white font-inter leading-[24px]">Current running subscription</p>
                         <div className="h-px bg-white/20 w-full mt-4" />
@@ -236,7 +234,6 @@ export default function SettingsPage() {
                         <button className="w-full h-[36px] bg-white border border-slate-100 rounded-[8px] text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)]">Manage Plan</button>
                     </div>
 
-                    {/* Subscription Upgrade Details */}
                     <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] space-y-6 h-fit">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><ShieldCheck size={18} /></div>
@@ -262,7 +259,6 @@ export default function SettingsPage() {
                         </button>
                     </div>
 
-                    {/* Danger Zone - Fills remaining space */}
                     <div className="h-[182px] bg-[#fef2f2] rounded-[12px] border border-[#fecaca] p-[20px] flex flex-col justify-between flex-grow">
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-red-500">
