@@ -7,8 +7,12 @@ import {
     FileText,
     UploadCloud,
     Paperclip,
-    Info
+    Info,
+    Loader2,
+    CheckCircle,
+    BadgeCheck
 } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface ReportUploadProps {
     onCancel: () => void;
@@ -21,13 +25,40 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
         files: [] as any[]
     });
 
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisStep, setAnalysisStep] = useState(0);
+    const [isCompleted, setIsCompleted] = useState(false);
+
+    const steps = [
+        "Scanning Bank statements...",
+        "Scanning Income statements...",
+        "Tax document statements...",
+        "Scanning Invoice..."
+    ];
+
+    useEffect(() => {
+        if (isAnalyzing && analysisStep < steps.length) {
+            const timer = setTimeout(() => {
+                setAnalysisStep(prev => prev + 1);
+            }, 1500); // 1.5 seconds per step
+            return () => clearTimeout(timer);
+        } else if (isAnalyzing && analysisStep === steps.length) {
+            const timer = setTimeout(() => {
+                setIsAnalyzing(false);
+                setIsCompleted(true);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isAnalyzing, analysisStep]);
+
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleGenerate = () => {
+        setIsAnalyzing(true);
+        setAnalysisStep(0);
         console.log("Generate Report Payload (FormData):", formData);
-        alert("Payload logged to console! Check your browser console.");
     };
 
     const handleFileBrowse = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,6 +68,66 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
             console.log("Files selected:", newFiles);
         }
     };
+
+    if (isAnalyzing) {
+        return (
+            <div className="min-h-[500px] flex flex-col items-center justify-center bg-[#f8fafc]/50 rounded-[24px] p-12 animate-in fade-in duration-700">
+                <div className="flex flex-col gap-12 w-full max-w-[500px]">
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full border-[3px] border-indigo-100" />
+                            <div className="absolute w-8 h-8 rounded-full border-[3px] border-indigo-600 border-t-transparent animate-spin" />
+                        </div>
+                        <h2 className="text-[20px] font-semibold text-slate-800 font-inter">Analyzing your financial documents...</h2>
+                    </div>
+
+                    <div className="space-y-6 ml-2">
+                        {steps.map((step, index) => (
+                            <div
+                                key={step}
+                                className={`flex items-center gap-4 transition-all duration-700 ${index <= analysisStep ? 'opacity-100 translate-y-0' : 'opacity-20 translate-y-2'
+                                    }`}
+                            >
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${index < analysisStep ? 'bg-indigo-600' : 'bg-slate-200'
+                                    }`}>
+                                    {index < analysisStep ? (
+                                        <CheckCircle size={14} className="text-white" />
+                                    ) : (
+                                        <div className={`w-2 h-2 rounded-full bg-indigo-600 ${index === analysisStep ? 'animate-pulse' : 'opacity-0'}`} />
+                                    )}
+                                </div>
+                                <span className={`text-[18px] font-normal font-inter leading-[24px] tracking-[0%] transition-colors duration-500 ${index <= analysisStep ? 'text-[#0f172a]' : 'text-slate-400'
+                                    }`}>
+                                    {step}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isCompleted) {
+        return (
+            <div className="min-h-[500px] flex flex-col items-center justify-center bg-white rounded-[24px] p-12 animate-in zoom-in-95 duration-1000">
+                <div className="w-[60px] h-[60px] rounded-[15px] bg-[#27ae60] flex items-center justify-center text-white mb-8 transform hover:scale-110 transition-transform cursor-pointer">
+                    <BadgeCheck size={32} />
+                </div>
+                <h2 className="text-[24px] font-medium text-[#2e2e37] font-inter leading-[32px] tracking-[0%] mb-1">Your financial analysis is ready</h2>
+                <p className="text-[18px] font-normal text-[#0f172a] font-inter text-center max-w-2xl mb-6 leading-[24px] tracking-[0%]">
+                    All documents have been successfully processed and verified. <br />
+                    Success Points
+                </p>
+                <button
+                    onClick={onCancel}
+                    className="w-[100px] h-[36px] px-[12px] py-[4px] gap-[6px] bg-[#2563eb] text-[#f8fafc] font-normal font-inter text-[14px] leading-[20px] tracking-[0%] rounded-[8px] border border-white/10 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all flex items-center justify-center active:scale-95"
+                >
+                    All Report
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -148,9 +239,9 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                         <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] text-center">PDF, CSV, or XLSX formats supported (Max 50MB)</p>
                     </div>
                     <div className="relative">
-                        <input 
-                            type="file" 
-                            multiple 
+                        <input
+                            type="file"
+                            multiple
                             onChange={handleFileBrowse}
                             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
@@ -173,7 +264,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                     </div>
                     <div className="flex items-center gap-4">
 
-                        <button 
+                        <button
                             onClick={handleGenerate}
                             className="w-[140px] h-[36px] px-[12px] py-[4px] gap-[6px] bg-[#2563eb] text-[#f8fafc] font-normal font-inter text-[14px] leading-[20px] tracking-[0%] rounded-[8px] border border-white/10 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all flex items-center justify-center active:scale-95"
                         >
