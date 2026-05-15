@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 export default function SettingsPage() {
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
+    const [isAutoRenewal, setIsAutoRenewal] = React.useState(true);
 
     const toggleMenu = (id: string) => {
         setActiveMenu(activeMenu === id ? null : id);
@@ -85,11 +86,12 @@ export default function SettingsPage() {
                 </div>
             </div>
 
-            {/* Top Grid: Company + Subscription & Payment + Upgrade */}
-            <div className="grid grid-cols-3 gap-4 items-start">
-                <div className="col-span-2 space-y-4">
+            {/* Main Content Grid: Masonry Style with Bottom Alignment */}
+            <div className="grid grid-cols-3 gap-4 items-stretch">
+                {/* Left Column (2/3) */}
+                <div className="col-span-2 flex flex-col gap-4">
                     {/* Company Settings */}
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
                         <div className="p-4 flex items-center justify-between">
                             <div className="space-y-0.5">
                                 <h2 className="text-[18px] font-bold text-[#1e293b] font-inter">Company Settings</h2>
@@ -130,7 +132,7 @@ export default function SettingsPage() {
                     </div>
 
                     {/* Payment Details */}
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
                         <div className="p-4 flex items-center justify-between">
                             <div className="space-y-0.5">
                                 <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Payment Details and Billing Info</h2>
@@ -150,9 +152,7 @@ export default function SettingsPage() {
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-8">
                                             <div className="flex items-center gap-2 text-[18px] font-bold text-[#0f172a] tracking-[4px]">
-                                                <span>●●●●</span>
-                                                <span>●●●●</span>
-                                                <span>●●●●</span>
+                                                <span>●●●●</span><span>●●●●</span><span>●●●●</span>
                                             </div>
                                             <span className="text-[18px] font-medium text-[#0f172a] font-inter">5698</span>
                                         </div>
@@ -162,15 +162,36 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="text-slate-300 hover:text-slate-500 transition-colors p-1">
-                                    <MoreVertical size={20} />
-                                </button>
+                                <MoreVertical size={20} className="text-slate-300" />
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Notification Settings - Fills remaining space */}
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] flex-grow">
+                        <h2 className="text-[18px] pb-2 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Notification Settings</h2>
+                        <div className="space-y-6">
+                            {[
+                                { title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
+                                { title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
+                                { title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
+                            ].map((setting, i) => (
+                                <div key={i} className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">{setting.title}</h3>
+                                        <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">{setting.desc}</p>
+                                    </div>
+                                    <div className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}>
+                                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${setting.active ? 'translate-x-5' : 'translate-x-0'}`} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="col-span-1 space-y-4">
+                {/* Right Column (1/3) */}
+                <div className="col-span-1 flex flex-col gap-4">
                     {/* Subscription Card */}
                     <div className="bg-[#2563eb] rounded-[16px] p-[16px] text-white flex flex-col shadow-lg shadow-blue-200 h-fit">
                         <p className="text-[16px] font-normal text-white font-inter leading-[24px]">Current running subscription</p>
@@ -195,7 +216,12 @@ export default function SettingsPage() {
                             <div className="h-px bg-white/10 w-full" />
                             <div className="flex items-center justify-between ">
                                 <span className="text-[15px] font-medium font-inter">Auto Renewal</span>
-                                <div className="w-11 h-6 bg-[#22c55e] rounded-full relative p-1 shadow-inner"><div className="absolute right-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
+                                <div
+                                    onClick={() => setIsAutoRenewal(!isAutoRenewal)}
+                                    className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-all ${isAutoRenewal ? 'bg-[#22c55e]' : 'bg-white/20 shadow-inner'}`}
+                                >
+                                    <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 ${isAutoRenewal ? 'translate-x-5' : 'translate-x-0'}`} />
+                                </div>
                             </div>
                             <div className="h-px bg-white/10 w-full" />
                         </div>
@@ -227,36 +253,9 @@ export default function SettingsPage() {
                             Upgrade now
                         </button>
                     </div>
-                </div>
-            </div>
 
-            {/* Bottom Alignment Row: Notifications & Danger Zone */}
-            <div className="grid grid-cols-3 gap-4 items-stretch">
-                <div className="col-span-2">
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px]  h-full">
-                        <h2 className="text-[18px] pb-2 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Notification Settings</h2>
-                        <div className="space-y-6">
-                            {[
-                                { title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
-                                { title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
-                                { title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
-                            ].map((setting, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="">
-                                        <h3 className="text-[14px] font-semibold text-[#1e293b] font-inter">{setting.title}</h3>
-                                        <p className="text-[12px] text-slate-400 font-inter">{setting.desc}</p>
-                                    </div>
-                                    <div className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}>
-                                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${setting.active ? 'translate-x-5' : 'translate-x-0'}`} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="col-span-1">
-                    <div className=" h-[182px] bg-[#fef2f2] rounded-[12px] border border-[#fecaca] p-[20px] flex flex-col justify-between">
+                    {/* Danger Zone - Fills remaining space */}
+                    <div className="h-[182px] bg-[#fef2f2] rounded-[12px] border border-[#fecaca] p-[20px] flex flex-col justify-between flex-grow">
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-red-500">
                                 <AlertTriangle size={18} />
