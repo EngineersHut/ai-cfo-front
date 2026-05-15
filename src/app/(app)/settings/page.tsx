@@ -7,6 +7,15 @@ import Image from 'next/image';
 export default function SettingsPage() {
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
     const [isAutoRenewal, setIsAutoRenewal] = React.useState(true);
+    const [notifications, setNotifications] = React.useState([
+        { id: 'email', title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
+        { id: 'risks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
+        { id: 'weekly', title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
+    ]);
+
+    const toggleNotification = (id: string) => {
+        setNotifications(notifications.map(n => n.id === id ? { ...n, active: !n.active } : n));
+    };
 
     const toggleMenu = (id: string) => {
         setActiveMenu(activeMenu === id ? null : id);
@@ -171,18 +180,17 @@ export default function SettingsPage() {
                     <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] flex-grow">
                         <h2 className="text-[18px] pb-2 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Notification Settings</h2>
                         <div className="space-y-6">
-                            {[
-                                { title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
-                                { title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
-                                { title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
-                            ].map((setting, i) => (
-                                <div key={i} className="flex items-center justify-between">
+                            {notifications.map((setting) => (
+                                <div key={setting.id} className="flex items-center justify-between">
                                     <div className="space-y-0.5">
                                         <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">{setting.title}</h3>
                                         <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">{setting.desc}</p>
                                     </div>
-                                    <div className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}>
-                                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${setting.active ? 'translate-x-5' : 'translate-x-0'}`} />
+                                    <div 
+                                        onClick={() => toggleNotification(setting.id)}
+                                        className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}
+                                    >
+                                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${setting.active ? 'translate-x-5' : 'translate-x-0'}`} />
                                     </div>
                                 </div>
                             ))}
