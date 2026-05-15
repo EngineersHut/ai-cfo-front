@@ -50,3 +50,10 @@ export const expenseBreakdownData = [
     { name: 'Tax document', value: 10, color: '#84cc16' },
     { name: 'Invoice', value: 40, color: '#e11d48' },
 ];
+
+export const rawTableData = [
+    { category: 'Bank statements', value: '$20,000', percent: '40%', status: 'Completed', note: 'Verified and matches expected balance' },
+    { category: 'Income statements', value: '$35,000', percent: '10%', status: 'Unsupported', note: 'Format not supported, needs re-upload' },
+    { category: 'Tax document', value: '$12,000', percent: '10%', status: 'Completed', note: 'Successfully validated and accepted' },
+    { category: 'Invoice', value: '$8,000', percent: '40%', status: 'Completed', note: 'Verified and processed successfully' },
+];

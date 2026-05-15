@@ -11,10 +11,11 @@ import {
     PieChart,
     Activity,
     ArrowLeft,
-    Sparkles
+    Sparkles,
+    Table
 } from 'lucide-react';
 import KPICard from '@/components/common/KPICard';
-import { revenueData, expenseBreakdownData } from '@/data/reportsData';
+import { revenueData, expenseBreakdownData, rawTableData } from '@/data/reportsData';
 import {
     LineChart,
     Line,
@@ -337,6 +338,58 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                                 <span className="text-[14px] font-bold font-inter">3%</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            {/* Raw Data Table Section */}
+            <div className="bg-white rounded-[12px] border border-[#f2f2f3] shadow-sm flex flex-col overflow-hidden">
+                <div className="h-[54px] flex items-center p-[12px] gap-3 border-b border-[#f2f2f3] bg-white">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <Table size={16} />
+                    </div>
+                    <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Raw Data Table</h3>
+                </div>
+                <div className="p-[16px]">
+                    <div className=" rounded-[12px] overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-[#e2e8f0] h-[54px]">
+                                    <th className="w-[208px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter border-r border-[#e2e8f0]">Category</th>
+                                    <th className="w-[175px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter border-r border-[#e2e8f0] text-center">Value</th>
+                                    <th className="w-[175px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter border-r border-[#e2e8f0] text-center">% Of Total</th>
+                                    <th className="w-[223px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter text-center">Tags</th>
+                                    <th className="w-[347px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#e2e8f0] border border-[#e2e8f0]">
+                                {rawTableData.map((row, idx) => (
+                                    <tr key={idx} className="h-[54px]">
+                                        <td className="w-[208px] px-6 py-4 text-[14px] font-bold text-slate-700 font-inter border-r border-[#e2e8f0]">
+                                            {row.category}
+                                        </td>
+                                        <td className="w-[175px] px-6 py-4 text-[14px] font-medium text-slate-600 font-inter border-r border-[#e2e8f0] text-center">
+                                            {row.value}
+                                        </td>
+                                        <td className="w-[175px] px-6 py-4 text-[14px] font-medium text-slate-600 font-inter border-r border-[#e2e8f0] text-center">
+                                            {row.percent}
+                                        </td>
+                                        <td className="w-[223px] px-6 py-4 border-r border-[#e2e8f0] text-center">
+                                            <div className="flex justify-center">
+                                                <span className={`inline-flex items-center gap-[2px] w-[97px] h-[20px] pt-[2px] pr-[6px] pb-[2px] pl-[4px] border rounded-[4px] font-inter text-[10px] font-bold ${row.status === 'Completed'
+                                                    ? 'bg-[#f2fffa] border-[#bee5d0] text-[#16a34a]'
+                                                    : 'bg-[#fef2f2] border-[#fee2f2] text-[#dc2626]'
+                                                    }`}>
+                                                    {row.status} <Activity size={10} />
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="w-[347px] px-6 py-4 text-[14px] font-normal text-[#0b1c30] font-inter leading-[20px] tracking-[0%]">
+                                            {row.note}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
