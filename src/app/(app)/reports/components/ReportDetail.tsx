@@ -44,21 +44,21 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
     return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-            <div className="w-full bg-white rounded-[12px] border border-slate-100 p-6 shadow-sm flex items-center justify-between">
-                <div className="flex items-center gap-16">
+            <div className="w-full bg-white rounded-[12px] border border-slate-100 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div className="flex flex-wrap items-center gap-8 sm:gap-16">
                     <div className="space-y-1">
                         <p className="text-[10px] font-bold text-slate-400 font-inter uppercase tracking-wider">Period</p>
-                        <p className="text-[16px] font-medium text-slate-800 font-inter">March 2025</p>
+                        <p className="text-[14px] sm:text-[16px] font-medium text-slate-800 font-inter">March 2025</p>
                     </div>
-                    <div className="w-[1px] h-10 bg-slate-100" />
+                    <div className="hidden sm:block w-[1px] h-10 bg-slate-100" />
                     <div className="space-y-1">
                         <p className="text-[10px] font-bold text-slate-400 font-inter uppercase tracking-wider">Type</p>
-                        <p className="text-[16px] font-medium text-slate-800 font-inter">Monthly</p>
+                        <p className="text-[14px] sm:text-[16px] font-medium text-slate-800 font-inter">Monthly</p>
                     </div>
-                    <div className="w-[1px] h-10 bg-slate-100" />
+                    <div className="hidden sm:block w-[1px] h-10 bg-slate-100" />
                     <div className="space-y-1">
                         <p className="text-[10px] font-bold text-slate-400 font-inter uppercase tracking-wider">Range</p>
-                        <p className="text-[16px] font-medium text-slate-800 font-inter">Mar 1 – 31, 2025</p>
+                        <p className="text-[14px] sm:text-[16px] font-medium text-slate-800 font-inter">Mar 1 – 31, 2025</p>
                     </div>
                 </div>
 
@@ -131,9 +131,9 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                             </button>
                         </div>
                     </div>
-                    <div className="h-[492px] flex-1 w-full relative py-[12px] px-[16px] flex flex-col gap-[12px]">
+                    <div className="h-[300px] sm:h-[492px] w-full relative py-[12px] px-[16px] flex flex-col gap-[12px]">
                         <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
-                            <div className="flex-1 w-full relative p-2">
+                            <div className="flex-1 w-full relative p-2 min-h-[200px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
@@ -350,8 +350,8 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                     <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Raw Data Table</h3>
                 </div>
                 <div className="p-[16px]">
-                    <div className=" rounded-[12px] overflow-hidden">
-                        <table className="w-full text-left border-collapse">
+                    <div className="rounded-[12px] overflow-x-auto no-scrollbar">
+                        <table className="w-full min-w-[800px] text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-[#e2e8f0] h-[54px]">
                                     <th className="w-[208px] px-6 py-4 text-[13px] font-medium text-slate-400 font-inter border-r border-[#e2e8f0]">Category</th>

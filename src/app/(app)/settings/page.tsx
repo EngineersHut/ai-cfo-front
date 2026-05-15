@@ -9,6 +9,9 @@ export default function SettingsPage() {
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
     const [isAutoRenewal, setIsAutoRenewal] = React.useState(true);
     const [isCompanyModalOpen, setIsCompanyModalOpen] = React.useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = React.useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
     const [notifications, setNotifications] = React.useState([
         { id: 'email', title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
         { id: 'risks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
@@ -45,9 +48,9 @@ export default function SettingsPage() {
                 <div className="p-[16px] space-y-4">
                     <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Profile Settings</h2>
 
-                    <div className="flex items-center gap-10">
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
                         {/* Avatar Section */}
-                        <div className="relative group">
+                        <div className="relative group shrink-0">
                             <div className="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-white shadow-md">
                                 <Image
                                     src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop"
@@ -63,7 +66,7 @@ export default function SettingsPage() {
                         </div>
 
                         {/* Form Section */}
-                        <div className="flex-1 grid grid-cols-2 gap-4">
+                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Full Name</label>
                                 <input
@@ -83,14 +86,14 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <div className="pt-4 border-t border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="space-y-1">
                             <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">
                                 Account Password
                             </h3>
                             <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">Last changed 3 months ago</p>
                         </div>
-                        <button className="w-[164px] h-[36px] px-[10px] py-[4px] rounded-[8px] border border-[#e2e8f0] bg-white text-[14px] font-medium text-[#64748b] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all">
+                        <button className="w-full sm:w-[164px] h-[36px] px-[10px] py-[4px] rounded-[8px] border border-[#e2e8f0] bg-white text-[14px] font-medium text-[#64748b] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all">
                             Change Password
                         </button>
                     </div>
@@ -98,91 +101,150 @@ export default function SettingsPage() {
             </div>
 
             {/* Main Content Grid: Masonry Style with Bottom Alignment */}
-            <div className="grid grid-cols-3 gap-4 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+                <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
 
-                <div className="col-span-2 flex flex-col gap-4">
-
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
-                        <div className="p-4 flex items-center justify-between">
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
+                        <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="space-y-0.5">
                                 <h2 className="text-[18px] font-bold text-[#1e293b] font-inter">Company Settings</h2>
-                                <p className="text-[13px] text-slate-400 font-inter">Configure multiple entity identities and regional preferences.</p>
+                                <p className="text-[13px] text-slate-400 font-inter max-w-[300px]">Configure multiple entity identities and regional preferences.</p>
                             </div>
                             <button
                                 onClick={() => setIsCompanyModalOpen(true)}
-                                className="flex items-center justify-center gap-[6px] w-[140px] h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-normal text-[#f8fafc] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]"
+                                className="flex items-center justify-center gap-[6px] w-full sm:w-[140px] h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-normal text-[#f8fafc] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98] shrink-0"
                             >
                                 <span className="text-[18px] leading-none">+</span> Add Company
                             </button>
                         </div>
                         <div className="mx-4 h-px bg-slate-100" />
                         <div className="p-4 space-y-3">
-                            <div className="h-[90px] p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex items-center justify-between group relative">
+                            <div className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md">EA</div>
+                                    <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md shrink-0">EA</div>
                                     <div className="space-y-1">
                                         <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">Executive Architectural HQ</h3>
                                         <p className="text-[14px] font-normal text-[#64748b] font-inter">New York, NY</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                                     <span className="px-3 py-1.5 bg-[#2563eb] text-white text-[10px] font-bold rounded-[8px] font-inter tracking-wider shadow-sm">PRIMARY</span>
-                                    <MoreVertical size={20} className="text-slate-300" />
+                                    <div className="relative">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); toggleMenu('company-1'); }}
+                                            className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                        >
+                                            <MoreVertical size={20} />
+                                        </button>
+                                        {activeMenu === 'company-1' && (
+                                            <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                                <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
+                                                    <Pencil size={16} className="text-slate-400" />
+                                                    <span>Edit</span>
+                                                </button>
+                                                <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
+                                                    <Trash2 size={16} className="text-red-400" />
+                                                    <span>Delete</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="h-[90px] p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex items-center justify-between group relative">
+                            <div className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-[48px] h-[48px] bg-white border border-slate-100 rounded-[4px] flex items-center justify-center text-[#1e293b] font-bold text-[16px] font-inter shadow-sm">LD</div>
+                                    <div className="w-[48px] h-[48px] bg-white border border-slate-100 rounded-[4px] flex items-center justify-center text-[#1e293b] font-bold text-[16px] font-inter shadow-sm shrink-0">LD</div>
                                     <div className="space-y-1">
                                         <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">London Design Studio</h3>
                                         <p className="text-[14px] font-normal text-[#64748b] font-inter">Regional Subsidiary • London, UK</p>
                                     </div>
                                 </div>
-                                <MoreVertical size={20} className="text-slate-300" />
+                                <div className="relative self-end sm:self-auto">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleMenu('company-2'); }}
+                                        className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                    >
+                                        <MoreVertical size={20} />
+                                    </button>
+                                    {activeMenu === 'company-2' && (
+                                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
+                                                <Pencil size={16} className="text-slate-400" />
+                                                <span>Edit</span>
+                                            </button>
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
+                                                <Trash2 size={16} className="text-red-400" />
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
 
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden h-fit">
-                        <div className="p-4 flex items-center justify-between">
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
+                        <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="space-y-0.5">
                                 <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Payment Details and Billing Info</h2>
-                                <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%]">Update your payment methods and view recent transactions.</p>
+                                <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] max-w-[400px]">Update your payment methods and view recent transactions.</p>
                             </div>
-                            <button className="flex items-center justify-center gap-[6px] w-[135px] h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-normal text-[#f8fafc] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]">
+                            <button
+                                onClick={() => setIsPaymentModalOpen(true)}
+                                className="flex items-center justify-center gap-[6px] w-full sm:w-[135px] h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-normal text-[#f8fafc] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98] shrink-0"
+                            >
                                 <span className="text-[18px] leading-none">+</span> Add Payment
                             </button>
                         </div>
                         <div className="mx-4 h-px bg-slate-100" />
                         <div className="p-5">
-                            <div className="bg-[#f8fafc] p-5 rounded-[12px] border border-slate-100 flex items-center justify-between group">
-                                <div className="flex items-center gap-5">
-                                    <div className="w-[44px] h-[44px] bg-[#2563eb] rounded-[6px] flex items-center justify-center text-white shadow-sm">
+                            <div className="bg-[#f8fafc] p-4 sm:p-5 rounded-[12px] border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
+                                <div className="flex items-center gap-4 sm:gap-5">
+                                    <div className="w-[44px] h-[44px] bg-[#2563eb] rounded-[6px] flex items-center justify-center text-white shadow-sm shrink-0">
                                         <CreditCard size={20} />
                                     </div>
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-8">
-                                            <div className="flex items-center gap-2 text-[18px] font-bold text-[#0f172a] tracking-[4px]">
+                                    <div className="space-y-1 overflow-hidden">
+                                        <div className="flex items-center gap-2 sm:gap-8 overflow-hidden">
+                                            <div className="flex items-center gap-1 sm:gap-2 text-[14px] sm:text-[18px] font-bold text-[#0f172a] tracking-[2px] sm:tracking-[4px] shrink-0">
                                                 <span>●●●●</span><span>●●●●</span><span>●●●●</span>
                                             </div>
-                                            <span className="text-[18px] font-medium text-[#0f172a] font-inter">5698</span>
+                                            <span className="text-[14px] sm:text-[18px] font-medium text-[#0f172a] font-inter shrink-0">5698</span>
                                         </div>
-                                        <div className="flex items-center gap-16">
-                                            <span className="text-[13px] font-normal text-[#94a3b8] font-inter uppercase">EXP 12/28</span>
-                                            <span className="text-[13px] font-normal text-[#94a3b8] font-inter uppercase">VISA BUSINESS</span>
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:gap-16">
+                                            <span className="text-[11px] sm:text-[13px] font-normal text-[#94a3b8] font-inter uppercase whitespace-nowrap">EXP 12/28</span>
+                                            <span className="text-[11px] sm:text-[13px] font-normal text-[#94a3b8] font-inter uppercase whitespace-nowrap">VISA BUSINESS</span>
                                         </div>
                                     </div>
                                 </div>
-                                <MoreVertical size={20} className="text-slate-300" />
+                                <div className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleMenu('payment-1'); }}
+                                        className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                    >
+                                        <MoreVertical size={20} />
+                                    </button>
+                                    {activeMenu === 'payment-1' && (
+                                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
+                                                <Pencil size={16} className="text-slate-400" />
+                                                <span>Edit</span>
+                                            </button>
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
+                                                <Trash2 size={16} className="text-red-400" />
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
 
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] flex-grow">
-                        <h2 className="text-[18px] pb-2 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Notification Settings</h2>
-                        <div className="space-y-6">
+                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[20px] flex-grow">
+                        <h2 className="text-[18px] pb-4 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%] border-b border-slate-50 mb-6">Notification Settings</h2>
+                        <div className="space-y-8">
                             {notifications.map((setting) => (
                                 <div key={setting.id} className="flex items-center justify-between">
                                     <div className="space-y-0.5">
@@ -201,7 +263,7 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                <div className="col-span-1 flex flex-col gap-4">
+                <div className="col-span-1 lg:col-span-1 flex flex-col gap-4">
                     <div className="bg-[#2563eb] rounded-[16px] p-[16px] text-white flex flex-col shadow-lg shadow-blue-200 h-fit">
                         <p className="text-[16px] font-normal text-white font-inter leading-[24px]">Current running subscription</p>
                         <div className="h-px bg-white/20 w-full mt-4" />
@@ -275,7 +337,10 @@ export default function SettingsPage() {
                                 </p>
                             </div>
                         </div>
-                        <button className="w-full mt-1 h-[36px] px-[24px] py-[10px] bg-[#eb5757] rounded-[8px] text-[14px] font-bold text-white font-inter leading-[20px] tracking-[0px] shadow-sm hover:bg-red-600 transition-all flex items-center justify-center">
+                        <button
+                            onClick={() => setIsDeleteModalOpen(true)}
+                            className="w-full mt-1 h-[36px] px-[24px] py-[10px] bg-[#eb5757] rounded-[8px] text-[14px] font-bold text-white font-inter leading-[20px] tracking-[0px] shadow-sm hover:bg-red-600 transition-all flex items-center justify-center"
+                        >
                             Delete Workspace
                         </button>
                     </div>
@@ -346,6 +411,141 @@ export default function SettingsPage() {
                             className="w-full h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]"
                         >
                             Add
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Add Payment Modal */}
+            <Modal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                width="450px"
+                className="rounded-[24px]"
+            >
+                <div className="p-[16px] space-y-2">
+                    {/* Header */}
+                    <div className="text-center">
+                        <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Add Payment Details</h2>
+                    </div>
+
+                    {/* Form Fields */}
+                    <div className="space-y-4">
+                        {/* Cardholder Name */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Cardholder name</label>
+                            <input
+                                type="text"
+                                placeholder="Johnson"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                            />
+                        </div>
+
+                        {/* Card Details Group */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Card Details</label>
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Enter card"
+                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        type="text"
+                                        placeholder="MM/YY"
+                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="CVC"
+                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Billing Address Dropdown */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Billing Address</label>
+                            <div className="relative group w-full">
+                                <select className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer">
+                                    <option>United States</option>
+                                    <option>United Kingdom</option>
+                                    <option>Canada</option>
+                                    <option>Germany</option>
+                                </select>
+                                <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-center gap-3 pt-2">
+                        <button
+                            onClick={() => setIsPaymentModalOpen(false)}
+                            className=" w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="w-full h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]"
+                        >
+                            Add card
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Delete Workspace Modal */}
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                width="440px"
+                className="rounded-[24px]"
+            >
+                <div className="p-[22px] flex flex-col items-center text-center">
+                    {/* Danger Icon */}
+                    <div className="w-[64px] h-[64px] bg-[#eb5757] rounded-[16px] flex items-center justify-center text-white mb-4 shadow-lg shadow-red-100">
+                        <Trash2 size={32} />
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-3 mb-4">
+                        <h2 className="text-[24px] font-bold text-[#1e293b] font-inter">Delete Workspace?</h2>
+                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[22px]">
+                            Are you sure you want to delete this workspace? All financial data and AI models associated with <span className="font-semibold text-slate-800">Nexus FinTech Global</span> will be permanently removed.
+                        </p>
+                    </div>
+
+                    {/* Confirmation Input */}
+                    <div className="w-full space-y-2 mb-8 text-left">
+                        <label className="text-[12px] font-medium text-[#2e2e37] font-inter">To confirm please type a delete below</label>
+                        <input
+                            type="text"
+                            value={deleteConfirmation}
+                            onChange={(e) => setDeleteConfirmation(e.target.value)}
+                            placeholder="Delete"
+                            className="w-full h-[44px] px-[12px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 transition-all placeholder:text-slate-300"
+                        />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="w-full space-y-3">
+                        <button
+                            disabled={deleteConfirmation.toLowerCase() == 'delete'}
+                            className={`w-full h-[40px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-bold text-white font-inter leading-[20px] shadow-sm transition-all ${deleteConfirmation.toLowerCase() === 'delete'
+                                ? 'bg-[#eb5757] hover:bg-red-600'
+                                : 'bg-red-300 cursor-not-allowed opacity-70'
+                                }`}
+                        >
+                            Delete Workspace
+                        </button>
+                        <button
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            className="w-full h-[40px] px-[12px] py-[4px] bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] hover:bg-slate-100 transition-all"
+                        >
+                            Cancel
                         </button>
                     </div>
                 </div>
