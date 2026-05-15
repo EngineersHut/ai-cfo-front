@@ -207,7 +207,7 @@ export default function ReportPage() {
             </div>
 
             {/* Chart Body - 412px */}
-            <div className="h-[412px] flex-1 w-full border border-[rgba(26,21,83,0.08)] relative py-[12px] px-[16px] flex flex-col gap-[12px]">
+            <div className="h-[412px] flex-1 w-full relative py-[12px] px-[16px] flex flex-col gap-[12px]">
               <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
                 <div className="flex-1 w-full relative p-2">
                   <ResponsiveContainer width="100%" height="100%">

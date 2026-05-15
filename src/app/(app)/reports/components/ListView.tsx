@@ -12,9 +12,10 @@ import {
 interface ListViewProps {
     reportsData: any[];
     onDeleteClick: (e: React.MouseEvent, report: any) => void;
+    onReportClick: (report: any) => void;
 }
 
-export default function ListView({ reportsData, onDeleteClick }: ListViewProps) {
+export default function ListView({ reportsData, onDeleteClick, onReportClick }: ListViewProps) {
     return (
         <div className="w-full h-auto bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
             {/* Table Header Controls */}
@@ -50,7 +51,11 @@ export default function ListView({ reportsData, onDeleteClick }: ListViewProps) 
                     </thead>
                     <tbody className="divide-y divide-[#f1f5f9]">
                         {reportsData.map((report) => (
-                            <tr key={report.id} className="h-[70px] hover:bg-slate-50/50 transition-colors group border-b border-[#f1f5f9]">
+                            <tr 
+                                key={report.id} 
+                                onClick={() => onReportClick(report)}
+                                className="h-[70px] hover:bg-slate-50/50 transition-colors group border-b border-[#f1f5f9] cursor-pointer"
+                            >
                                 <td className="px-[24px] py-[16px] text-[14px] font-medium text-[#0a092e] font-inter leading-[20px] w-[225.6px] border-r border-[#f1f5f9]">
                                     {report.period}
                                 </td>

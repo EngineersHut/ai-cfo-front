@@ -12,6 +12,7 @@ import { reportsData } from '@/data/reportsData';
 import ReportUpload from './components/ReportUpload';
 import ListView from './components/ListView';
 import TimelineView from './components/TimelineView';
+import ReportDetail from './components/ReportDetail';
 import DeleteModal from './components/DeleteModal';
 
 export default function ReportsPage() {
@@ -20,6 +21,7 @@ export default function ReportsPage() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [reportToDelete, setReportToDelete] = useState<any>(null);
     const [isAddingReport, setIsAddingReport] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<any>(null);
 
     const handleDeleteClick = (e: React.MouseEvent, report: any) => {
         e.stopPropagation();
@@ -27,9 +29,18 @@ export default function ReportsPage() {
         setIsDeleteModalOpen(true);
     };
 
+    const handleReportClick = (report: any) => {
+        setSelectedReport(report);
+    };
+
     return (
         <div className="flex flex-col gap-5  max-w-[1400px] mx-auto animate-in fade-in duration-500">
-            {isAddingReport ? (
+            {selectedReport ? (
+                <ReportDetail 
+                    reportId={selectedReport.id} 
+                    onBack={() => setSelectedReport(null)} 
+                />
+            ) : isAddingReport ? (
                 <ReportUpload onCancel={() => setIsAddingReport(false)} />
             ) : (
                 <>
@@ -89,6 +100,7 @@ export default function ReportsPage() {
                         <ListView
                             reportsData={reportsData}
                             onDeleteClick={handleDeleteClick}
+                            onReportClick={handleReportClick}
                         />
                     ) : (
                         <TimelineView
@@ -96,6 +108,7 @@ export default function ReportsPage() {
                             activePeriod={activePeriod}
                             setActivePeriod={setActivePeriod}
                             onDeleteClick={handleDeleteClick}
+                            onReportClick={handleReportClick}
                         />
                     )}
                 </>

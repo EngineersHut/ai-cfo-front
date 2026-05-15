@@ -12,13 +12,15 @@ interface TimelineViewProps {
     activePeriod: string;
     setActivePeriod: (period: string) => void;
     onDeleteClick: (e: React.MouseEvent, report: any) => void;
+    onReportClick: (report: any) => void;
 }
 
 export default function TimelineView({ 
     reportsData, 
     activePeriod, 
     setActivePeriod, 
-    onDeleteClick 
+    onDeleteClick,
+    onReportClick
 }: TimelineViewProps) {
     return (
         <div className="w-full bg-white rounded-[16px] border border-slate-100 p-[12px] shadow-sm">
@@ -59,7 +61,12 @@ export default function TimelineView({
                             </div>
 
                             {/* Card */}
-                            <div className={`w-[256px] h-[190px] p-[20px] rounded-[12px] border transition-all duration-300 shadow-sm relative group flex flex-col gap-[14px] ${activePeriod === report.period
+                            <div 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onReportClick(report);
+                                }}
+                                className={`w-[256px] h-[190px] p-[20px] rounded-[12px] border transition-all duration-300 shadow-sm relative group flex flex-col gap-[14px] ${activePeriod === report.period
                                 ? 'bg-[#5345cc] border-[#5345cc] text-white shadow-xl shadow-[#5345cc]/20 scale-[1.02] z-20'
                                 : 'bg-slate-50/50 border-slate-100 hover:border-slate-200'
                                 }`}>
