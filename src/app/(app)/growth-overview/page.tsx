@@ -180,7 +180,7 @@ export default function GrowthOverview() {
 
                 {/* Revenue Over Time Chart (Span 2) */}
 
-                <div className="lg:col-span-2 max-w-[726px] w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
+                <div className="lg:col-span-2 w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
                     {/* Chart Header - 68px */}
                     <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
                         <div className="flex items-center gap-3">
