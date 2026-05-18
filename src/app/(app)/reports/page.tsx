@@ -51,8 +51,8 @@ export default function ReportsPage() {
                             <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Your Q1 2026 financial performance metrics have been consolidated. AI CFO has identified 3 key optimization trends..</p>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="w-[290px] h-[48px] p-[5px] flex items-center bg-white border border-[#e2e8f0] rounded-[8px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)]">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="w-full sm:w-[290px] h-[48px] p-[5px] flex items-center bg-white border border-[#e2e8f0] rounded-[8px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)]">
                                 <button
                                     onClick={() => setView('list')}
                                     className={`flex-1 h-[36px] flex items-center justify-center gap-[10px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-normal font-inter leading-[20px] transition-all whitespace-nowrap ${view === 'list'
@@ -75,7 +75,7 @@ export default function ReportsPage() {
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                                 <div className="relative group">
                                     <select defaultValue="Monthly" className="appearance-none w-[105px] h-[36px] pt-[4px] pr-[32px] pb-[4px] pl-[12px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#131b2e] font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all">
                                         <option value="Weekly">Weekly</option>

@@ -19,7 +19,7 @@ export default function ListView({ reportsData, onDeleteClick, onReportClick }: 
     return (
         <div className="w-full h-auto bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
             {/* Table Header Controls */}
-            <div className="h-[60px] flex items-center justify-between p-[12px] border-b border-[#f2f2f3] bg-white gap-[12px]">
+            <div className="h-auto flex flex-col sm:flex-row sm:items-center justify-between p-[12px] border-b border-[#f2f2f3] bg-white gap-[12px]">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
                         <TableIcon size={16} />
@@ -27,19 +27,19 @@ export default function ListView({ reportsData, onDeleteClick, onReportClick }: 
                     <h3 className="text-[16px] font-normal text-[#131b2e] font-inter leading-[24px]">Raw Data Table</h3>
                 </div>
 
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     <input
                         type="text"
                         placeholder="Search"
-                        className="w-[247px] h-[36px] pl-10 pr-4 bg-white border border-[#e2e8f0] rounded-[8px] text-[13px] font-inter focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)]"
+                        className="w-full sm:w-[247px] h-[36px] pl-10 pr-4 bg-white border border-[#e2e8f0] rounded-[8px] text-[13px] font-inter focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)]"
                     />
                 </div>
             </div>
 
             {/* Main Table */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+            <div className="w-full overflow-x-auto md:overflow-x-visible scrollbar-thin">
+                <table className="w-full min-w-[850px] md:min-w-0 text-left border-collapse">
                     <thead>
                         <tr className="bg-[#f6f8fa] border-b border-[#f1f5f9] h-[70px]">
                             <th className="px-[24px] py-[16px] text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-normal w-[225.6px] border-r border-[#f1f5f9]">Period</th>
@@ -86,11 +86,11 @@ export default function ListView({ reportsData, onDeleteClick, onReportClick }: 
             </div>
 
             {/* Pagination */}
-            <div className="h-[60px] border-t border-[#f2f2f3] bg-white px-[24px] flex items-center justify-between">
-                <div className="text-[12px] font-medium text-[#94a3b8] font-inter uppercase tracking-wider">
+            <div className="h-auto py-3 border-t border-[#f2f2f3] bg-white px-[24px] flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="text-[12px] font-medium text-[#94a3b8] font-inter uppercase tracking-wider text-center sm:text-left">
                     Showing 1-4 of 24 Reports
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                     <button className="w-[40px] h-[40px] flex items-center justify-center bg-white border border-[#e2e8f0] rounded-[8px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] text-slate-400 hover:bg-slate-50 transition-all">
                         <ChevronLeft size={16} />
                     </button>
