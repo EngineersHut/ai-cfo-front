@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Modal from '../../../../components/common/Modal';
 import {
     TrendingUp,
     Cpu,
@@ -12,7 +13,10 @@ import {
     Link as LinkIcon,
     ChevronDown,
     FileText,
-    Trash2
+    Trash2,
+    X,
+    Info,
+    Pin
 } from 'lucide-react';
 import {
     ResponsiveContainer,
@@ -23,6 +27,7 @@ import {
     Tooltip,
     CartesianGrid
 } from 'recharts';
+import { aiInsightsData } from '@/data/dashboardData';
 
 interface ExportReportProps {
     reportName?: string;
@@ -32,6 +37,7 @@ interface ExportReportProps {
 
 export default function ExportReport({ reportName, onFinalize, onTriggerToast }: ExportReportProps) {
     const [exportFormat, setExportFormat] = useState<'pdf' | 'csv' | 'excel'>('pdf');
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [includeSections, setIncludeSections] = useState({
         kpiSummary: true,
         visualCharts: true,
@@ -100,7 +106,7 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                             </div>
                             <span className="text-[14px] font-normal font-inter leading-[20px] text-[#64748b]">Revenue Forecast</span>
                         </div>
-                        <span className="h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] uppercase tracking-wider align-middle flex items-center justify-center">Next 3 months</span>
+                        <span className="w-[100px] h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] align-middle flex items-center justify-center">Next 3 months</span>
                     </div>
 
                     {/* Horizontal Divider Line */}
@@ -131,7 +137,7 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                             </div>
                             <span className="text-[14px] font-normal font-inter leading-[20px] text-[#64748b]">Profit Forecast</span>
                         </div>
-                        <span className="h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] uppercase tracking-wider align-middle flex items-center justify-center">Next 3 months</span>
+                        <span className="w-[100px] h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] align-middle flex items-center justify-center">Next 3 months</span>
                     </div>
 
                     {/* Horizontal Divider Line */}
@@ -164,7 +170,7 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                             </div>
                             <span className="text-[14px] font-normal font-inter leading-[20px] text-[#64748b]">Cash Flow Forecast</span>
                         </div>
-                        <span className="h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] uppercase tracking-wider align-middle flex items-center justify-center">Next 3 months</span>
+                        <span className="w-[100px] h-[24px] pt-[4px] pr-[8px] pb-[4px] pl-[8px] rounded-[4px] bg-[#f1f5f9] text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] align-middle flex items-center justify-center">Next 3 months</span>
                     </div>
 
                     {/* Horizontal Divider Line */}
@@ -239,14 +245,14 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                 {/* Right Card: Export Configuration Controls */}
                 <div className="bg-white rounded-[16px] border border-slate-100 p-5 shadow-sm flex flex-col justify-between min-h-[420px]">
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2 text-slate-800 font-inter font-bold border-b border-slate-50 pb-4 mb-1">
-                            <Layers size={18} className="text-blue-500" />
-                            <span>Export Configuration</span>
+                        <div className="flex items-center gap-2 border-b border-slate-50 pb-4 mb-1">
+                            <Layers size={18} className="text-[#0f172a]" />
+                            <span className="text-[16px] font-normal font-inter leading-[24px] text-[#0f172a]">Export Configuration</span>
                         </div>
 
                         {/* File Format Selector Buttons */}
                         <div className="space-y-2">
-                            <label className="text-[13px] font-semibold text-slate-700 font-inter">File Format</label>
+                            <label className="text-[14px] font-medium font-inter leading-[20px] text-black">File Format</label>
                             <div className="grid grid-cols-3 gap-2">
                                 {[
                                     { id: 'pdf', title: 'PDF', icon: Download },
@@ -274,8 +280,8 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
 
                         {/* Reporting Period Selector */}
                         <div className="space-y-2">
-                            <label className="text-[13px] font-semibold text-slate-700 font-inter">Reporting Period</label>
-                            <div className="relative group">
+                            <label className="text-[14px] font-medium  font-inter leading-[20px] text-black">Reporting Period</label>
+                            <div className="relative pt-2 group">
                                 <select
                                     className="w-full h-[38px] pl-3 pr-10 border border-slate-200 rounded-[8px] text-[13px] font-inter focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm bg-white cursor-pointer appearance-none"
                                     defaultValue="current"
@@ -292,8 +298,8 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
 
                         {/* Include Sections Checkbox Group */}
                         <div className="space-y-2.5">
-                            <label className="text-[13px] font-semibold text-slate-700 font-inter">Include Sections</label>
-                            <div className="space-y-2 pt-1">
+                            <label className="text-[14px] font-medium font-inter leading-[20px] text-black">Include Sections</label>
+                            <div className="space-y-2 pt-2">
                                 {[
                                     { id: 'kpiSummary', label: 'KPI Summary' },
                                     { id: 'visualCharts', label: 'Visual Charts' },
@@ -301,13 +307,27 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                                     { id: 'rawTransactions', label: 'Raw Transactional Data' }
                                 ].map((sec) => (
                                     <label key={sec.id} className="flex items-center gap-3 cursor-pointer group select-none">
-                                        <input
-                                            type="checkbox"
-                                            checked={(includeSections as any)[sec.id]}
-                                            onChange={(e) => setIncludeSections(prev => ({ ...prev, [sec.id]: e.target.checked }))}
-                                            className="w-4.5 h-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
-                                        />
-                                        <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-800 font-inter transition-colors">{sec.label}</span>
+                                        <div className="relative flex items-center justify-center shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={(includeSections as any)[sec.id]}
+                                                onChange={(e) => setIncludeSections(prev => ({ ...prev, [sec.id]: e.target.checked }))}
+                                                className="absolute opacity-0 w-0 h-0 cursor-pointer"
+                                            />
+                                            <div
+                                                className={`w-[18px] h-[18px] rounded-[4px] border flex items-center justify-center transition-all duration-200 ${(includeSections as any)[sec.id]
+                                                    ? 'bg-[#2563eb] border-[#2563eb]'
+                                                    : 'bg-white border-[#cbd5e1] hover:border-[#94a3b8]'
+                                                    }`}
+                                            >
+                                                {(includeSections as any)[sec.id] && (
+                                                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-white stroke-[2.5]" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M1.5 4L4 6.5L8.5 1.5" stroke="white" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <span className="text-[12px] font-normal font-inter leading-[16px] text-[#0f172a] transition-colors">{sec.label}</span>
                                     </label>
                                 ))}
                             </div>
@@ -326,9 +346,7 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                         </button>
                         <button
                             type="button"
-                            onClick={() => {
-                                onTriggerToast("Share link copied to clipboard!");
-                            }}
+                            onClick={() => setIsShareModalOpen(true)}
                             className="w-full h-[40px] bg-[#f8fafc] hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold font-inter text-[13.5px] rounded-[8px] flex items-center justify-center gap-2 active:scale-95 transition-all"
                         >
                             <LinkIcon size={14} />
@@ -339,7 +357,111 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                         </p>
                     </div>
                 </div>
+
             </div>
+            <div className="w-full h-auto md:h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden pb-4 md:pb-0">
+                {/* Header */}
+                <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <Pin size={16} />
+                    </div>
+                    <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">AI Insights</h3>
+                </div>
+
+                {/* Insights Grid */}
+                <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
+                    {aiInsightsData.map((item) => (
+                        <div key={item.id} className="flex gap-2 group">
+                            {/* Left Indicator Bar */}
+                            <div
+                                className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
+                                style={{ backgroundColor: item.color }}
+                            />
+
+                            <div className="space-y-1">
+                                {/* Category Badge */}
+                                <div
+                                    className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
+                                    style={{ backgroundColor: item.bgColor, color: item.textColor }}
+                                >
+                                    {item.title} <span className="ml-1 opacity-70">{item.percentage}</span>
+                                </div>
+
+                                {/* Insight Text */}
+                                <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
+                                    {item.description}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* High-Fidelity Share Report Modal using the common Modal component! */}
+            <Modal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                width="380px"
+                className="pb-6 pt-0"
+            >
+                <div className="flex flex-col items-center justify-center px-6">
+                    {/* Top Link Icon inside rounded box */}
+                    <div className="w-[48px] h-[48px] bg-[#f8fafc] border border-slate-100 rounded-[12px] flex items-center justify-center text-[#2563eb] mb-4 shadow-sm">
+                        <LinkIcon size={20} className="stroke-[2.5]" />
+                    </div>
+
+                    {/* Modal Title */}
+                    <h3 className="text-[19px] font-bold text-slate-800 font-inter mb-1.5 text-center">
+                        Share Report Link
+                    </h3>
+
+                    {/* Modal Description */}
+                    <p className="text-[13px] font-normal text-slate-500 font-inter text-center max-w-[280px] leading-relaxed mb-5">
+                        Anyone with this link can view the report. No login required.
+                    </p>
+
+                    {/* Link Text Display and Copy container */}
+                    <div className="w-full bg-[#f8fafc] border border-slate-100 rounded-[8px] p-1.5 pl-3 flex items-center justify-between gap-2 mb-3">
+                        <span className="text-[11.5px] font-mono text-slate-500 select-all truncate max-w-[190px]">
+                            https://app.aicfo.com/share/rpt_784539
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText("https://app.aicfo.com/share/rpt_784539");
+                                onTriggerToast("Link copied to clipboard!");
+                            }}
+                            className="h-[28px] px-3.5 bg-[#2563eb] hover:bg-blue-700 text-white text-[11.5px] font-semibold rounded-[6px] transition-all flex items-center justify-center active:scale-95 shadow-sm shrink-0"
+                        >
+                            Copy Link
+                        </button>
+                    </div>
+
+                    {/* Link Expires Info row */}
+                    <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-inter mb-6 w-full justify-start pl-1">
+                        <Info size={13} className="text-slate-400 stroke-[2]" />
+                        <span>Link expires in 7 days</span>
+                    </div>
+
+                    {/* Action Buttons row */}
+                    <div className="flex items-center gap-3 w-full">
+                        <button
+                            type="button"
+                            onClick={() => setIsShareModalOpen(false)}
+                            className="flex-1 h-[38px] bg-[#2563eb] hover:bg-blue-700 text-white text-[13px] font-semibold rounded-[8px] flex items-center justify-center active:scale-95 transition-all shadow-[0_4px_12px_rgba(37,99,235,0.1)]"
+                        >
+                            Done
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsShareModalOpen(false)}
+                            className="flex-1 h-[38px] bg-[#f8fafc] hover:bg-slate-50 border border-slate-200 text-slate-650 text-[13px] font-semibold rounded-[8px] flex items-center justify-center active:scale-95 transition-all"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

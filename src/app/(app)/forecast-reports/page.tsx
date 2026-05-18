@@ -57,14 +57,13 @@ export default function ForecastReportsPage() {
 
     const handleGenerate = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.reportName.trim()) {
-            alert("Please enter a forecast report name!");
-            return;
-        }
-        if (formData.files.length === 0) {
-            alert("Please upload at least one financial document for modeling!");
-            return;
-        }
+        // Instant generation with fallback name if none entered
+        const finalName = formData.reportName.trim() || "Q1 2026 Operations Baseline";
+        setFormData(prev => ({
+            ...prev,
+            reportName: finalName,
+            files: prev.files.length > 0 ? prev.files : [{ name: "baseline_ledger.xlsx", size: 45000 }]
+        }));
         setIsCompleted(true);
     };
 
