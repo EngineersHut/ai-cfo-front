@@ -1,0 +1,629 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import {
+  Coins,
+  Wallet,
+  Clock,
+  Landmark,
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  ArrowRight,
+  Target,
+  Briefcase,
+  LineChart,
+  BarChart3,
+  PieChart,
+  Pin,
+  ArrowUpRight
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart as RePieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import KPICard from '@/components/common/KPICard';
+import {
+  forecastChartData,
+  scenarioData,
+  aiForecastInsights,
+  ForecastChartItem
+} from '@/data/forecastData';
+import { expenseBreakdownData, revenueData } from '@/data/reportsData';
+import { aiInsightsData, healthData } from '@/data/dashboardData';
+
+// Custom Gauge Components & Constants
+const RADIAN = Math.PI / 180;
+const NeedleLayer = ({ value, cx, cy, iR, oR }: any) => {
+  const ang = 180.0 * (1 - value / 100);
+  const length = oR + 15;
+  const sin = Math.sin(-RADIAN * ang);
+  const cos = Math.cos(-RADIAN * ang);
+  const r = 8;
+  const x0 = cx;
+  const y0 = cy;
+  const xba = x0 + r * sin;
+  const yba = y0 - r * cos;
+  const xbb = x0 - r * sin;
+  const ybb = y0 + r * cos;
+  const xp = x0 + length * cos;
+  const yp = y0 + length * sin;
+
+  return (
+    <svg className="absolute inset-0 pointer-events-none z-50 w-full h-full">
+      <g>
+        <circle cx={x0} cy={y0} r={r + 4} fill="#1a2153" stroke="none" />
+        <path d={`M${xba} ${yba}L${xbb} ${ybb}L${xp} ${yp} L${xba} ${yba}`} stroke="none" fill="#1a2153" />
+        <circle cx={x0} cy={y0} r={3} fill="#fff" stroke="none" />
+      </g>
+    </svg>
+  );
+};
+
+const renderOuterLabel = (props: any) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, name } = props;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-RADIAN * midAngle);
+  const y = cy + radius * Math.sin(-RADIAN * midAngle);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#1a2153"
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="text-[11px] font-bold tracking-tight font-inter"
+      style={{ transform: `rotate(${90 - midAngle}deg)`, transformOrigin: `${x}px ${y}px` }}
+    >
+      {name}
+    </text>
+  );
+};
+
+const gaugeGradients = [
+  { id: 'gradPoor', stops: [{ offset: '0%', color: '#ef4444' }, { offset: '100%', color: '#b91c1c' }] },
+  { id: 'gradFair', stops: [{ offset: '0%', color: '#f59e0b' }, { offset: '100%', color: '#b45309' }] },
+  { id: 'gradGood', stops: [{ offset: '0%', color: '#eab308' }, { offset: '100%', color: '#a16207' }] },
+  { id: 'gradExcellent', stops: [{ offset: '0%', color: '#10b981' }, { offset: '100%', color: '#047857' }] },
+];
+
+const outerHealthData = [
+  { name: 'POOR', value: 25, color: '#fee2e2' },
+  { name: 'FAIR', value: 25, color: '#fef3c7' },
+  { name: 'GOOD', value: 25, color: '#fef9c3' },
+  { name: 'EXCELLENT', value: 25, color: '#dcfce7' },
+];
+
+export default function ForecastPage() {
+  const [timeframe, setTimeframe] = useState<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
+
+  // Interactive Simulator States
+  const [growthRate, setGrowthRate] = useState<number>(15); // Baseline: 15%
+  const [margin, setMargin] = useState<number>(28.4); // Baseline: 28.4%
+  const [expenseBuffer, setExpenseBuffer] = useState<number>(0); // Baseline: 0%
+  const [activeScenario, setActiveScenario] = useState<string>('Baseline');
+  const [activeChart, setActiveChart] = useState('line');
+  const [expenseTimeframe, setExpenseTimeframe] = React.useState<'Weekly' | 'Monthly'>('Monthly');
+
+  // Simulated data state
+  const [simulatedData, setSimulatedData] = useState<ForecastChartItem[]>(forecastChartData);
+
+  // Sync simulator controls when clicking a preset scenario card
+
+
+  useEffect(() => {
+    let cashAccumulator = 1248000; // Starting cash reserve (matching Card 4)
+
+    const updated = forecastChartData.map((item, index) => {
+      // Calculate multipliers based on user inputs compared to Baseline (growthRate=15%, margin=28.4%, expenseBuffer=0%)
+      const growthMultiplier = 1 + (growthRate - 15) / 100;
+      const expenseMultiplier = 1 + (expenseBuffer) / 100;
+
+      // Simulated values
+      const simRevenue = Math.round(item.revenue * growthMultiplier);
+      const simExpenses = Math.round(item.expenses * expenseMultiplier);
+
+      // Calculate cash reserve sequentially
+      if (index === 0) {
+        cashAccumulator = 1248000;
+      } else {
+        cashAccumulator = Math.max(0, cashAccumulator + (simRevenue - simExpenses));
+      }
+
+      return {
+        ...item,
+        revenue: simRevenue,
+        expenses: simExpenses,
+        cashReserve: cashAccumulator,
+        // Keep baseline boundaries for comparison
+        optimisticRevenue: Math.round(item.revenue * 1.25),
+        conservativeRevenue: Math.round(item.revenue * 0.85)
+      };
+    });
+
+    setSimulatedData(updated);
+  }, [growthRate, margin, expenseBuffer]);
+
+
+
+  // Format financial currency label
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Premium Header Layout matching mockup */}
+      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-[16px] pt-[4px] pb-[4px]">
+        <div className="space-y-1">
+          <h1 className="text-[24px] font-semibold text-slate-800 font-inter leading-[32px] tracking-tight">Financial Forecast</h1>
+          <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px]">
+            FY2024 Q4 Performance Projection & Strategy
+          </p>
+        </div>
+
+        {/* Timeframe pill selector as shown in the mockup design */}
+        <div className="flex items-center p-[4px] bg-white border border-slate-200/80 rounded-[12px] shadow-sm shrink-0 gap-1">
+          {(['Monthly', 'Quarterly', 'Yearly'] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setTimeframe(option)}
+              className={`py-[8px] px-[16px] text-[13px] font-medium rounded-[8px] transition-all duration-300 ${timeframe === option
+                ? 'bg-[#2563eb] text-white shadow-sm font-semibold'
+                : 'text-slate-400 hover:text-slate-600'
+                }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* KPI Cards Grid exactly as shown in the mockup */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Operating Margin */}
+        <KPICard
+          icon={<Coins size={16} className="text-blue-500" />}
+          label="Operating Margin"
+          value={`${margin.toFixed(1)}%`}
+          trend="+12.5%"
+          progress={margin}
+        />
+
+        {/* Card 2: Cash Burn Rate */}
+        <KPICard
+          icon={<Wallet size={16} className="text-blue-500" />}
+          label="Cash Burn Rate"
+          value="$32,800"
+          unit="/ Month"
+          trend="+1.5%"
+          sub="Consistent with Q3 Forecast"
+        />
+
+        {/* Card 3: Cash Runway */}
+        <KPICard
+          icon={<Clock size={16} className="text-blue-500" />}
+          label="Cash Runway"
+          value="$95,600"
+          unit="/ Month"
+          trend="-1.2%"
+          isDown={true}
+          sub="Healthy Liquidity Profile"
+        />
+
+        {/* Card 4: Cash in Bank Today */}
+        <KPICard
+          icon={<Landmark size={16} className="text-blue-500" />}
+          label="Cash in Bank Today"
+          value={formatCurrency(simulatedData[0]?.cashReserve || 1248000)}
+          trend="Stable"
+          noTrendIcon={true}
+          sub="Last synced 14m ago"
+        />
+      </div>
+
+      {/* Interactive Forecast Scenario Simulator & Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+
+        <div className="lg:col-span-2 w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+          {/* Chart Header - 68px */}
+          <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <Briefcase size={16} />
+              </div>
+              <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Revenue Over Time</h3>
+            </div>
+            <div className="flex items-center gap-[6px]">
+              <button
+                onClick={() => setActiveChart('line')}
+                className={`w-[44px] h-[44px] flex items-center justify-center p-[4px_12px] rounded-[8px] border transition-all duration-200 ${activeChart === 'line' ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
+                  }`}
+              >
+                <LineChart size={18} />
+              </button>
+              <button
+                onClick={() => setActiveChart('bar')}
+                className={`w-[44px] h-[44px] flex items-center justify-center p-[4px_12px] rounded-[8px] border transition-all duration-200 ${activeChart === 'bar' ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
+                  }`}
+              >
+                <BarChart3 size={18} />
+              </button>
+              <button
+                onClick={() => setActiveChart('pie')}
+                className={`w-[44px] h-[44px] flex items-center justify-center p-[4px_12px] rounded-[8px] border transition-all duration-200 ${activeChart === 'pie' ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm' : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
+                  }`}
+              >
+                <PieChart size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Chart Body - 412px */}
+          <div className="h-[412px] flex-1 w-full relative py-[12px] px-[16px] flex flex-col gap-[12px]">
+            <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
+              <div className="flex-1 w-full relative p-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.1} />
+                        <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={10} />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 11, fill: '#94a3b8' }}
+                      tickFormatter={(value) => `${value / 100}k`}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#8b5cf6"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorRevenue)"
+                      activeDot={{ r: 6, fill: "#fff", stroke: "#8b5cf6", strokeWidth: 3 }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="profit"
+                      stroke="#fbbf24"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorProfit)"
+                      activeDot={{ r: 6, fill: "#fff", stroke: "#fbbf24", strokeWidth: 3 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Chart Legend - Styled inside the inner box */}
+              <div className="flex items-center justify-center gap-8 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
+                  <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Revenue</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#fbbf24]" />
+                  <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Net Profit</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Right Widgets Column */}
+        <div className="space-y-4">
+          {/* Company Health Meter */}
+
+          <div className="h-[330px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+            {/* Header - 54px */}
+            <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <Pin size={16} />
+              </div>
+              <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Company Health Meter</h3>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 flex flex-col">
+              <div className="relative h-[180px] w-full flex items-center justify-center">
+                <div className="w-[260px] h-[180px] relative mx-auto">
+                  {/* Compact Gauge Chart with ZERO Gaps */}
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RePieChart>
+                      <defs>
+                        {gaugeGradients.map((grad: any) => (
+                          <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
+                            {grad.stops.map((stop: any, i: number) => (
+                              <stop key={i} offset={stop.offset} stopColor={stop.color} />
+                            ))}
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      {/* Outer Arc - Touching the inner arc (No Gap) */}
+                      <Pie
+                        data={outerHealthData}
+                        cx={130}
+                        cy={140}
+                        startAngle={180}
+                        endAngle={0}
+                        innerRadius={85}
+                        outerRadius={115}
+                        paddingAngle={0}
+                        dataKey="value"
+                        stroke="none"
+                        labelLine={false}
+                        label={renderOuterLabel}
+                      >
+                        {outerHealthData.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
+                      <Pie
+                        data={healthData}
+                        cx={130}
+                        cy={140}
+                        startAngle={180}
+                        endAngle={0}
+                        innerRadius={30}
+                        outerRadius={85}
+                        paddingAngle={0}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {healthData.map((entry: any, index: number) => {
+                          const gradientIds = ['gradPoor', 'gradFair', 'gradGood', 'gradExcellent'];
+                          return <Cell key={`cell-${index}`} fill={`url(#${gradientIds[index]})`} />;
+                        })}
+                      </Pie>
+                    </RePieChart>
+                  </ResponsiveContainer>
+
+                  {/* Independent Needle Layer */}
+                  <NeedleLayer value={84} cx={130} cy={140} iR={30} oR={85} />
+                </div>
+              </div>
+
+              <div className="text-center mt-[-10px] mb-2">
+                <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
+                  <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
+                </div>
+              </div>
+
+              {/* Health Metrics Details */}
+              <div className="px-5 space-y-3 border-t border-slate-50 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
+                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Equity Health</span>
+                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          {/* Forecast vs Reality - Blue Card */}
+          <div className="  bg-[#1d4ed8]  p-[12px] rounded-[24px] text-white shadow-lg flex flex-col gap-3 relative overflow-hidden group cursor-pointer transition-all">
+            <div className="flex items-center justify-between relative z-10">
+              <h3 className="text-[16px] font-normal text-white font-inter leading-[24px] tracking-[0%]">Forecast vs Reality</h3>
+              <Target size={20} className="text-white/40" />
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between text-[11px] font-medium text-white/70">
+                <span>Market Penetration Goal</span>
+                <span>40% achieved</span>
+              </div>
+              <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full bg-white rounded-full w-[40%]" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between  relative z-10">
+              <div>
+                <p className="text-[12px] text-white/60 font-normal font-inter uppercase leading-[16px] tracking-[0%] align-middle mb-1">Current Progress</p>
+                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">Achieved 2% of 5% target</h4>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
+                <ArrowRight size={18} />
+              </div>
+            </div>
+
+            {/* Decorative background circle */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Expense Breakdown Chart */}
+        <div className="lg:col-span-1 bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+          <div className="h-[54px] flex items-center justify-between p-[12px] border-b border-slate-50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <PieChart size={16} />
+              </div>
+              <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Expense Breakdown</h3>
+            </div>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setExpenseTimeframe('Weekly')}
+                className={`w-[72px] h-[30px] px-[12px] py-[5px] flex items-center justify-center gap-[6px] rounded-[8px] text-[12px] font-medium transition-all duration-200 ${expenseTimeframe === 'Weekly'
+                  ? 'bg-[#2563eb] text-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)]'
+                  : 'bg-white border border-[#e2e8f0] text-slate-500 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:text-slate-700'}`}
+              >
+                Weekly
+              </button>
+              <button
+                onClick={() => setExpenseTimeframe('Monthly')}
+                className={`w-[72px] h-[30px] px-[12px] py-[5px] flex items-center justify-center gap-[6px] rounded-[8px] text-[12px] font-medium transition-all duration-200 ${expenseTimeframe === 'Monthly'
+                  ? 'bg-[#2563eb] text-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)]'
+                  : 'bg-white border border-[#e2e8f0] text-slate-500 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:text-slate-700'}`}
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+          <div className="p-6 flex flex-col items-center justify-center h-[340px]">
+            <div className="relative w-full h-full flex items-center justify-center">
+              <ResponsiveContainer width="100%" height={240}>
+                <RePieChart>
+                  <Pie
+                    data={expenseBreakdownData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={85}
+                    paddingAngle={5}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {expenseBreakdownData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </RePieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
+                <span className="text-[12px] text-slate-400 font-medium font-inter">Total</span>
+                <span className="text-[24px] font-bold text-slate-800 font-inter leading-none">$320.50</span>
+              </div>
+            </div>
+
+            {/* Custom Legend */}
+            <div className="grid grid-cols-2 gap-x-2 gap-y-3  w-full ">
+              {expenseBreakdownData.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-[13px] font-medium text-[#0a092e] font-inter leading-[20px] tracking-[0%]">
+                    {item.name} ({item.value}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Cost Details Companion Card */}
+        <div className="lg:col-span-1 bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+          <div className="h-[54px] flex items-center p-[12px] border-b border-slate-50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <Pin size={16} className="-rotate-45" />
+              </div>
+              <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Cost Details</h3>
+            </div>
+          </div>
+
+          <div className="p-6 flex flex-col justify-between flex-grow space-y-6">
+            {[
+              { name: 'Utilities Bills & Pay Labour', value: '$14.5k', trend: '+12.5%', progress: 75, color: '#5345cc', dotColor: '#5345cc' },
+              { name: 'Transportation', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#f59e0b', dotColor: '#f59e0b' },
+              { name: 'Subscription', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#84cc16', dotColor: '#84cc16' },
+              { name: 'Other', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#bfdbfe', dotColor: '#5345cc' },
+            ].map((item: any, idx: number) => (
+              <div key={idx} className="space-y-2 pb-4 last:pb-0 border-b last:border-0 border-slate-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.dotColor }} />
+                    <span className="text-[14px] font-normal text-[#0a092e] font-inter">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[14px] font-bold text-slate-800 font-inter">{item.value}</span>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[4px] bg-[#f0fdf4] border border-[#dcfce7] text-[#22c55e] text-[11px] font-semibold font-inter">
+                      <ArrowUpRight size={10} className="stroke-[3px]" />
+                      {item.trend}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full h-[10px] bg-[#eff6ff] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${item.progress}%`,
+                      backgroundColor: item.color
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="w-full h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
+          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+            <Pin size={16} />
+          </div>
+          <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">AI Insights</h3>
+        </div>
+
+        {/* Insights Grid */}
+        <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
+          {aiInsightsData.map((item) => (
+            <div key={item.id} className="flex gap-2 group">
+              {/* Left Indicator Bar */}
+              <div
+                className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
+                style={{ backgroundColor: item.color }}
+              />
+
+              <div className="space-y-1">
+                {/* Category Badge */}
+                <div
+                  className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
+                  style={{ backgroundColor: item.bgColor, color: item.textColor }}
+                >
+                  {item.title} <span className="ml-1 opacity-70">{item.percentage}</span>
+                </div>
+
+                {/* Insight Text */}
+                <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
+}

@@ -130,15 +130,15 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           icon={<ForcastIcon />} 
           label="Forcast" 
           isCollapsed={isCollapsed} 
-          href="/dashboard/forecast" 
-          active={pathname === '/dashboard/forecast'} 
+          href="/forecast" 
+          active={pathname === '/forecast'} 
         />
         <NavItem 
           icon={<ForcastIcon />} 
           label="Forcast Reports" 
           isCollapsed={isCollapsed} 
-          href="/dashboard/forecast-reports" 
-          active={pathname === '/dashboard/forecast-reports'} 
+          href="/forecast-reports" 
+          active={pathname === '/forecast-reports'} 
         />
       </nav>
 

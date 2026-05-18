@@ -13,7 +13,8 @@ export default function KPICard({
   sub,
   showTrend = true,
   isDown = false,
-  noTrendIcon = false
+  noTrendIcon = false,
+  progress
 }: KPICardProps) {
   return (
     <div className="rounded-[12px] border border-[#e2e8f0] bg-white flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
@@ -42,12 +43,21 @@ export default function KPICard({
               'bg-emerald-50 text-emerald-600 border-emerald-100'
             }`}>
             {!noTrendIcon && (isDown ? <ArrowDownRight size={10} /> : <ArrowUpRight size={10} />)}
-            <span className="truncate">{noTrendIcon ? 'Stable' : trend}</span>
+            <span className="truncate">{noTrendIcon ? (trend || 'Stable') : trend}</span>
           </div>}
         </div>
-        <p className="text-[12px] font-normal text-slate-400 font-inter leading-[16px] tracking-[0%] line-clamp-1">
-          {sub}
-        </p>
+        {progress !== undefined ? (
+          <div className="w-full bg-slate-100 h-[6px] rounded-full overflow-hidden mt-1.5">
+            <div
+              className="bg-indigo-600 h-full rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        ) : (
+          <p className="text-[12px] font-normal text-slate-400 font-inter leading-[16px] tracking-[0%] line-clamp-1">
+            {sub}
+          </p>
+        )}
       </div>
     </div>
   );

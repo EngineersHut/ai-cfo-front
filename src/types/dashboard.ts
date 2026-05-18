@@ -6,10 +6,11 @@ export interface KPICardProps {
   value: string;
   unit?: string;
   trend?: string;
-  sub: string;
+  sub?: string;
   isDown?: boolean;
   noTrendIcon?: boolean;
-  showTrend?:boolean
+  showTrend?: boolean;
+  progress?: number;
 }
 
 export interface RevenueDataItem {
