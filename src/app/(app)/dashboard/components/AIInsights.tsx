@@ -6,7 +6,7 @@ import { aiInsightsData } from '@/data/dashboardData';
 
 export default function AIInsights() {
   return (
-    <div className="w-full h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden">
+    <div className="w-full h-auto md:h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden pb-4 md:pb-0">
       {/* Header */}
       <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
         <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
