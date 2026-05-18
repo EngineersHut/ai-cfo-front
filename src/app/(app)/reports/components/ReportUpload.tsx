@@ -146,9 +146,9 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                         <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%]">Enter your email and password to Login</p>
                     </div>
 
-                    <div className="space-y-8">
-                        <div className="space-y-6">
-                            <label className="text-[14px] font-medium text-slate-600 font-inter">Report name</label>
+                    <div className="space-y-6">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[14px] font-medium text-slate-600 font-inter block">Report name</label>
                             <input
                                 type="text"
                                 value={formData.reportName}
@@ -158,20 +158,20 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
                                 Reporting Period <span className="text-red-500">*</span>
                             </label>
-                            <div className="relative group">
+                            <div className="relative group max-w-[648px] w-full">
                                 <input
                                     type="text"
                                     value={formData.reportingPeriod}
                                     onChange={(e) => handleInputChange('reportingPeriod', e.target.value)}
                                     placeholder="mm/dd/yyyy"
-                                    className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
+                                    className="w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
                                 />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors">
-                                    <Calendar size={20} />
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none">
+                                    <Calendar size={18} />
                                 </div>
                             </div>
                         </div>

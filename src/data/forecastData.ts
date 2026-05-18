@@ -73,3 +73,73 @@ export const aiForecastInsights: ForecastInsightItem[] = [
     description: 'Under the Conservative scenario, a 15% drop in enterprise renewal rate would decrease runway to 28 months. Implement a 5% fixed cost buffer now to insulate against market downturns.'
   }
 ];
+
+export interface ForecastReport {
+    id: number;
+    title: string;
+    periodType: 'Monthly' | 'Quarterly' | 'Yearly';
+    period: string;
+    mode: 'conservative' | 'aggressive' | 'stress_test';
+    projectedRevenue: number;
+    projectedGrowth: number;
+    confidence: number;
+    dateRange: string;
+    status: 'Processed' | 'Failed';
+    filesCount: number;
+}
+
+export const initialForecastReports: ForecastReport[] = [
+    {
+        id: 1,
+        title: "Q1 2026 Operations Baseline",
+        periodType: 'Monthly',
+        period: "Jan 2026",
+        mode: 'conservative',
+        projectedRevenue: 148500,
+        projectedGrowth: 6.2,
+        confidence: 99.1,
+        dateRange: "Jan 01 - Jan 31",
+        status: 'Processed',
+        filesCount: 3
+    },
+    {
+        id: 2,
+        title: "FY26 High-Growth Expansion",
+        periodType: 'Yearly',
+        period: "Year 2026",
+        mode: 'aggressive',
+        projectedRevenue: 285400,
+        projectedGrowth: 14.8,
+        confidence: 96.4,
+        dateRange: "Jan 01 - Dec 31",
+        status: 'Processed',
+        filesCount: 5
+    },
+    {
+        id: 3,
+        title: "H2 Macro Stress Scenario",
+        periodType: 'Quarterly',
+        period: "Q3 2026",
+        mode: 'stress_test',
+        projectedRevenue: 92100,
+        projectedGrowth: -2.1,
+        confidence: 98.2,
+        dateRange: "Jul 01 - Sep 30",
+        status: 'Processed',
+        filesCount: 4
+    },
+    {
+        id: 4,
+        title: "Q4 Retail Rollout Audit",
+        periodType: 'Quarterly',
+        period: "Q4 2026",
+        mode: 'aggressive',
+        projectedRevenue: 220700,
+        projectedGrowth: 12.5,
+        confidence: 95.8,
+        dateRange: "Oct 01 - Dec 31",
+        status: 'Processed',
+        filesCount: 2
+    }
+];
+

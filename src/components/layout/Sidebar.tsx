@@ -134,7 +134,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           active={pathname === '/forecast'} 
         />
         <NavItem 
-          icon={<ForcastIcon />} 
+          icon={<ForcastReportIcon />} 
           label="Forcast Reports" 
           isCollapsed={isCollapsed} 
           href="/forecast-reports" 
@@ -200,6 +200,14 @@ const BudgetIcon = () => (
 const ForcastIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="12" height="16" x="6" y="4" rx="2" /><path d="M9 2h6" /><path d="M10 8h4" /><path d="M10 12h2" /><circle cx="16" cy="18" r="3" /><path d="m20 22-1.5-1.5" />
+  </svg>
+);
+const ForcastReportIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+    <path d="M3 9h18" />
+    <path d="M9 21V9" />
+    <polyline points="12 16 14 13 16 15 18 11" />
   </svg>
 );
 const SettingsIcon = () => (
