@@ -67,6 +67,7 @@ export default function AuthModal({
 
   const handleSubmit = (): void => {
     console.log("Auth Payload:", formData);
+    router.push("/dashboard");
   };
 
   if (!isOpen) return null;
