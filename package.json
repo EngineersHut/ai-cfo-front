@@ -1,31 +1,39 @@
 {
-  "name": "ai-cfo",
+  "name": "ai-cfo-monorepo",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "framer-motion": "^12.38.0",
-    "lucide-react": "^1.14.0",
-    "next": "16.2.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "recharts": "^3.8.1"
+    "dev": "nx dev @ai-cfo/web",
+    "build": "nx build @ai-cfo/web",
+    "start": "nx start @ai-cfo/web",
+    "lint": "nx lint @ai-cfo/web",
+    "dev:api": "nx serve api",
+    "build:api": "nx build api"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "autoprefixer": "^10.5.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@nx/js": "22.7.2",
+    "@nx/nest": "^22.7.2",
+    "@nx/next": "latest",
+    "@nx/node": "22.7.2",
+    "@nx/web": "22.7.2",
+    "@nx/webpack": "22.7.2",
+    "@nx/workspace": "latest",
+    "@swc-node/register": "~1.11.1",
+    "@swc/core": "~1.15.5",
+    "@swc/helpers": "~0.5.18",
+    "@types/node": "20.19.9",
+    "nx": "latest",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
   }
 }
