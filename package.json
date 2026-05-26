@@ -1,0 +1,39 @@
+{
+  "name": "ai-cfo-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nx dev @ai-cfo/web",
+    "build": "nx build @ai-cfo/web",
+    "start": "nx start @ai-cfo/web",
+    "lint": "nx lint @ai-cfo/web",
+    "dev:api": "nx serve api",
+    "build:api": "nx build api"
+  },
+  "devDependencies": {
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@nx/js": "22.7.2",
+    "@nx/nest": "^22.7.2",
+    "@nx/next": "latest",
+    "@nx/node": "22.7.2",
+    "@nx/web": "22.7.2",
+    "@nx/webpack": "22.7.2",
+    "@nx/workspace": "latest",
+    "@swc-node/register": "~1.11.1",
+    "@swc/core": "~1.15.5",
+    "@swc/helpers": "~0.5.18",
+    "@types/node": "20.19.9",
+    "nx": "latest",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
+  }
+}

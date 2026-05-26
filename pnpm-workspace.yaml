@@ -1,0 +1,14 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+allowBuilds:
+  '@nestjs/core': true
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  bcrypt: set this to true or false
+  less: true
+  mongodb-client-encryption: true
+  nx: true
+  sharp: true
+  unrs-resolver: true
