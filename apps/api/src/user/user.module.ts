@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 
 import { User, UserSchema } from './schemas/user.schema';
 import { AuthModule } from '../auth/auth.module';
+import { OtpService } from '../common/services/otp.service';
 
 @Module({
   imports: [
@@ -15,11 +16,11 @@ import { AuthModule } from '../auth/auth.module';
         schema: UserSchema,
       },
     ]),
-    AuthModule
+    AuthModule,
   ],
 
   controllers: [UserController],
 
-  providers: [UserService],
+  providers: [UserService, OtpService],
 })
 export class UserModule {}
