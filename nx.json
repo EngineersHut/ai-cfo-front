@@ -53,6 +53,7 @@
     },
     {
       "plugin": "@nx/webpack/plugin",
+      "include": ["apps/web/**"],
       "options": {
         "buildTargetName": "build",
         "serveTargetName": "serve",

@@ -2,8 +2,12 @@
   "name": "api",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "start:dev": "pnpm nest start --watch",
+    "build": "pnpm nest build",
+    "start:prod": "pnpm node dist/apps/api/main"
+  },
   "dependencies": {
-<<<<<<< HEAD
     "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
@@ -41,16 +45,3 @@
     "@types/passport-jwt": "^4.0.1"
   }
 }
-=======
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.0",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0",
-    "tslib": "^2.3.0"
-  },
-  "devDependencies": {
-    "@nestjs/testing": "^11.0.0"
-  }
-}
->>>>>>> 06855b28cb43ac230f32336c71b9fadf3707e625

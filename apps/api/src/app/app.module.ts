@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-<<<<<<< HEAD
 import { UserModule } from '../user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
@@ -29,11 +28,6 @@ let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
     UserModule,
     AuthModule,
   ],
-=======
-
-@Module({
-  imports: [],
->>>>>>> 06855b28cb43ac230f32336c71b9fadf3707e625
   controllers: [AppController],
   providers: [AppService],
 })

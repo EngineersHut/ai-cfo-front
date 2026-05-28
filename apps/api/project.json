@@ -6,25 +6,29 @@
   "targets": {
     "build": {
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/apps/api/dist"],
       "options": {
-        "command": "webpack-cli build",
-        "args": [
-          "--node-env=production"
-        ],
-        "cwd": "apps/api"
+        "command": "../../node_modules/.bin/webpack-cli build",
+        "cwd": "apps/api",
+        "env": {
+          "NODE_ENV": "production"
+        }
       },
       "configurations": {
         "development": {
-          "args": [
-            "--node-env=development"
-          ]
+          "env": {
+            "NODE_ENV": "development"
+          }
+        },
+        "production": {
+          "env": {
+            "NODE_ENV": "production"
+          }
         }
       }
     },
     "prune-lockfile": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
       "executor": "@nx/js:prune-lockfile",
       "outputs": [
@@ -36,57 +40,23 @@
       }
     },
     "copy-workspace-modules": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
-      "outputs": [
-        "{workspaceRoot}/apps/api/dist/workspace_modules"
-      ],
+      "outputs": ["{workspaceRoot}/apps/api/dist/workspace_modules"],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
         "buildTarget": "build"
       }
     },
     "prune": {
-      "dependsOn": [
-        "prune-lockfile",
-        "copy-workspace-modules"
-      ],
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
-<<<<<<< HEAD
-   "serve": {
-  "continuous": true,
-  "executor": "@nx/js:node",
-  "defaultConfiguration": "development",
-  "dependsOn": [
-    "build"
-  ],
-  "options": {
-    "buildTarget": "api:build:development",
-    "runBuildTargetDependencies": false
-  },
-  "configurations": {
-    "development": {
-      "buildTarget": "api:build:development"
-    },
-    "production": {
-      "buildTarget": "api:build:production"
-    }
-  }
-}
-  },
-  "tags": []
-}  
-=======
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "options": {
         "buildTarget": "api:build",
         "runBuildTargetDependencies": false
@@ -103,4 +73,3 @@
   },
   "tags": []
 }
->>>>>>> 06855b28cb43ac230f32336c71b9fadf3707e625
