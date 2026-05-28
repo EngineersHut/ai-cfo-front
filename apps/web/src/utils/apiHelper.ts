@@ -1,0 +1,208 @@
+// import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+
+import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
+
+const getBaseURL = () => {
+  let url = '';
+  if (typeof window !== 'undefined') {
+    url = localStorage.getItem('NEXT_PUBLIC_API_BASE_URL') || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7000';
+  } else {
+    url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+  }
+
+  if (url && !url.startsWith('http') && url !== 'http://localhost:5000') {
+    url = `https://${url}`;
+  }
+  return url;
+};
+
+// Create Axios instance
+const instance = axios.create({
+  baseURL: getBaseURL()
+});
+
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+instance.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest: any = error.config;
+
+    if (!error.response && typeof window !== 'undefined') {
+      window.location.replace('/404');
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && !originalRequest._retry && typeof window !== 'undefined') {
+      originalRequest._retry = true;
+
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        clearAuthData();
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(instance(originalRequest));
+            },
+            reject
+          });
+        });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const response = await postData<{
+          access_token: string;
+          refreshToken: string;
+        }>('/api/auth/refresh-token', { refreshToken });
+
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('refreshToken', response.refreshToken);
+
+        instance.defaults.headers.Authorization = `Bearer ${response.access_token}`;
+        processQueue(null, response.access_token);
+
+        return instance(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        clearAuthData();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Response Interceptor
+instance.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const dynamicBaseURL = getBaseURL();
+    if (dynamicBaseURL) {
+      config.baseURL = dynamicBaseURL;
+    }
+    const accessToken = localStorage.getItem('access_token');
+    const resetToken = localStorage.getItem('resetPassToken');
+    const tenantId = localStorage.getItem('x-tenant-id');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    } else if (resetToken) {
+      config.headers.Authorization = `Bearer ${resetToken}`;
+    }
+    if (tenantId) {
+      config.headers['x-tenant-id'] = tenantId;
+    }
+  }
+  return config;
+});
+
+// Generic API Methods
+// export const getData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+//   const response = await instance.get<T>(url, config);
+//   return response.data;
+// };
+export const getData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+  const response = await instance.get<T>(url, {
+    ...config,
+    headers: {
+      'Content-Type': 'application/json', // default header
+      ...(config?.headers || {}) // merge any custom headers
+    }
+  });
+  return response.data;
+};
+
+export const postData = async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+  // Check if data is FormData and set appropriate content type
+  const isFormData = data instanceof FormData;
+
+  const response = await instance.post<T>(url, data, {
+    ...config,
+    headers: {
+      ...(isFormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' }),
+      ...(config?.headers || {}) // Merge existing headers
+    }
+  });
+  return response.data;
+};
+
+export const putData = async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+  // Check if data is FormData and set appropriate content type
+  const isFormData = data instanceof FormData;
+
+  const response = await instance.put<T>(url, data, {
+    ...config,
+    headers: {
+      ...(isFormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' }),
+      ...(config?.headers || {}) // Merge existing headers
+    }
+  });
+  return response.data;
+};
+
+export const deleteData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
+  const response = await instance.delete<T>(url, config);
+  return response.data;
+};
+
+export const patchData = async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
+  const response = await instance.patch<T>(url, data, config);
+  return response.data;
+};
+
+// Refresh Token Function
+export const reAuth = async (): Promise<void> => {
+  // if (typeof window === "undefined") return;
+
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    clearAuthData();
+    return;
+  }
+
+  try {
+    const response = await postData<{
+      access_token: string;
+      refreshToken: string;
+    }>('/api/auth/refresh-token', {
+      refreshToken
+    });
+
+    localStorage.setItem('access_token', response.access_token);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    window.location.reload();
+  } catch {
+    clearAuthData();
+  }
+};
+
+// Clear Auth Data
+const clearAuthData = () => {
+  localStorage.removeItem('authUser');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('access_token');
+  window.location.href = '/signin';
+};
+
+export default instance;
