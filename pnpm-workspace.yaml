@@ -1,6 +1,7 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+<<<<<<< HEAD
 allowBuilds:
   '@nestjs/core': true
   '@parcel/watcher': true
@@ -12,3 +13,5 @@ allowBuilds:
   nx: true
   sharp: true
   unrs-resolver: true
+=======
+>>>>>>> 06855b28cb43ac230f32336c71b9fadf3707e625
