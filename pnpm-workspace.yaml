@@ -1,3 +1,17 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+<<<<<<< HEAD
+allowBuilds:
+  '@nestjs/core': true
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  bcrypt: true
+  less: true
+  mongodb-client-encryption: true
+  nx: true
+  sharp: true
+  unrs-resolver: true
+=======
+>>>>>>> 06855b28cb43ac230f32336c71b9fadf3707e625
