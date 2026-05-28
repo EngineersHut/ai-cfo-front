@@ -2,10 +2,9 @@ import axios from 'axios';
 import { createSlice } from '@reduxjs/toolkit';
 import { DefaultRootStateProps } from '@/types';
 import { postData } from '@/utils/apiHelper';
-import { toast } from 'react-toastify';
 import { dispatch } from '../index';
-import { getErrorMessage } from '@/utils/common';
 import { ResetPassword, VerifyEmail, VerifyOTP } from '@/types/auth';
+import { getErrorMessage } from '@/utils/common';
 
 const initialState: DefaultRootStateProps['auth'] = {
   error: null,
@@ -39,57 +38,22 @@ const slice = createSlice({
 
 export const { hasError, getAuthLoading, hasActionError, getSignInDataSucsess, getAuthActionLoading } = slice.actions;
 
-export function verifyToken(organization_id: string, access_token: string) {
+export function userSignUp(payload: any, handleClose?: any) {
   return async () => {
-    dispatch(getAuthLoading(true));
+    dispatch(getAuthActionLoading(true));
     try {
-      const response = await postData('/auth/verify-user', {}, {
-        headers: {
-          'x-tenant-id': organization_id,
-          'Authorization': `Bearer ${access_token}`
-        }
-      });
-      if (response?.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('authUser', JSON.stringify(response.user));
-        localStorage.setItem('x-tenant-id', organization_id);
-        window.location.href = '/company/company-setting';
-      }
-      toast.success(response?.message);
+      const response = await postData('/api/user/signup', payload);
+      // if (response?.access_token) {
+      //   localStorage.setItem('access_token', response.access_token);
+      //   localStorage.setItem('authUser', JSON.stringify(response.user));
+      //   window.location.href = '/';
+      // }
+      // toast.success(response?.message);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));
-      dispatch(getAuthLoading(false));
     }
-  };
-}
-
-export function checkTenant(tenantId: string) {
-  return async () => {
-    dispatch(getAuthActionLoading(true)); // Use action loading for the verify button
-    dispatch(hasActionError(null)); // Clear previous errors
-    try {
-      // Specialized call to the gateway for tenant verification
-      const response = await axios.get(`https://gateway.engineershut.com/v1/company/verify-tenant/${tenantId}`);
-      
-      // The API is expected to return the dynamic base URL
-      if (response?.data?.endpoint) {
-        let endpoint = response.data.endpoint;
-        if (!endpoint.startsWith('http')) {
-          endpoint = `https://${endpoint}`;
-        }
-        localStorage.setItem('x-tenant-id', tenantId);
-        localStorage.setItem('NEXT_PUBLIC_API_BASE_URL', endpoint);
-        localStorage.setItem('logo', response.data.logo);
-        return { ...response.data, endpoint };
-      }
-    } catch (error) {
-       const errorMessage = getErrorMessage(error);
-       dispatch(hasActionError(errorMessage));
-       throw error;
-    } finally {
-      dispatch(getAuthActionLoading(false));
-    }
+    dispatch(getAuthActionLoading(false));
   };
 }
 
@@ -97,13 +61,17 @@ export function createsignIn(payload: any, handleClose?: any) {
   return async () => {
     dispatch(getAuthActionLoading(true));
     try {
-      const response = await postData('/auth/sign-in', payload);
-      if (response?.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('authUser', JSON.stringify(response.user));
-        window.location.href = '/';
+      const response = await postData('/api/user/signin', payload);
+      console.log(response,"response");
+      
+      if (response?.data?.token) {
+        localStorage.setItem('token',response?.data?.token);
+        window.location.href = '/dashboard';
+      } else {
+        // If there is no token, it is a custom failure payload (e.g. success: false or custom message)
+        const errorMsg = response?.message || 'Invalid credentials';
+        dispatch(hasActionError(errorMsg));
       }
-      toast.success(response?.message);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));
@@ -117,7 +85,6 @@ export function verifyEmail(data: VerifyEmail, handleClose: () => void) {
     dispatch(getAuthActionLoading(true));
     try {
       const response = await postData(`/users/verify-email`, data);
-      toast.success(response?.message);
       handleClose();
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -133,7 +100,6 @@ export function verifyOTP(data: VerifyOTP, handleClose: () => void) {
     dispatch(getAuthActionLoading(true));
     try {
       const response = await postData(`/users/verify-otp`, data);
-      toast.success(response?.message);
       localStorage.setItem('resetPassToken', response.token);
       handleClose();
     } catch (error) {
@@ -150,7 +116,6 @@ export function resetPassword(data: ResetPassword, handleClose: () => void) {
     dispatch(getAuthActionLoading(true));
     try {
       const response = await postData(`/users/reset-password`, data);
-      toast.success(response?.message);
       localStorage.removeItem('resetPassToken');
       handleClose();
     } catch (error) {

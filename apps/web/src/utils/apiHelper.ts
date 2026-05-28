@@ -3,15 +3,18 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 
 const getBaseURL = () => {
-  let url = '';
+  // In the browser: use empty baseURL so axios uses relative URLs (e.g. /api/...)
+  // This makes requests go through Next.js on port 3035, which proxies to port 5000.
+  // Direct absolute URLs (http://localhost:5000) bypass Next.js and cause CORS errors.
   if (typeof window !== 'undefined') {
-    url = localStorage.getItem('NEXT_PUBLIC_API_BASE_URL') || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7000';
-  } else {
-    url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+    return '';
   }
 
-  if (url && !url.startsWith('http') && url !== 'http://localhost:5000') {
-    url = `https://${url}`;
+  // SSR / server-side: use absolute URL (no CORS restriction server-side)
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+  if (url && !url.startsWith('http')) {
+    const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
+    return isLocalhost ? `http://${url}` : `https://${url}`;
   }
   return url;
 };
@@ -41,12 +44,13 @@ instance.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
 
-    if (!error.response && typeof window !== 'undefined') {
-      window.location.replace('/404');
-      return Promise.reject(error);
-    }
-
-    if (error.response?.status === 401 && !originalRequest._retry && typeof window !== 'undefined') {
+    if (
+      error.response?.status === 401 && 
+      !originalRequest.url?.includes('/signin') && 
+      !originalRequest.url?.includes('/signup') && 
+      !originalRequest._retry && 
+      typeof window !== 'undefined'
+    ) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem('refreshToken');
@@ -95,13 +99,12 @@ instance.interceptors.response.use(
   }
 );
 
-// Response Interceptor
+// Request Interceptor
 instance.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const dynamicBaseURL = getBaseURL();
-    if (dynamicBaseURL) {
-      config.baseURL = dynamicBaseURL;
-    }
+    // Always use relative baseURL in browser → requests go through Next.js proxy
+    config.baseURL = '';
+
     const accessToken = localStorage.getItem('access_token');
     const resetToken = localStorage.getItem('resetPassToken');
     const tenantId = localStorage.getItem('x-tenant-id');

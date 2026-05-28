@@ -10,6 +10,18 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // Enable CORS for frontend
+  app.enableCors({
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3035',
+      'http://localhost:3000',
+      'http://localhost:3035',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-tenant-id'],
+  });
+
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
