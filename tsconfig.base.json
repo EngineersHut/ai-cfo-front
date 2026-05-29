@@ -15,7 +15,7 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022",
-    "customConditions": ["ai-cfo-monorepo"]
+    "target": "es2022"
+    // "customConditions": ["ai-cfo-monorepo"]
   }
 }

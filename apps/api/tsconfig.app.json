@@ -13,7 +13,9 @@
     "skipLibCheck": true,
     "noEmitOnError": false,
     "composite": false,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "declaration":true,
+    "emitDeclarationOnly": true
   },
   "include": [
     "src/**/*.ts"
