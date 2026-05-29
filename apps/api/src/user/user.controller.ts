@@ -6,165 +6,152 @@ import {
   Req,
   Res,
   UseGuards,
-} from '@nestjs/common';
+  Patch,
+  UseInterceptors,
+  UploadedFile,
+} from "@nestjs/common";
 
-import {
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags, ApiBody } from "@nestjs/swagger";
 
-import type { Request, Response } from 'express';
+import type { Request, Response } from "express";
 
-import { UserService } from './user.service';
+import { UserService } from "./user.service";
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { CreateUserDto } from "./dto/create-user.dto";
+import { LoginUserDto } from "./dto/login-user.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
+import { UpdatePasswordDto } from "./dto/update-password.dto";
 
-import { GoogleOauthGuard } from '../auth/guards/google-oauth.guard';
-import { FacebookOauthGuard } from '../auth/guards/facebook-oauth.guard';
-import { AppleOauthGuard } from '../auth/guards/apple-oauth.guard';
+import { GoogleOauthGuard } from "../auth/guards/google-oauth.guard";
+import { FacebookOauthGuard } from "../auth/guards/facebook-oauth.guard";
+import { AppleOauthGuard } from "../auth/guards/apple-oauth.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
-import { oauthRedirect } from '../common/helpers/oauth-redirect.helper';
-import { CheckOtpDto } from './dto/checkOtpDto.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { oauthRedirect } from "../common/helpers/oauth-redirect.helper";
+import { ProfilePicInterceptor } from "../common/helpers/multer-config";
 
-@ApiTags('User')
-@Controller('user')
+@ApiTags("User")
+@Controller("user")
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  // LOCAL SIGNUP
-  @Post('signup')
+  // || ---------------------- Signup API ---------------------|| //
+  @Post("signup")
   @ApiOperation({
-    summary: 'Register a new user',
+    summary: "Register a new user",
   })
-  async create(
-    @Body() createUserDto: CreateUserDto,
-  ) {
+  async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  // LOCAL LOGIN
-  @Post('signin')
+  // || ---------------------- Signin API ---------------------|| //
+  @Post("signin")
   @ApiOperation({
-    summary: 'Login user',
+    summary: "Login user",
   })
-  async login(
-    @Body() loginUserDto: LoginUserDto,
-  ) {
+  async login(@Body() loginUserDto: LoginUserDto) {
     return this.userService.login(loginUserDto);
   }
 
-  // GOOGLE LOGIN
-  @Get('google')
+  // || ---------------------- Google Auth Initiation ---------------------|| //
+  @Get("google")
   @UseGuards(GoogleOauthGuard)
   @ApiOperation({
-    summary:
-      'Initiate Google login redirect',
+    summary: "Initiate Google login redirect",
   })
   async googleAuth() {}
 
-  // GOOGLE CALLBACK
-  @Get('google/callback')
+  // || ---------------------- Google Auth Callback ---------------------|| //
+  @Get("google/callback")
   @UseGuards(GoogleOauthGuard)
   @ApiOperation({
-    summary:
-      'Google login redirect callback',
+    summary: "Google login redirect callback",
   })
-  async googleAuthRedirect(
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const result =
-      await this.userService.validateOAuthUser(
-        req.user,
-      );
-
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.userService.validateOAuthUser(req.user);
     return oauthRedirect(res, result);
   }
 
-  // FACEBOOK LOGIN
-  @Get('facebook')
+  // || ---------------------- Facebook Auth Initiation ---------------------|| //
+  @Get("facebook")
   @UseGuards(FacebookOauthGuard)
   @ApiOperation({
-    summary:
-      'Initiate Facebook login redirect',
+    summary: "Initiate Facebook login redirect",
   })
   async facebookAuth() {}
 
-  @Get('facebook/callback')
+  // || ---------------------- Facebook Auth Callback ---------------------|| //
+  @Get("facebook/callback")
   @UseGuards(FacebookOauthGuard)
   @ApiOperation({
-    summary:
-      'Facebook login redirect callback',
+    summary: "Facebook login redirect callback",
   })
-  async facebookAuthRedirect(
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const result =
-      await this.userService.validateOAuthUser(
-        req.user,
-      );
-
+  async facebookAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.userService.validateOAuthUser(req.user);
     return oauthRedirect(res, result);
   }
 
-  // APPLE LOGIN
-  @Get('apple')
+  // || ---------------------- Apple Auth Initiation ---------------------|| //
+  @Get("apple")
   @UseGuards(AppleOauthGuard)
   @ApiOperation({
-    summary:
-      'Initiate Apple login redirect',
+    summary: "Initiate Apple login redirect",
   })
   async appleAuth() {}
 
-  // APPLE CALLBACK
-  @Post('apple/callback')
+  // || ---------------------- Apple Auth Callback ---------------------|| //
+  @Post("apple/callback")
   @UseGuards(AppleOauthGuard)
   @ApiOperation({
-    summary:
-      'Apple login redirect callback',
+    summary: "Apple login redirect callback",
   })
-  async appleAuthRedirect(
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const result =
-      await this.userService.validateOAuthUser(
-        req.user,
-      );
-
+  async appleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.userService.validateOAuthUser(req.user);
     return oauthRedirect(res, result);
   }
 
-  @Post('forgot-password')
+  // || ---------------------- Update Profile API ---------------------|| //
+  @Patch("update-profile")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(ProfilePicInterceptor)
+  @ApiConsumes("multipart/form-data")
   @ApiOperation({
-    summary:
-      'Initiate forgot password flow',
+    summary: "Update user profile",
   })
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.userService.forgotPassword(forgotPasswordDto.email);
+  @ApiBody({
+    type: UpdateProfileDto,
+  })
+  async updateProfile(
+    @Req() req: any,
+    @Body() body: UpdateProfileDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const userId = req.user._id || req.user.sub;
+    return this.userService.updateProfile(userId, body, file);
   }
-  @Post('check-otp')
+
+  // || ---------------------- Update Password API ---------------------|| //
+  @Patch("update-password")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary:
-      'Check OTP for forgot password flow',
+    summary: "Change user password",
   })
-  async checkOtp(@Body() checkOtpDto:CheckOtpDto) {
-    return this.userService.checkOtp(checkOtpDto.otp, checkOtpDto.email);
+  async updatePassword(
+    @Req() req: any,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    const userId = req.user._id || req.user.sub;
+    return this.userService.updatePassword(userId, updatePasswordDto);
   }
-@Post('reset-password')
-@ApiOperation({
-  summary:
-    'Reset password for forgot password flow',
-})
-async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-  return this.userService.resetPassword(resetPasswordDto);
-}
 
+  // || ---------------------- Get Profile API ---------------------|| //
+  @Get("profile")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: "Get user profile",
+  })
+  async getProfile(@Req() req: any) {
+    const userId = req.user._id || req.user.sub;
+    return this.userService.getProfile(userId);
+  }
 }
-

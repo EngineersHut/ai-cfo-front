@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -10,17 +11,25 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
 import { AppleStrategy } from './strategies/apple.strategy';
 
+import { User, UserSchema } from '../user/schemas/user.schema';
+
+
 @Module({
   imports: [
     PassportModule,
 
     JwtModule.register({
       secret: 'SUPER_SECRET_KEY',
-
       signOptions: {
         expiresIn: '1d',
       },
     }),
+    MongooseModule.forFeature([
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
+    ]),
   ],
 
   controllers: [AuthController],
