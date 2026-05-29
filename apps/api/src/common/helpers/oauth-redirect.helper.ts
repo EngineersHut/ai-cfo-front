@@ -10,7 +10,7 @@ export function oauthRedirect(
 
   if (result.success && result.data?.token) {
     return res.redirect(
-      `${frontendUrl}/auth/callback?token=${result.data.token}&id=${result.data.id}&name=${encodeURIComponent(result.data.name)}&email=${result.data.email}`,
+      `${frontendUrl}/auth/callback?token=${result.data.token}&_id=${result.data._id}&name=${encodeURIComponent(result.data.name)}&email=${result.data.email}`,
     );
   }
 

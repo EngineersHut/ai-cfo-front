@@ -28,12 +28,25 @@ export class User {
     default: 'local',
   })
   provider!: string;
-@Prop({
+  @Prop({
+    default: '',
+  })
+  providerId!: string;
 
-  default: '',
-})
-providerId!: string;
+  @Prop({
+    default: null,
+  })
+  resetOtp!: number;
 
+  @Prop({
+    default: null,
+  })
+  resetOtpExpires!: Date;
+
+  @Prop({
+    default: null,
+  })
+  profilePic?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

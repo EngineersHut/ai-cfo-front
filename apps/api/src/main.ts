@@ -31,6 +31,9 @@ async function bootstrap() {
     }),
   );
 
+  // Serve static files from the uploads directory
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+
   const config = new DocumentBuilder()
     .setTitle('AI CFO API')
     .setDescription('AI CFO Backend APIs')
