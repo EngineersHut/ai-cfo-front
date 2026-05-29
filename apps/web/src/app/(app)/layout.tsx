@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import CustomizeDrawer from '@/components/ui/CustomizeDrawer';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { DashboardProvider } from '@/context/DashboardContext';
 
 export default function DashboardLayout({
@@ -17,6 +17,18 @@ export default function DashboardLayout({
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Authenticate user
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/?modal=login');
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
 
   // Handle window resize and initial check
   useEffect(() => {
@@ -42,10 +54,18 @@ export default function DashboardLayout({
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f6f8fa]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <DashboardProvider>
       <div className="flex min-h-screen bg-white overflow-hidden font-inter">
-        {/* Mobile Overlay */}
+
         {isMobileOpen && (
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[40] lg:hidden transition-all duration-300"

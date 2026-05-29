@@ -60,7 +60,7 @@ export default function AuthModal({
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const { error: errors, actionError } = useSelector((state) => state.auth);
+  const { error: errors, actionError, actionLoading } = useSelector((state) => state.auth);
   console.log("actionError", actionError);
 
   const handleClose = () => {
@@ -147,20 +147,32 @@ export default function AuthModal({
     dispatch(hasActionError(null));
     setValidationErrors({});
 
-
-    if (mode === 'register') {
-      await registerSchema.validate(formData, { abortEarly: false });
-      console.log("Registering user:", formData);
-      dispatch(userSignUp(formData, handleClose));
-    } else {
-      await loginSchema.validate(formData, { abortEarly: false });
-      const loginPayload = {
-        email: formData.email,
-        password: formData.password
-      };
-      dispatch(createsignIn(loginPayload, handleClose));
+    try {
+      if (mode === 'register') {
+        await registerSchema.validate(formData, { abortEarly: false });
+        console.log("Registering user:", formData);
+        dispatch(userSignUp(formData, handleClose));
+      } else {
+        await loginSchema.validate(formData, { abortEarly: false });
+        const loginPayload = {
+          email: formData.email,
+          password: formData.password
+        };
+        dispatch(createsignIn(loginPayload, handleClose));
+      }
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        const errors: Record<string, string> = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            errors[error.path] = error.message;
+          }
+        });
+        setValidationErrors(errors);
+      } else {
+        console.error("Non-validation error:", err);
+      }
     }
-
   };
 
   if (!isOpen) return null;
@@ -296,7 +308,23 @@ export default function AuthModal({
               dispatch(hasActionError(null));
             }}
           />
-          <button onClick={handleSubmit} className="w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 text-white font-medium text-[14px] leading-[20px] rounded-[8px] px-[12px] py-[4px] font-inter transition-all active:scale-[0.98] mt-2 shadow-sm">Continue</button>
+          <button
+            onClick={handleSubmit}
+            disabled={actionLoading}
+            className="flex items-center justify-center w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium text-[14px] leading-[20px] rounded-[8px] px-[12px] py-[4px] font-inter transition-all active:scale-[0.98] mt-2 shadow-sm"
+          >
+            {actionLoading ? (
+              <div className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Processing...</span>
+              </div>
+            ) : (
+              'Continue'
+            )}
+          </button>
 
           {mode === 'login' && (
             <>
