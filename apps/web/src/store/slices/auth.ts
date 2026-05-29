@@ -2,10 +2,9 @@ import axios from 'axios';
 import { createSlice } from '@reduxjs/toolkit';
 import { DefaultRootStateProps } from '@/types';
 import { postData } from '@/utils/apiHelper';
-import { toast } from 'react-toastify';
 import { dispatch } from '../index';
+import { ResetPassword, VerifyEmail, VerifyOTP, UpdatePassword } from '@/types/auth';
 import { getErrorMessage } from '@/utils/common';
-import { ResetPassword, VerifyEmail, VerifyOTP } from '@/types/auth';
 
 const initialState: DefaultRootStateProps['auth'] = {
   error: null,
@@ -39,71 +38,18 @@ const slice = createSlice({
 
 export const { hasError, getAuthLoading, hasActionError, getSignInDataSucsess, getAuthActionLoading } = slice.actions;
 
-export function verifyToken(organization_id: string, access_token: string) {
-  return async () => {
-    dispatch(getAuthLoading(true));
-    try {
-      const response = await postData('/auth/verify-user', {}, {
-        headers: {
-          'x-tenant-id': organization_id,
-          'Authorization': `Bearer ${access_token}`
-        }
-      });
-      if (response?.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('authUser', JSON.stringify(response.user));
-        localStorage.setItem('x-tenant-id', organization_id);
-        window.location.href = '/company/company-setting';
-      }
-      toast.success(response?.message);
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      dispatch(hasActionError(errorMessage));
-      dispatch(getAuthLoading(false));
-    }
-  };
-}
-
-export function checkTenant(tenantId: string) {
-  return async () => {
-    dispatch(getAuthActionLoading(true)); // Use action loading for the verify button
-    dispatch(hasActionError(null)); // Clear previous errors
-    try {
-      // Specialized call to the gateway for tenant verification
-      const response = await axios.get(`https://gateway.engineershut.com/v1/company/verify-tenant/${tenantId}`);
-      
-      // The API is expected to return the dynamic base URL
-      if (response?.data?.endpoint) {
-        let endpoint = response.data.endpoint;
-        if (!endpoint.startsWith('http')) {
-          endpoint = `https://${endpoint}`;
-        }
-        localStorage.setItem('x-tenant-id', tenantId);
-        localStorage.setItem('NEXT_PUBLIC_API_BASE_URL', endpoint);
-        localStorage.setItem('logo', response.data.logo);
-        return { ...response.data, endpoint };
-      }
-    } catch (error) {
-       const errorMessage = getErrorMessage(error);
-       dispatch(hasActionError(errorMessage));
-       throw error;
-    } finally {
-      dispatch(getAuthActionLoading(false));
-    }
-  };
-}
-
-export function createsignIn(payload: any, handleClose?: any) {
+export function userSignUp(payload: any, onSuccess?: () => void) {
   return async () => {
     dispatch(getAuthActionLoading(true));
     try {
-      const response = await postData('/auth/sign-in', payload);
-      if (response?.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('authUser', JSON.stringify(response.user));
-        window.location.href = '/';
+      const response = await postData('/api/user/signup', payload);
+      if (response && response.success === false) {
+        dispatch(hasActionError(response.message || 'Registration failed'));
+      } else {
+        if (onSuccess) {
+          onSuccess();
+        }
       }
-      toast.success(response?.message);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));
@@ -112,13 +58,45 @@ export function createsignIn(payload: any, handleClose?: any) {
   };
 }
 
-export function verifyEmail(data: VerifyEmail, handleClose: () => void) {
+export function createsignIn(payload: any, handleClose?: any) {
   return async () => {
     dispatch(getAuthActionLoading(true));
     try {
-      const response = await postData(`/users/verify-email`, data);
-      toast.success(response?.message);
-      handleClose();
+      const response = await postData('/api/user/signin', payload);
+      console.log(response,"response");
+      
+      if (response?.data?.token) {
+        localStorage.setItem('token',response?.data?.token);
+        localStorage.setItem('user',JSON.stringify(response?.data?._id));
+        localStorage.setItem('name',JSON.stringify(response?.data?.name));
+        localStorage.setItem('email',JSON.stringify(response?.data?.email));
+        localStorage.setItem('profilePic',JSON.stringify(response?.data?.profilePic));
+        window.location.href = '/dashboard';
+      } else {
+        // If there is no token, it is a custom failure payload (e.g. success: false or custom message)
+        const errorMsg = response?.message || 'Invalid credentials';
+        dispatch(hasActionError(errorMsg));
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      dispatch(hasActionError(errorMessage));
+    }
+    dispatch(getAuthActionLoading(false));
+  };
+}
+
+export function verifyEmail(data: VerifyEmail, onSuccess?: () => void) {
+  return async () => {
+    dispatch(getAuthActionLoading(true));
+    dispatch(hasActionError(null));
+    try {
+      const response = await postData(`/api/auth/forgot-password`, data);
+      if (response && response.success === false) {
+        const errorMsg = response.message || 'Email verification failed';
+        dispatch(hasActionError(errorMsg));
+      } else {
+        if (onSuccess) onSuccess();
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));
@@ -128,14 +106,22 @@ export function verifyEmail(data: VerifyEmail, handleClose: () => void) {
   };
 }
 
-export function verifyOTP(data: VerifyOTP, handleClose: () => void) {
+export function verifyOTP(data: VerifyOTP, onSuccess?: (data: any) => void) {
   return async () => {
     dispatch(getAuthActionLoading(true));
+    dispatch(hasActionError(null));
     try {
-      const response = await postData(`/users/verify-otp`, data);
-      toast.success(response?.message);
-      localStorage.setItem('resetPassToken', response.token);
-      handleClose();
+      const response = await postData(`/api/auth/check-otp`, data);
+      if (response && response.success === false) {
+        const errorMsg = response.message || 'OTP verification failed';
+        dispatch(hasActionError(errorMsg));
+      } else {
+        const token = response?.resetToken || response?.token || response?.data?.resetToken || response?.data?.token;
+        if (token) {
+          localStorage.setItem('resetPassToken', token);
+        }
+        if (onSuccess) onSuccess(response);
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));
@@ -145,14 +131,44 @@ export function verifyOTP(data: VerifyOTP, handleClose: () => void) {
   };
 }
 
-export function resetPassword(data: ResetPassword, handleClose: () => void) {
+export function resetPassword(data: ResetPassword, onSuccess?: () => void) {
   return async () => {
     dispatch(getAuthActionLoading(true));
+    dispatch(hasActionError(null));
     try {
-      const response = await postData(`/users/reset-password`, data);
-      toast.success(response?.message);
-      localStorage.removeItem('resetPassToken');
-      handleClose();
+      const payload = {
+        token: localStorage.getItem('resetPassToken') || '',
+        password: data.password
+      };
+      const response = await postData(`/api/auth/reset-password`, payload);
+      if (response && response.success === false) {
+        const errorMsg = response.message || 'Password reset failed';
+        dispatch(hasActionError(errorMsg));
+      } else {
+        localStorage.removeItem('resetPassToken');
+        if (onSuccess) onSuccess();
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      dispatch(hasActionError(errorMessage));
+    } finally {
+      dispatch(getAuthActionLoading(false));
+    }
+  };
+}
+
+export function updatePassword(data: UpdatePassword, onSuccess?: () => void) {
+  return async () => {
+    dispatch(getAuthActionLoading(true));
+    dispatch(hasActionError(null));
+    try {
+      const response = await postData(`/api/user/update-password`, data);
+      if (response && response.success === false) {
+        const errorMsg = response.message || 'Failed to update password';
+        dispatch(hasActionError(errorMsg));
+      } else {
+        if (onSuccess) onSuccess();
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));

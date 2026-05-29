@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import CustomizeDrawer from '@/components/ui/CustomizeDrawer';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { DashboardProvider } from '@/context/DashboardContext';
+import Modal from '@/components/common/Modal';
+import { LogOut } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +19,24 @@ export default function DashboardLayout({
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/?modal=login';
+  };
+
+  // Authenticate user
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/?modal=login');
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
 
   // Handle window resize and initial check
   useEffect(() => {
@@ -29,7 +49,6 @@ export default function DashboardLayout({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
@@ -42,10 +61,18 @@ export default function DashboardLayout({
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f6f8fa]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <DashboardProvider>
       <div className="flex min-h-screen bg-white overflow-hidden font-inter">
-        {/* Mobile Overlay */}
+
         {isMobileOpen && (
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[40] lg:hidden transition-all duration-300"
@@ -59,6 +86,7 @@ export default function DashboardLayout({
           <Sidebar
             isCollapsed={isMobile ? false : isCollapsed}
             onToggle={toggleSidebar}
+            onLogout={() => setIsLogoutModalOpen(true)}
           />
         </div>
 
@@ -87,6 +115,39 @@ export default function DashboardLayout({
           isOpen={isCustomizeOpen}
           onClose={() => setIsCustomizeOpen(false)}
         />
+
+        {/* Logout Confirmation Modal - Rendered at root level so it covers full screen */}
+        <Modal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setIsLogoutModalOpen(false)}
+          width="360px"
+        >
+          <div className="p-6 text-center font-inter">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4 text-red-500">
+              <LogOut size={24} strokeWidth={2} />
+            </div>
+            <h3 className="text-[#0f172a] font-semibold text-[18px] leading-[26px] mb-1">
+              Confirm Logout
+            </h3>
+            <p className="text-slate-500 text-[14px] leading-[20px] mb-6">
+              Are you sure you want to log out of your account?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="flex-1 h-[36px] bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-medium text-[14px] leading-[20px] rounded-[8px] transition-all shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 h-[36px] bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-medium text-[14px] leading-[20px] rounded-[8px] transition-all shadow-sm"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </DashboardProvider>
   );

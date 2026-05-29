@@ -6,7 +6,7 @@ export function oauthRedirect(
 ) {
   const frontendUrl =
     process.env.FRONTEND_URL ||
-    'http://localhost:3000';
+    'http://localhost:3035';
 
   if (result.success && result.data?.token) {
     return res.redirect(

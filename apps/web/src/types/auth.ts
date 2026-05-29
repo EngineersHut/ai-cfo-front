@@ -19,3 +19,8 @@ export type ResetPassword = {
   password: string;
   confirmPassword: string;
 };
+
+export type UpdatePassword = {
+  currentPassword: string;
+  newPassword: string;
+};
