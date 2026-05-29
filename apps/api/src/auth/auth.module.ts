@@ -33,6 +33,6 @@ import { AppleStrategy } from './strategies/apple.strategy';
     AppleStrategy,
   ],
 
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

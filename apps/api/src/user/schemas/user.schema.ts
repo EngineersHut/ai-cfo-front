@@ -11,7 +11,7 @@ export class User {
   @Prop({
     required: true,
   })
-  name!: string;
+fullName!: string;
 
   @Prop({
     required: true,
@@ -33,6 +33,10 @@ export class User {
   default: '',
 })
 providerId!: string;
+@Prop({
+  default: false,
+})
+ agreeToTerms!: boolean;
 
 }
 

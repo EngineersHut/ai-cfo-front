@@ -13,6 +13,7 @@ import { ResponseHelper } from '../common/helpers/response.helper';
 import { OtpService } from '../common/services/otp.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { JwtService } from '@nestjs/jwt';
 
 
 
@@ -24,9 +25,13 @@ export class UserService {
     private userModel: Model<User>,
     private authService: AuthService,
     private otpService: OtpService,
-    private mailerService: MailerService) { }
+    private mailerService: MailerService,
+  private jwtService: JwtService) { }
 
   async create(createUserDto: CreateUserDto) {
+    if (createUserDto.password !== createUserDto.confirmPassword) {
+      return ResponseHelper.error('password and confirmpassword is not match', 400)
+    }
     let checkemail = await this.userModel.findOne({ email: createUserDto.email });
 
     if (checkemail?.email == createUserDto.email) {
@@ -35,20 +40,24 @@ export class UserService {
         400,
       )
     }
+
     const hashedPassword = await this.otpService.hashPassword(createUserDto.password);
     const user = await this.userModel.create({
       ...createUserDto,
       password: hashedPassword,
     });
 
-    return ResponseHelper.success(
-      'User created successfully',
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    )
+    const tokenObj = await this.authService.generatetoken({ _id: user._id, email: user.email });
+    if (!tokenObj) {
+      return ResponseHelper.error('Error generating token', 500);
+    }
+
+    return ResponseHelper.success('user created', {
+      id: user._id,
+      name: user.fullName,
+      email: user.email,
+      token: tokenObj.access_token,
+    });
   }
   async login(loginUserDto: LoginUserDto) {
     const user = await this.userModel.findOne({ email: loginUserDto.email });
@@ -80,7 +89,7 @@ export class UserService {
       'Login successful',
       {
         id: user._id,
-        name: user.name,
+        name: user.fullName,
         email: user.email,
         token: tokenObj.access_token,
       },
@@ -101,7 +110,7 @@ export class UserService {
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       user = await this.userModel.create({
-        name: name || 'Social User',
+        fullName: name || 'Social User',
         email,
         password: hashedPassword,
         provider,
@@ -119,7 +128,7 @@ export class UserService {
 
     return ResponseHelper.success('Login successful', {
       id: user._id,
-      name: user.name,
+      name: user.fullName,
       email: user.email,
       token: tokenObj.access_token,
     });
@@ -137,42 +146,55 @@ export class UserService {
         subject: 'Your OTP for Password Reset',
         text: `Your OTP for password reset is: ${otp}`,
       });
-      return ResponseHelper.success('OTP sent successfully', { otp: otp });
+      return ResponseHelper.success('OTP sent successfully', {email:user.email});
     } catch (error) {
       return ResponseHelper.error('Error sending OTP', 500);
     }
 
   }
   async checkOtp(otp: number, email: string) {
-    try{
-    let user = await this.userModel.findOne({ email });
-    if (!user) { return ResponseHelper.error('User not found', 404); }
-    const storedOtp = await this.otpService.getOtp(email);
-    if (!storedOtp) {
-      return ResponseHelper.error('OTP expired or not found', 400);
+    try {
+      let user = await this.userModel.findOne({ email });
+      if (!user) { return ResponseHelper.error('User not found', 404); }
+      const storedOtp = await this.otpService.getOtp(email);
+      if (!storedOtp) {
+        return ResponseHelper.error('OTP expired or not found', 400);
+      }
+      const isMatch = await this.otpService.compareOtp(storedOtp, otp);
+      if (!isMatch) {
+        return ResponseHelper.error('Invalid OTP', 400);
+      }
+      await this.otpService.deleteOtp(email);
+      const tokenObj = await this.authService.generatetoken({ _id: user._id, email: user.email });
+      if (!tokenObj) {
+        return ResponseHelper.error('Error generating token', 500);
+      }
+
+
+      return ResponseHelper.success('OTP verified successfully', { token: tokenObj.access_token });
+    } catch (error) {
+      return ResponseHelper.error('Error in verifying OTP', 500);
     }
-    const isMatch = await this.otpService.compareOtp(storedOtp, otp);
-    if (!isMatch) {
-      return ResponseHelper.error('Invalid OTP', 400);
-    }
-    await this.otpService.deleteOtp(email);
-    return ResponseHelper.success('OTP verified successfully', { _id: user._id, email: user.email });
-  } catch (error) {
-    return ResponseHelper.error('Error verifying OTP', 500);
-  }
   }
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     try {
-      const user = await this.userModel.findOne({ _id: resetPasswordDto._id, email: resetPasswordDto.email });
+  if (resetPasswordDto.password !== resetPasswordDto.confirmPassword) {
+    return ResponseHelper.error('password and confirmpassword is not match', 400)
+  }
+  let tokenvalidate = await this.jwtService.verifyAsync(resetPasswordDto.token);
+  if (!tokenvalidate) {
+    return ResponseHelper.error('Invalid or expired token', 400);
+  }
+      const user = await this.userModel.findOne({ _id: tokenvalidate.sub, email: tokenvalidate.email });
       if (!user) {
         return ResponseHelper.error('User not found', 404);
       }
       const hashedPassword = await this.otpService.hashPassword(resetPasswordDto.password);
       user.password = hashedPassword;
       await user.save();
-      return ResponseHelper.success('Password reset successfully',{});
-    } catch (error) {
-      return ResponseHelper.error('Error resetting password invalid request credentials found', 500);
+      return ResponseHelper.success('Password reset successfully', {});
+    } catch (error: any) {
+      return ResponseHelper.error(error.message, 500);
     }
   }
 }

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import {
+  ApiBody,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -30,17 +31,19 @@ import { CheckOtpDto } from './dto/checkOtpDto.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('User')
+
 @Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
   ) {}
 
-  // LOCAL SIGNUP
+ 
   @Post('signup')
+@ApiBody({ type: CreateUserDto, description: 'User registration data' })
   @ApiOperation({
-    summary: 'Register a new user',
-  })
+  summary: 'signup user',
+})
   async create(
     @Body() createUserDto: CreateUserDto,
   ) {
@@ -146,6 +149,7 @@ export class UserController {
     summary:
       'Initiate forgot password flow',
   })
+ 
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.userService.forgotPassword(forgotPasswordDto.email);
   }
