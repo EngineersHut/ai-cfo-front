@@ -105,7 +105,7 @@ instance.interceptors.request.use((config) => {
     // Always use relative baseURL in browser → requests go through Next.js proxy
     config.baseURL = '';
 
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = localStorage.getItem('token') || localStorage.getItem('access_token');
     const resetToken = localStorage.getItem('resetPassToken');
     const tenantId = localStorage.getItem('x-tenant-id');
     if (accessToken) {
@@ -170,7 +170,16 @@ export const deleteData = async <T = any>(url: string, config?: AxiosRequestConf
 };
 
 export const patchData = async <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> => {
-  const response = await instance.patch<T>(url, data, config);
+  // Check if data is FormData and set appropriate content type
+  const isFormData = data instanceof FormData;
+
+  const response = await instance.patch<T>(url, data, {
+    ...config,
+    headers: {
+      ...(isFormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' }),
+      ...(config?.headers || {}) // Merge existing headers
+    }
+  });
   return response.data;
 };
 
@@ -205,7 +214,12 @@ const clearAuthData = () => {
   localStorage.removeItem('authUser');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('access_token');
-  window.location.href = '/signin';
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('name');
+  localStorage.removeItem('email');
+  localStorage.removeItem('profilePic');
+  window.location.href = '/?modal=login';
 };
 
 export default instance;

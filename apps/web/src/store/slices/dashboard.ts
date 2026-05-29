@@ -1,0 +1,172 @@
+import { createSlice } from '@reduxjs/toolkit';
+import { dispatch } from '../index';
+import { AppDispatch } from '..';
+import { getData, patchData } from '@/utils/apiHelper';
+import { drawerGroups } from '@/data/drawerData';
+import { revenueData, healthData, aiInsightsData, detailedCostData } from '@/data/dashboardData';
+
+// Generate initial state from drawerData IDs
+export const getInitialVisibility = () => {
+  const initial: Record<string, boolean> = {};
+  drawerGroups.forEach(group => {
+    group.sections.forEach(section => {
+      section.items.forEach(item => {
+        initial[item.id] = true; // By default all are visible
+      });
+    });
+  });
+  return initial;
+};
+
+// Maps frontend kebab-case IDs to backend camelCase properties
+export const mapToApiKeys = (visibility: Record<string, boolean>) => {
+  return {
+    totalTrips: !!visibility['total-trips'],
+    delPerVeh: !!visibility['del-per-veh'],
+    fleetUtil: !!visibility['fleet-util'],
+    driverEff: !!visibility['driver-eff'],
+    runway: !!visibility['runway'],
+    growth: !!visibility['growth'],
+    ebitda: !!visibility['ebitda'],
+    cashflow: !!visibility['cashflow'],
+    revTime: !!visibility['rev-time'],
+    health: !!visibility['health'],
+    expenseBreakdown: !!visibility['expenseBreakdown'],
+    aiInsights: !!visibility['aiInsights'],
+    costAnalysis: !!visibility['costAnalysis'],
+  };
+};
+
+// Maps backend camelCase properties to frontend kebab-case IDs
+export const mapFromApiKeys = (data: any) => {
+  return {
+    'total-trips': !!data.totalTrips,
+    'del-per-veh': !!data.delPerVeh,
+    'fleet-util': !!data.fleetUtil,
+    'driver-eff': !!data.driverEff,
+    'runway': !!data.runway,
+    'growth': !!data.growth,
+    'ebitda': !!data.ebitda,
+    'cashflow': !!data.cashflow,
+    'rev-time': !!data.revTime,
+    'health': !!data.health,
+    'expenseBreakdown': !!data.expenseBreakdown,
+    'aiInsights': !!data.aiInsights,
+    'costAnalysis': !!data.costAnalysis,
+  };
+};
+
+interface DashboardState {
+  timeframe: string;
+  revenueData: typeof revenueData;
+  healthData: typeof healthData;
+  healthScore: number;
+  aiInsights: typeof aiInsightsData;
+  costEfficiency: typeof detailedCostData;
+  kpiStats: {
+    totalTrips: { value: string; trend: string; sub: string };
+    delPerVeh: { value: string; unit: string; trend: string; sub: string };
+    fleetUtil: { value: string; trend: string; isDown: boolean; sub: string };
+    driverEff: { value: string; trend: string; sub: string };
+    cashRunway: { value: string; trend: string; sub: string };
+    growth: { value: string; trend: string; sub: string };
+    ebitda: { value: string; trend: string; isDown: boolean; sub: string };
+    cashflow: { value: string; unit: string; trend: string; sub: string };
+  };
+  visibility: Record<string, boolean>;
+}
+
+const initialState: DashboardState = {
+  timeframe: 'Monthly',
+  revenueData: revenueData,
+  healthData: healthData,
+  healthScore: 84,
+  aiInsights: aiInsightsData,
+  costEfficiency: detailedCostData,
+  kpiStats: {
+    totalTrips: { value: "70", trend: "+12.5%", sub: "Healthy Liquidity Profile" },
+    delPerVeh: { value: "200", unit: "/ Day", trend: "+1.5%", sub: "Per vehicle daily average" },
+    fleetUtil: { value: "95%", trend: "-1.2%", isDown: true, sub: "Near-optimal fleet coverage" },
+    driverEff: { value: "80%", trend: "Stable", sub: "Below 85% target review score..." },
+    cashRunway: { value: "12 months", trend: "+12.5%", sub: "Projected survival time" },
+    growth: { value: "18.2%", trend: "+5.4%", sub: "Month-over-month increase" },
+    ebitda: { value: "$45,000", trend: "-1.2%", isDown: true, sub: "Earnings before interest" },
+    cashflow: { value: "$22,000", unit: "/ Month", trend: "+3.2%", sub: "Net cash from operations" }
+  },
+  visibility: getInitialVisibility()
+};
+
+const slice = createSlice({
+  name: 'dashboard',
+  initialState,
+  reducers: {
+    setTimeframe(state, action) {
+      state.timeframe = action.payload;
+    },
+    getDashboardConfigSuccess(state, action) {
+      state.visibility = action.payload;
+    },
+    toggleDashboardVisibilityState(state, action) {
+      const id = action.payload;
+      state.visibility[id] = !state.visibility[id];
+    },
+    resetDashboardConfigState(state) {
+      state.visibility = getInitialVisibility();
+    }
+  }
+});
+
+export const {
+  setTimeframe,
+  getDashboardConfigSuccess,
+  toggleDashboardVisibilityState,
+  resetDashboardConfigState
+} = slice.actions;
+
+export const fetchDashboardConfig = () => {
+  return async () => {
+    try {
+      const response = await getData('/api/dashboard-config');
+      const configData = response?.data || response;
+      if (configData) {
+        dispatch(getDashboardConfigSuccess(mapFromApiKeys(configData)));
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard config from API", error);
+    }
+  };
+};
+
+export const toggleDashboardVisibility = (id: string, currentVisibility: Record<string, boolean>) => {
+  return async () => {
+    // Optimistically update local Redux state
+    dispatch(toggleDashboardVisibilityState(id));
+
+    try {
+      const updated = {
+        ...currentVisibility,
+        [id]: !currentVisibility[id]
+      };
+      const payload = mapToApiKeys(updated);
+      await patchData('/api/dashboard-config', payload);
+    } catch (error) {
+      console.error("Failed to toggle dashboard config via API", error);
+    }
+  };
+};
+
+export const resetDashboardConfig = () => {
+  return async () => {
+    dispatch(resetDashboardConfigState());
+
+    try {
+      const defaults = getInitialVisibility();
+      const payload = mapToApiKeys(defaults);
+      await patchData('/api/dashboard-config', payload);
+    } catch (error) {
+      console.error("Failed to reset dashboard config via API", error);
+    }
+  };
+};
+
+export default slice.reducer;

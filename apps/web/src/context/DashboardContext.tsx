@@ -1,20 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { drawerGroups } from '@/data/drawerData';
-
-// Generate initial state from drawerData IDs
-const getInitialVisibility = () => {
-  const initial: Record<string, boolean> = {};
-  drawerGroups.forEach(group => {
-    group.sections.forEach(section => {
-      section.items.forEach(item => {
-        initial[item.id] = true; // By default all are visible
-      });
-    });
-  });
-  return initial;
-};
+import React, { createContext, useContext, useEffect } from 'react';
+import { dispatch, useSelector } from '@/store';
+import { 
+  fetchDashboardConfig, 
+  toggleDashboardVisibility, 
+  resetDashboardConfig 
+} from '@/store/slices/dashboard';
 
 interface DashboardContextType {
   visibility: Record<string, boolean>;
@@ -25,38 +17,19 @@ interface DashboardContextType {
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
-  const [visibility, setVisibility] = useState<Record<string, boolean>>({});
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { visibility } = useSelector((state) => state.dashboard);
 
-  // Initialize and load from localStorage
+  // Initialize and load config from Redux store thunk (which calls API internally)
   useEffect(() => {
-    const saved = localStorage.getItem('dashboard_visibility');
-    const initial = getInitialVisibility();
-    if (saved) {
-      // Merge saved settings with initial (new IDs will default to true)
-      setVisibility({ ...initial, ...JSON.parse(saved) });
-    } else {
-      setVisibility(initial);
-    }
-    setIsInitialized(true);
+    dispatch(fetchDashboardConfig());
   }, []);
 
-  // Save to localStorage whenever visibility changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('dashboard_visibility', JSON.stringify(visibility));
-    }
-  }, [visibility, isInitialized]);
-
   const toggleVisibility = (id: string) => {
-    setVisibility(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+    dispatch(toggleDashboardVisibility(id, visibility));
   };
 
   const resetToDefaults = () => {
-    setVisibility(getInitialVisibility());
+    dispatch(resetDashboardConfig());
   };
 
   return (

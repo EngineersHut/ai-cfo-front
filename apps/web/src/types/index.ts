@@ -5,6 +5,8 @@ import React, { FunctionComponent, ReactElement } from 'react';
 // import { TablerIcon } from '@tabler/icons';
 
 import { AuthStateProps } from './auth';
+import { UserStateProps } from './user';
+import { DashboardStateProps } from './dashboard';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
@@ -56,9 +58,9 @@ export interface ColorPaletteProps {
 }
 
 export interface DefaultRootStateProps {
- 
   auth: AuthStateProps;
-
+  user: UserStateProps;
+  dashboard: DashboardStateProps;
 }
 
 export interface ColorProps {

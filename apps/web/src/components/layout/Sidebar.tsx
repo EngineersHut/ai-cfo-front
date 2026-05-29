@@ -9,6 +9,7 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 
 import Link from 'next/link';
+import { getImageUrl } from '@/utils/common';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -32,10 +33,10 @@ function NavItem({
   onClick?: (e: React.MouseEvent) => void;
 }) {
   const className = `flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
-        } h-[40px] ${active
-          ? 'bg-[#2563eb] text-white shadow-sm font-medium'
-          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-        }`;
+    } h-[40px] ${active
+      ? 'bg-[#2563eb] text-white shadow-sm font-medium'
+      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+    }`;
 
   const content = (
     <>
@@ -66,9 +67,41 @@ function NavItem({
   );
 }
 
+const isValidSrc = (src: any): boolean => {
+  if (typeof src !== 'string') return false;
+  const trimmed = src.trim();
+  return trimmed !== '' && trimmed !== 'null' && trimmed !== 'undefined' && trimmed !== '{}';
+};
+
 export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [userProfile, setUserProfile] = React.useState<{ name: string; profilePic: string | null }>({
+    name: 'Michale',
+    profilePic: null
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedName = localStorage.getItem('name');
+        const storedPic = localStorage.getItem('profilePic');
+
+        const nameVal = storedName ? JSON.parse(storedName) : 'Michale';
+        const picVal = storedPic ? JSON.parse(storedPic) : null;
+
+        setUserProfile({
+          name: nameVal || 'Michale',
+          profilePic: picVal
+        });
+      } catch (err) {
+        console.error('Error reading sidebar profile from localStorage', err);
+      }
+    }
+  }, []);
+
+  const firstLetter = userProfile.name ? userProfile.name.trim().charAt(0).toUpperCase() : 'M';
 
   return (
     <aside
@@ -120,63 +153,63 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
           }`}>
           Main
         </p>
-        <NavItem 
-          icon={<DashboardIcon />} 
-          label="Dashboard" 
-          isCollapsed={isCollapsed} 
-          href="/dashboard" 
-          active={pathname === '/dashboard'} 
+        <NavItem
+          icon={<DashboardIcon />}
+          label="Dashboard"
+          isCollapsed={isCollapsed}
+          href="/dashboard"
+          active={pathname === '/dashboard'}
         />
-        <NavItem 
-          icon={<OperationalIcon />} 
-          label="Operational Overview" 
-          isCollapsed={isCollapsed} 
-          href="/operational-overview" 
-          active={pathname === '/operational-overview'} 
+        <NavItem
+          icon={<OperationalIcon />}
+          label="Operational Overview"
+          isCollapsed={isCollapsed}
+          href="/operational-overview"
+          active={pathname === '/operational-overview'}
         />
-        <NavItem 
-          icon={<ReportIcon />} 
-          label="Reports" 
-          isCollapsed={isCollapsed} 
-          href="/reports" 
-          active={pathname === '/reports'} 
+        <NavItem
+          icon={<ReportIcon />}
+          label="Reports"
+          isCollapsed={isCollapsed}
+          href="/reports"
+          active={pathname === '/reports'}
         />
-        <NavItem 
-          icon={<GrowthIcon />} 
-          label="Growth Overview" 
-          isCollapsed={isCollapsed} 
-          href="/growth-overview" 
-          active={pathname === '/growth-overview'} 
+        <NavItem
+          icon={<GrowthIcon />}
+          label="Growth Overview"
+          isCollapsed={isCollapsed}
+          href="/growth-overview"
+          active={pathname === '/growth-overview'}
         />
-        <NavItem 
-          icon={<BudgetIcon />} 
-          label="Budget vs Actual" 
-          isCollapsed={isCollapsed} 
-          href="/budget-vs-actual" 
-          active={pathname === '/budget-vs-actual'} 
+        <NavItem
+          icon={<BudgetIcon />}
+          label="Budget vs Actual"
+          isCollapsed={isCollapsed}
+          href="/budget-vs-actual"
+          active={pathname === '/budget-vs-actual'}
         />
-        <NavItem 
-          icon={<ForcastIcon />} 
-          label="Forcast" 
-          isCollapsed={isCollapsed} 
-          href="/forecast" 
-          active={pathname === '/forecast'} 
+        <NavItem
+          icon={<ForcastIcon />}
+          label="Forcast"
+          isCollapsed={isCollapsed}
+          href="/forecast"
+          active={pathname === '/forecast'}
         />
-        <NavItem 
-          icon={<ForcastReportIcon />} 
-          label="Forcast Reports" 
-          isCollapsed={isCollapsed} 
-          href="/forecast-reports" 
-          active={pathname === '/forecast-reports'} 
+        <NavItem
+          icon={<ForcastReportIcon />}
+          label="Forcast Reports"
+          isCollapsed={isCollapsed}
+          href="/forecast-reports"
+          active={pathname === '/forecast-reports'}
         />
       </nav>
 
       {/* User Section - Restoring sequence while maintaining size parity */}
       <div className={`p-[20px] border-t border-slate-50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
-        <NavItem 
-          icon={<SettingsIcon />} 
-          label="Settings" 
-          isCollapsed={isCollapsed} 
+        <NavItem
+          icon={<SettingsIcon />}
+          label="Settings"
+          isCollapsed={isCollapsed}
           href="/settings"
           active={pathname === '/settings'}
         />
@@ -189,14 +222,24 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
 
         <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
           }`}>
-          <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[12px] border border-white/20 shrink-0">M</div>
+          {isValidSrc(userProfile.profilePic) ? (
+            <img
+              src={getImageUrl(userProfile.profilePic) as string}
+              alt={userProfile.name}
+              className="w-7 h-7 rounded-full object-cover border border-white/20 shrink-0"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[12px] border border-white/20 shrink-0">
+              {firstLetter}
+            </div>
+          )}
           {!isCollapsed && (
             <div className="flex items-center flex-1 transition-all duration-300 min-w-0">
               <div className="flex-1 overflow-hidden">
-                <p className="text-[12px] font-semibold truncate leading-none mb-0.5">Michale</p>
-                <p className="text-[9px] opacity-70 truncate uppercase tracking-tighter leading-none">Admin Account</p>
+                <p className="text-[12px] font-semibold truncate leading-none mb-0.5">{userProfile.name}</p>
+                {/* <p className="text-[9px] opacity-70 truncate uppercase tracking-tighter leading-none">Admin Account</p> */}
               </div>
-              <ChevronDown size={14} className="opacity-70 ml-1 shrink-0" />
+              {/* <ChevronDown size={14} className="opacity-70 ml-1 shrink-0" /> */}
             </div>
           )}
         </div>

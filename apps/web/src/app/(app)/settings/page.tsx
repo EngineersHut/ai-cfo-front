@@ -4,6 +4,17 @@ import React from 'react';
 import { Pencil, ShieldCheck, MoreVertical, Trash2, CreditCard, CheckCircle2, AlertTriangle, X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Modal from '@/components/common/Modal';
+import { dispatch, useSelector } from '@/store';
+import { updatePassword, hasActionError } from '@/store/slices/auth';
+import { updateProfileUser, getUserProfile, hasActionError as hasUserActionError } from '@/store/slices/user';
+import { ErrorAlert } from '@/components/common/errorMessage';
+import { getImageUrl } from '@/utils/common';
+
+const isValidSrc = (src: any): boolean => {
+    if (typeof src !== 'string') return false;
+    const trimmed = src.trim();
+    return trimmed !== '' && trimmed !== 'null' && trimmed !== 'undefined' && trimmed !== '{}';
+};
 
 export default function SettingsPage() {
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
@@ -17,6 +28,110 @@ export default function SettingsPage() {
         { id: 'risks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
         { id: 'weekly', title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
     ]);
+
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
+    const [passwordData, setPasswordData] = React.useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [passwordErrors, setPasswordErrors] = React.useState<Record<string, string>>({});
+    const [passwordSuccess, setPasswordSuccess] = React.useState<string | null>(null);
+
+    const [profileData, setProfileData] = React.useState({
+        name: '',
+        email: '',
+        profilePic: ''
+    });
+    const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+    const [profileSuccess, setProfileSuccess] = React.useState<string | null>(null);
+
+    const { actionLoading: authActionLoading, actionError } = useSelector((state) => state.auth);
+    const { actionLoading: userActionLoading, actionError: userActionError, userData } = useSelector((state) => state.user);
+
+    React.useEffect(() => {
+        dispatch(getUserProfile());
+    }, []);
+
+    React.useEffect(() => {
+        if (userData) {
+            setProfileData({
+                name: userData.name || '',
+                email: userData.email || '',
+                profilePic: userData.profilePic || ''
+            });
+        }
+    }, [userData]);
+
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileData(prev => ({ ...prev, profilePic: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSaveProfile = () => {
+        setProfileSuccess(null);
+        const formData = new FormData();
+        formData.append('name', profileData.name);
+        formData.append('email', profileData.email);
+        if (selectedFile) {
+            formData.append('profilePic', selectedFile);
+        }
+        dispatch(updateProfileUser(
+            formData,
+            () => {
+                setProfileSuccess('Profile updated successfully!');
+                setSelectedFile(null);
+                setTimeout(() => {
+                    setProfileSuccess(null);
+                }, 3000);
+            }
+        ));
+    };
+
+    const handlePasswordSubmit = async () => {
+        const errors: Record<string, string> = {};
+        if (!passwordData.currentPassword) {
+            errors.currentPassword = 'Current password is required';
+        }
+        if (!passwordData.newPassword) {
+            errors.newPassword = 'New password is required';
+        } else if (passwordData.newPassword.length < 6) {
+            errors.newPassword = 'Password must be at least 6 characters';
+        }
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            errors.confirmPassword = 'Passwords do not match';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setPasswordErrors(errors);
+            return;
+        }
+
+        setPasswordSuccess(null);
+        dispatch(updatePassword(
+            {
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword
+            },
+            () => {
+                setPasswordSuccess('Password updated successfully!');
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                setTimeout(() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordSuccess(null);
+                }, 2000);
+            }
+        ));
+    };
 
     const toggleNotification = (id: string) => {
         setNotifications(notifications.map(n => n.id === id ? { ...n, active: !n.active } : n));
@@ -48,21 +163,49 @@ export default function SettingsPage() {
                 <div className="p-[16px] space-y-4">
                     <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Profile Settings</h2>
 
+                    {/* Success Message */}
+                    {profileSuccess && (
+                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2.5 text-emerald-700 text-[14px]">
+                            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
+                            <span>{profileSuccess}</span>
+                        </div>
+                    )}
+
+                    {/* Error Message */}
+                    {userActionError && (
+                        <ErrorAlert
+                            error={userActionError}
+                            onDismiss={() => dispatch(hasUserActionError(null))}
+                        />
+                    )}
+
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
                         {/* Avatar Section */}
                         <div className="relative group shrink-0">
-                            <div className="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-white shadow-md">
-                                <Image
-                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop"
-                                    alt="Profile"
-                                    width={64}
-                                    height={64}
-                                    className="object-cover"
-                                />
+                            <div className="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center text-slate-400 font-bold font-inter text-[24px]">
+                                {isValidSrc(profileData.profilePic) ? (
+                                    <img
+                                        src={getImageUrl(profileData.profilePic) as string}
+                                        alt="Profile"
+                                        className="object-cover w-full h-full"
+                                    />
+                                ) : (
+                                    profileData.name ? profileData.name.trim().charAt(0).toUpperCase() : 'M'
+                                )}
                             </div>
-                            <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-blue-600 hover:bg-slate-50 transition-colors">
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-blue-600 hover:bg-slate-50 transition-colors"
+                            >
                                 <Pencil size={14} />
                             </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                className="hidden"
+                            />
                         </div>
 
                         {/* Form Section */}
@@ -71,7 +214,8 @@ export default function SettingsPage() {
                                 <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Full Name</label>
                                 <input
                                     type="text"
-                                    defaultValue="Alexander Sterling"
+                                    value={profileData.name}
+                                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                                     className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a]"
                                 />
                             </div>
@@ -79,7 +223,8 @@ export default function SettingsPage() {
                                 <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Work Email</label>
                                 <input
                                     type="email"
-                                    defaultValue="alexander@nexusfintech.io"
+                                    value={profileData.email}
+                                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                                     className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a]"
                                 />
                             </div>
@@ -93,9 +238,24 @@ export default function SettingsPage() {
                             </h3>
                             <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">Last changed 3 months ago</p>
                         </div>
-                        <button className="w-full sm:w-[164px] h-[36px] px-[10px] py-[4px] rounded-[8px] border border-[#e2e8f0] bg-white text-[14px] font-medium text-[#64748b] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all">
-                            Change Password
-                        </button>
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <button
+                                onClick={() => setIsPasswordModalOpen(true)}
+                                className="w-full sm:w-auto px-[16px] h-[36px] rounded-[8px] border border-[#e2e8f0] bg-white text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                            >
+                                Change Password
+                            </button>
+                            <button
+                                onClick={handleSaveProfile}
+                                disabled={userActionLoading}
+                                className="w-full sm:w-auto px-[16px] h-[36px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all flex items-center justify-center gap-2 disabled:opacity-75"
+                            >
+                                {userActionLoading && (
+                                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                                )}
+                                Save Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -546,6 +706,127 @@ export default function SettingsPage() {
                             className="w-full h-[40px] px-[12px] py-[4px] bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] hover:bg-slate-100 transition-all"
                         >
                             Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Change Password Modal */}
+            <Modal
+                isOpen={isPasswordModalOpen}
+                onClose={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                    setPasswordErrors({});
+                    setPasswordSuccess(null);
+                    dispatch(hasActionError(null));
+                }}
+                width="450px"
+                className="rounded-[24px]"
+            >
+                <div className="p-[16px] space-y-4">
+                    {/* Header */}
+                    <div className="text-center space-y-1">
+                        <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Change Account Password</h2>
+                        <p className="text-[13px] text-slate-400 font-inter">Ensure your account stays secure by choosing a strong password.</p>
+                    </div>
+
+                    {/* Success Message */}
+                    {passwordSuccess && (
+                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2.5 text-emerald-700 text-[14px]">
+                            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
+                            <span>{passwordSuccess}</span>
+                        </div>
+                    )}
+
+                    {/* Redux Action Error */}
+                    {actionError && (
+                        <ErrorAlert
+                            error={actionError}
+                            onDismiss={() => dispatch(hasActionError(null))}
+                        />
+                    )}
+
+                    {/* Form Fields */}
+                    <div className="space-y-4">
+                        {/* Current Password */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Current Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.currentPassword}
+                                onChange={(e) => {
+                                    setPasswordData({ ...passwordData, currentPassword: e.target.value });
+                                    setPasswordErrors({ ...passwordErrors, currentPassword: '' });
+                                }}
+                                placeholder="••••••••"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                            />
+                            {passwordErrors.currentPassword && (
+                                <p className="text-red-500 text-[11px] font-inter">{passwordErrors.currentPassword}</p>
+                            )}
+                        </div>
+
+                        {/* New Password */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">New Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.newPassword}
+                                onChange={(e) => {
+                                    setPasswordData({ ...passwordData, newPassword: e.target.value });
+                                    setPasswordErrors({ ...passwordErrors, newPassword: '' });
+                                }}
+                                placeholder="••••••••"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                            />
+                            {passwordErrors.newPassword && (
+                                <p className="text-red-500 text-[11px] font-inter">{passwordErrors.newPassword}</p>
+                            )}
+                        </div>
+
+                        {/* Confirm New Password */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Confirm New Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.confirmPassword}
+                                onChange={(e) => {
+                                    setPasswordData({ ...passwordData, confirmPassword: e.target.value });
+                                    setPasswordErrors({ ...passwordErrors, confirmPassword: '' });
+                                }}
+                                placeholder="••••••••"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                            />
+                            {passwordErrors.confirmPassword && (
+                                <p className="text-red-500 text-[11px] font-inter">{passwordErrors.confirmPassword}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-center gap-3 pt-2">
+                        <button
+                            onClick={() => {
+                                setIsPasswordModalOpen(false);
+                                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                                setPasswordErrors({});
+                                setPasswordSuccess(null);
+                                dispatch(hasActionError(null));
+                            }}
+                            className="w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handlePasswordSubmit}
+                            disabled={authActionLoading}
+                            className="w-full h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-75"
+                        >
+                            {authActionLoading && (
+                                <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                            )}
+                            Update Password
                         </button>
                     </div>
                 </div>
