@@ -38,17 +38,18 @@ const slice = createSlice({
 
 export const { hasError, getAuthLoading, hasActionError, getSignInDataSucsess, getAuthActionLoading } = slice.actions;
 
-export function userSignUp(payload: any, handleClose?: any) {
+export function userSignUp(payload: any, onSuccess?: () => void) {
   return async () => {
     dispatch(getAuthActionLoading(true));
     try {
       const response = await postData('/api/user/signup', payload);
-      // if (response?.access_token) {
-      //   localStorage.setItem('access_token', response.access_token);
-      //   localStorage.setItem('authUser', JSON.stringify(response.user));
-      //   window.location.href = '/';
-      // }
-      // toast.success(response?.message);
+      if (response && response.success === false) {
+        dispatch(hasActionError(response.message || 'Registration failed'));
+      } else {
+        if (onSuccess) {
+          onSuccess();
+        }
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       dispatch(hasActionError(errorMessage));

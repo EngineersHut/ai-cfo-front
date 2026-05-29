@@ -6,25 +6,39 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import Link from 'next/link';
 
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  onLogout?: () => void;
 }
 
-function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" }: { icon: React.ReactNode, label: string, active?: boolean, isCollapsed?: boolean, href?: string }) {
-  return (
-    <Link
-      href={href}
-      className={`flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
+function NavItem({
+  icon,
+  label,
+  active = false,
+  isCollapsed = false,
+  href = "#",
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  isCollapsed?: boolean;
+  href?: string;
+  onClick?: (e: React.MouseEvent) => void;
+}) {
+  const className = `flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
         } h-[40px] ${active
           ? 'bg-[#2563eb] text-white shadow-sm font-medium'
           : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-        }`}
-    >
+        }`;
+
+  const content = (
+    <>
       <span className={`shrink-0 transition-all duration-300 ${active ? 'text-white' : 'text-slate-400'}`}>
         {icon}
       </span>
@@ -34,12 +48,27 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
       >
         {label}
       </span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button onClick={onClick} className={`${className} text-left w-full`}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
     </Link>
   );
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside
@@ -151,7 +180,12 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           href="/settings"
           active={pathname === '/settings'}
         />
-        <NavItem icon={<LogoutIcon />} label="Logout" isCollapsed={isCollapsed} />
+        <NavItem
+          icon={<LogoutIcon />}
+          label="Logout"
+          isCollapsed={isCollapsed}
+          onClick={onLogout}
+        />
 
         <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
           }`}>

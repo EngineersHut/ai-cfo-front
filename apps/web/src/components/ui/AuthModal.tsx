@@ -6,13 +6,13 @@ import { AtSign, Key, Eye, EyeOff, User } from "lucide-react";
 import Modal from "../common/Modal";
 import { dispatch, useSelector } from "@/store";
 import { hasError, hasActionError, userSignUp, createsignIn } from "@/store/slices/auth";
-import { ErrorAlert } from "../common/errorMessage";
+import { ErrorAlert, SuccessAlert } from "../common/errorMessage";
 import * as yup from "yup";
 
 type AuthMode = 'login' | 'register';
 
 const registerSchema = yup.object().shape({
-  fullName: yup.string().required('Full Name is required'),
+  name: yup.string().required('Full Name is required'),
   email: yup.string().email('Please enter a valid email address').required('Email is required'),
   password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
   confirmPassword: yup
@@ -32,7 +32,7 @@ interface AuthModalProps {
 }
 
 interface FormData {
-  fullName: string;
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -52,7 +52,7 @@ export default function AuthModal({
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormData>({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -60,6 +60,7 @@ export default function AuthModal({
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { error: errors, actionError, actionLoading } = useSelector((state) => state.auth);
   console.log("actionError", actionError);
 
@@ -67,6 +68,7 @@ export default function AuthModal({
     dispatch(hasError(null));
     dispatch(hasActionError(null));
     setValidationErrors({});
+    setSuccessMessage(null);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('modal');
     router.push(`?${params.toString()}`);
@@ -76,6 +78,7 @@ export default function AuthModal({
     dispatch(hasError(null));
     dispatch(hasActionError(null));
     setValidationErrors({});
+    setSuccessMessage(null);
     const params = new URLSearchParams(searchParams.toString());
     params.set('modal', newMode);
     router.push(`?${params.toString()}`);
@@ -151,7 +154,13 @@ export default function AuthModal({
       if (mode === 'register') {
         await registerSchema.validate(formData, { abortEarly: false });
         console.log("Registering user:", formData);
-        dispatch(userSignUp(formData, handleClose));
+        dispatch(userSignUp(formData, () => {
+          setSuccessMessage("User created successfully! Please login now.");
+          setTimeout(() => {
+            setSuccessMessage(null);
+            setMode('login');
+          }, 3000);
+        }));
       } else {
         await loginSchema.validate(formData, { abortEarly: false });
         const loginPayload = {
@@ -204,15 +213,15 @@ export default function AuthModal({
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><User size={18} strokeWidth={1.8} /></div>
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   placeholder="Ahmad Husein"
                   className={`w-full h-[38px] bg-white border rounded-[8px] pl-11 pr-[10px] py-[8px] text-[14px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.fullName ? 'border-red-500 focus:border-red-500' : 'border-slate-200'
                     }`}
                 />
               </div>
-              {validationErrors.fullName && (
+              {validationErrors.name && (
                 <span className="text-red-500 text-[11px] mt-1 ml-0.5 block">{validationErrors.fullName}</span>
               )}
             </div>
@@ -301,6 +310,10 @@ export default function AuthModal({
               )}
             </div>
           )}
+          <SuccessAlert
+            message={successMessage}
+            onDismiss={() => setSuccessMessage(null)}
+          />
           <ErrorAlert
             error={actionError}
             onDismiss={() => {
