@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DashboardConfigController } from './dashboard-config.controller';
 import { DashboardConfigService } from './dashboard-config.service';
-import { DashboardConfig, DashboardConfigSchema } from './schemas/dashboard-config.schema';
+import { DashboardConfig, DashboardConfigSchema } from '../schemas/dashboard-config.schema';
 
 @Module({
   imports: [

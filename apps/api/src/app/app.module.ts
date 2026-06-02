@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { DashboardConfigModule } from '../dashboard-config/dashboard-config.module';
+import { CompanyModule } from '../company/company.module';
+import { NotificationSettingsModule } from '../notification-settings/notification-settings.module';
 
 let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
 
@@ -29,6 +31,8 @@ let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
     UserModule,
     AuthModule,
     DashboardConfigModule,
+    CompanyModule,
+    NotificationSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

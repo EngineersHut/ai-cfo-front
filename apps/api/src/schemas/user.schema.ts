@@ -1,13 +1,11 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
+import { BaseDocument } from "./base.schema";
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema({
-  timestamps: true,
-})
-export class User {
-
+@Schema()
+export class User extends BaseDocument {
   @Prop({
     required: true,
   })
@@ -25,11 +23,11 @@ export class User {
   password!: string;
   @Prop({
     required: true,
-    default: 'local',
+    default: "local",
   })
   provider!: string;
   @Prop({
-    default: '',
+    default: "",
   })
   providerId!: string;
 
