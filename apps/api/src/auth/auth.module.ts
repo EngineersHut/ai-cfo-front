@@ -11,7 +11,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
 import { AppleStrategy } from './strategies/apple.strategy';
 
-import { User, UserSchema } from '../user/schemas/user.schema';
+import { User, UserSchema } from '../schemas/user.schema';
 
 
 @Module({

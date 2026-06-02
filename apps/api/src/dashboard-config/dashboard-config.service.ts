@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DashboardConfig } from './schemas/dashboard-config.schema';
+import { DashboardConfig } from '../schemas/dashboard-config.schema';
 import { UpdateDashboardConfigDto } from './dto/update-dashboard-config.dto';
 import { ResponseHelper } from '../common/helpers/response.helper';
 

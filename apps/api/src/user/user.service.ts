@@ -5,7 +5,7 @@ import { Model } from "mongoose";
 
 import * as bcrypt from "bcryptjs";
 
-import { User } from "./schemas/user.schema";
+import { User } from "../schemas/user.schema";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { UpdatePasswordDto } from "./dto/update-password.dto";

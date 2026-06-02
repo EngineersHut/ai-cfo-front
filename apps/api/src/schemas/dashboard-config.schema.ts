@@ -3,9 +3,11 @@ import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
 export type DashboardConfigDocument = HydratedDocument<DashboardConfig>;
 
-@Schema({ timestamps: true })
-export class DashboardConfig {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true, unique: true })
+import { BaseDocument } from './base.schema';
+
+@Schema()
+export class DashboardConfig extends BaseDocument {
+  @Prop({ type: String, ref: 'User', required: true, unique: true })
   userId!: string;
 
   @Prop({ default: true }) totalTrips!: boolean;
