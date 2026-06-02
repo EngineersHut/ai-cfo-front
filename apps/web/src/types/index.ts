@@ -7,6 +7,7 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import { AuthStateProps } from './auth';
 import { UserStateProps } from './user';
 import { DashboardStateProps } from './dashboard';
+import { CompanyStateProps } from './company';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
@@ -57,10 +58,24 @@ export interface ColorPaletteProps {
   value: string;
 }
 
+export interface NotificationStateProps {
+  settings: {
+    emailNotifications: boolean;
+    alertsForFinancialRisks: boolean;
+    weeklySummaryReports: boolean;
+  };
+  loading: boolean;
+  actionLoading: boolean;
+  error: any;
+  actionError: any;
+}
+
 export interface DefaultRootStateProps {
   auth: AuthStateProps;
   user: UserStateProps;
   dashboard: DashboardStateProps;
+  company: CompanyStateProps;
+  notification: NotificationStateProps;
 }
 
 export interface ColorProps {

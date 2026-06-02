@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pencil, ShieldCheck, MoreVertical, Trash2, CreditCard, CheckCircle2, AlertTriangle, X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Modal from '@/components/common/Modal';
@@ -9,6 +9,10 @@ import { updatePassword, hasActionError } from '@/store/slices/auth';
 import { updateProfileUser, getUserProfile, hasActionError as hasUserActionError } from '@/store/slices/user';
 import { ErrorAlert } from '@/components/common/errorMessage';
 import { getImageUrl } from '@/utils/common';
+import AddcompanyModal from './components/AddcompanyModal';
+import { getAllCompanies, deleteCompany } from '@/store/slices/company';
+import { getNotificationSettings, updateNotificationSettings } from '@/store/slices/notification';
+import { Company } from '@/types/company';
 
 const isValidSrc = (src: any): boolean => {
     if (typeof src !== 'string') return false;
@@ -20,14 +24,17 @@ export default function SettingsPage() {
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
     const [isAutoRenewal, setIsAutoRenewal] = React.useState(true);
     const [isCompanyModalOpen, setIsCompanyModalOpen] = React.useState(false);
+    const [selectedCompany, setSelectedCompany] = React.useState<any>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = React.useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
     const [notifications, setNotifications] = React.useState([
-        { id: 'email', title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
-        { id: 'risks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
-        { id: 'weekly', title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
+        { id: 'emailNotifications', title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: true },
+        { id: 'alertsForFinancialRisks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: true },
+        { id: 'weeklySummaryReports', title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: false }
     ]);
+    const { companies, loading } = useSelector((state) => state.company);
+    const { settings: notificationSettings } = useSelector((state) => state.notification);
 
     const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
     const [passwordData, setPasswordData] = React.useState({
@@ -43,17 +50,18 @@ export default function SettingsPage() {
         email: '',
         profilePic: ''
     });
+    const [companyData, setCompanyData] = React.useState<Company[]>([]);
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
     const [profileSuccess, setProfileSuccess] = React.useState<string | null>(null);
 
     const { actionLoading: authActionLoading, actionError } = useSelector((state) => state.auth);
     const { actionLoading: userActionLoading, actionError: userActionError, userData } = useSelector((state) => state.user);
 
-    React.useEffect(() => {
+    useEffect(() => {
         dispatch(getUserProfile());
     }, []);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (userData) {
             setProfileData({
                 name: userData.name || '',
@@ -62,6 +70,35 @@ export default function SettingsPage() {
             });
         }
     }, [userData]);
+
+    const loadComapny = () => {
+        dispatch(getAllCompanies())
+    }
+
+    useEffect(() => {
+        loadComapny()
+        dispatch(getNotificationSettings())
+    }, [])
+
+    useEffect(() => {
+        setCompanyData(companies || [])
+    }, [companies])
+
+    useEffect(() => {
+        if (notificationSettings) {
+            setNotifications([
+                { id: 'emailNotifications', title: 'Email notifications', desc: 'Receive system updates and feature announcements', active: !!notificationSettings.emailNotifications },
+                { id: 'alertsForFinancialRisks', title: 'Alerts for financial risks', desc: 'Real-time push notifications for liquidity or budget issues', active: !!notificationSettings.alertsForFinancialRisks },
+                { id: 'weeklySummaryReports', title: 'Weekly summary reports', desc: 'Automated executive summary delivered every Monday', active: !!notificationSettings.weeklySummaryReports }
+            ]);
+        }
+    }, [notificationSettings])
+
+    const handleDeleteCompany = (id: string) => {
+        dispatch(deleteCompany(id, () => {
+            setActiveMenu(null);
+        }));
+    }
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -134,7 +171,10 @@ export default function SettingsPage() {
     };
 
     const toggleNotification = (id: string) => {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, active: !n.active } : n));
+        const target = notifications.find(n => n.id === id);
+        if (target) {
+            dispatch(updateNotificationSettings({ [id]: !target.active }));
+        }
     };
 
     const toggleMenu = (id: string) => {
@@ -147,6 +187,8 @@ export default function SettingsPage() {
         window.addEventListener('click', handleClick);
         return () => window.removeEventListener('click', handleClick);
     }, []);
+
+
 
     return (
         <div className="mx-auto space-y-4 pb-10">
@@ -271,75 +313,74 @@ export default function SettingsPage() {
                                 <p className="text-[13px] text-slate-400 font-inter max-w-[300px]">Configure multiple entity identities and regional preferences.</p>
                             </div>
                             <button
-                                onClick={() => setIsCompanyModalOpen(true)}
+                                onClick={() => {
+                                    setSelectedCompany(null);
+                                    setIsCompanyModalOpen(true);
+                                }}
                                 className="flex items-center justify-center gap-[6px] w-full sm:w-[140px] h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-normal text-[#f8fafc] font-inter leading-[20px] tracking-[0%] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98] shrink-0"
                             >
                                 <span className="text-[18px] leading-none">+</span> Add Company
                             </button>
                         </div>
                         <div className="mx-4 h-px bg-slate-100" />
-                        <div className="p-4 space-y-3">
-                            <div className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
-                                <div className="flex items-center gap-5">
-                                    <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md shrink-0">EA</div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">Executive Architectural HQ</h3>
-                                        <p className="text-[14px] font-normal text-[#64748b] font-inter">New York, NY</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                                    <span className="px-3 py-1.5 bg-[#2563eb] text-white text-[10px] font-bold rounded-[8px] font-inter tracking-wider shadow-sm">PRIMARY</span>
-                                    <div className="relative">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); toggleMenu('company-1'); }}
-                                            className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
-                                        >
-                                            <MoreVertical size={20} />
-                                        </button>
-                                        {activeMenu === 'company-1' && (
-                                            <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
-                                                <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
-                                                    <Pencil size={16} className="text-slate-400" />
-                                                    <span>Edit</span>
-                                                </button>
-                                                <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
-                                                    <Trash2 size={16} className="text-red-400" />
-                                                    <span>Delete</span>
-                                                </button>
+                        <div className="p-4 space-y-3 max-h-[320px] overflow-y-auto">
+                            {companyData?.map((company: any) => {
+                                const initials = company.name
+                                    ? company.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+                                    : 'CO';
+                                return (
+                                    <div key={company._id} className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md shrink-0">
+                                                {initials}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
-                                <div className="flex items-center gap-5">
-                                    <div className="w-[48px] h-[48px] bg-white border border-slate-100 rounded-[4px] flex items-center justify-center text-[#1e293b] font-bold text-[16px] font-inter shadow-sm shrink-0">LD</div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">London Design Studio</h3>
-                                        <p className="text-[14px] font-normal text-[#64748b] font-inter">Regional Subsidiary • London, UK</p>
-                                    </div>
-                                </div>
-                                <div className="relative self-end sm:self-auto">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); toggleMenu('company-2'); }}
-                                        className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
-                                    >
-                                        <MoreVertical size={20} />
-                                    </button>
-                                    {activeMenu === 'company-2' && (
-                                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
-                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
-                                                <Pencil size={16} className="text-slate-400" />
-                                                <span>Edit</span>
-                                            </button>
-                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
-                                                <Trash2 size={16} className="text-red-400" />
-                                                <span>Delete</span>
-                                            </button>
+                                            <div className="space-y-1">
+                                                <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">
+                                                    {company.name}
+                                                </h3>
+                                                <p className="text-[14px] font-normal text-[#64748b] font-inter">
+                                                    {company.location || 'New York, NY'}
+                                                </p>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                                            {company.isPrimary && (
+                                                <span className="px-3 py-1.5 bg-[#2563eb] text-white text-[10px] font-bold rounded-[8px] font-inter tracking-wider shadow-sm">PRIMARY</span>
+                                            )}
+                                            <div className="relative">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); toggleMenu(`company-${company._id}`); }}
+                                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                                >
+                                                    <MoreVertical size={20} />
+                                                </button>
+                                                {activeMenu === `company-${company._id}` && (
+                                                    <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedCompany(company);
+                                                                setIsCompanyModalOpen(true);
+                                                                setActiveMenu(null);
+                                                            }}
+                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors"
+                                                        >
+                                                            <Pencil size={16} className="text-slate-400" />
+                                                            <span>Edit</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteCompany(company._id)}
+                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors"
+                                                        >
+                                                            <Trash2 size={16} className="text-red-400" />
+                                                            <span>Delete</span>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -508,73 +549,14 @@ export default function SettingsPage() {
             </div>
 
             {/* Add Company Modal */}
-            <Modal
+            <AddcompanyModal
                 isOpen={isCompanyModalOpen}
-                onClose={() => setIsCompanyModalOpen(false)}
-                width="450px"
-                className="rounded-[24px]"
-            >
-                <div className="p-[16px]  space-y-2">
-                    {/* Header */}
-                    <div className="text-center">
-                        <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Add New Company Details</h2>
-                    </div>
-
-                    {/* Form Fields */}
-                    <div className="space-y-4">
-                        {/* Company Name */}
-                        <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Company Name</label>
-                            <input
-                                type="text"
-                                placeholder="Nexus FinTech Global"
-                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
-                            />
-                        </div>
-
-                        {/* Industry Dropdown */}
-                        <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Industry</label>
-                            <div className="relative group w-full">
-                                <select className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer">
-                                    <option>Technology & SaaS</option>
-                                    <option>Architecture & Design</option>
-                                    <option>Financial Services</option>
-                                </select>
-                                <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
-                            </div>
-                        </div>
-
-                        {/* Currency Dropdown */}
-                        <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Currency</label>
-                            <div className="relative group w-full">
-                                <select className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer">
-                                    <option>USD - US Dollar</option>
-                                    <option>GBP - British Pound</option>
-                                    <option>EUR - Euro</option>
-                                </select>
-                                <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-center gap-3 pt-2">
-                        <button
-                            onClick={() => setIsCompanyModalOpen(false)}
-                            className=" w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            className="w-full h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]"
-                        >
-                            Add
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+                handleClose={() => {
+                    setIsCompanyModalOpen(false);
+                    setSelectedCompany(null);
+                }}
+                companyData={selectedCompany}
+            />
 
             {/* Add Payment Modal */}
             <Modal
