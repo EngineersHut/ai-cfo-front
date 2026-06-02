@@ -10,10 +10,13 @@ import {
   Download,
   Plus,
   Menu,
-  Check
+  Check,
+  Building2
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { workspaceOptions, WorkspaceOption } from '@/components/common/Option';
+import { dispatch, useSelector } from '@/store';
+import { getAllCompanies } from '@/store/slices/company';
 
 interface HeaderProps {
   onToggleMenu?: () => void;
@@ -22,9 +25,37 @@ interface HeaderProps {
 
 export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceOption>(workspaceOptions[0]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  const { companies } = useSelector((state) => state.company);
+
+  useEffect(() => {
+    dispatch(getAllCompanies());
+  }, []);
+
+  const dynamicOptions = React.useMemo(() => {
+    if (!companies || companies.length === 0) {
+      return workspaceOptions;
+    }
+    return companies.map((c: any) => ({
+      id: c._id,
+      label: c.name,
+      description: c.industry ? c.industry.replace(/_/g, ' ').toUpperCase() : 'Company Workspace',
+      icon: <Building2 size={16} />
+    }));
+  }, [companies]);
+
+  const [selectedWorkspace, setSelectedWorkspace] = useState<any>(null);
+
+  useEffect(() => {
+    if (dynamicOptions.length > 0) {
+      const exists = dynamicOptions.find(opt => opt.id === selectedWorkspace?.id);
+      if (!exists) {
+        setSelectedWorkspace(dynamicOptions[0]);
+      }
+    }
+  }, [dynamicOptions, selectedWorkspace]);
 
   // Determine page title based on current path
   const getPageTitle = () => {
@@ -67,10 +98,10 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
             className="flex items-center gap-2 cursor-pointer group"
           >
             <div className="text-slate-400 group-hover:text-blue-500 transition-colors shrink-0">
-              {selectedWorkspace.icon}
+              {selectedWorkspace?.icon || <Building2 size={16} />}
             </div>
             <span className="text-[14px] md:text-[15px] font-normal text-[#1e293b] font-inter truncate max-w-[100px] md:max-w-none">
-              {selectedWorkspace.label}
+              {selectedWorkspace?.label || 'Loading...'}
             </span>
             <ChevronDown
               size={14}
@@ -85,30 +116,30 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Workspaces</p>
               </div>
               <div className="max-h-[300px] overflow-y-auto">
-                {workspaceOptions.map((option) => (
+                {dynamicOptions.map((option) => (
                   <div
                     key={option.id}
                     onClick={() => {
                       setSelectedWorkspace(option);
                       setIsOpen(false);
                     }}
-                    className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
+                    className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
                       }`}
                   >
-                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${selectedWorkspace.id === option.id
-                        ? 'bg-white border-blue-200 text-blue-600 shadow-sm'
-                        : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600'
+                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${selectedWorkspace?.id === option.id
+                      ? 'bg-white border-blue-200 text-blue-600 shadow-sm'
+                      : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600'
                       }`}>
                       {option.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-[14px] truncate ${selectedWorkspace.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
+                      <p className={`text-[14px] truncate ${selectedWorkspace?.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
                         }`}>
                         {option.label}
                       </p>
                       <p className="text-[11px] text-slate-400 truncate">{option.description}</p>
                     </div>
-                    {selectedWorkspace.id === option.id && (
+                    {selectedWorkspace?.id === option.id && (
                       <Check size={16} className="text-blue-600" />
                     )}
                   </div>

@@ -1,0 +1,168 @@
+import Modal from '@/components/common/Modal';
+import React, { useEffect, useState } from 'react';
+import { } from '@/types';
+import { Company } from '@/types/company';
+import { ChevronDown } from 'lucide-react';
+import { useDispatch } from '@/store';
+import { createCompany, updateCompany } from '@/store/slices/company';
+
+interface AddEditClientProps {
+    isOpen: boolean;
+    handleClose: () => void;
+    companyData?: any;
+}
+
+function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProps) {
+    const dispatch = useDispatch();
+    const [formData, setFormData] = useState<any>({
+        name: '',
+        industry: 'technology_and_saas',
+        currency: 'usd',
+        isPrimary: false,
+    })
+    useEffect(() => {
+        if (isOpen) {
+            if (companyData) {
+                setFormData({
+                    name: companyData.name || '',
+                    industry: companyData.industry || 'technology_and_saas',
+                    currency: companyData.currency || 'usd',
+                    isPrimary: companyData.isPrimary || false,
+                });
+            } else {
+                setFormData({
+                    name: '',
+                    industry: 'technology_and_saas',
+                    currency: 'usd',
+                    isPrimary: false,
+                });
+            }
+        }
+    }, [companyData, isOpen]);
+
+    const handleClear = () => {
+        setFormData({
+            name: '',
+            industry: 'technology_and_saas',
+            currency: 'usd',
+            isPrimary: false,
+        });
+        handleClose()
+    }
+
+    const handleAddCompany = () => {
+        if (companyData) {
+            dispatch(updateCompany(companyData._id, formData, handleClear));
+        } else {
+            dispatch(createCompany(formData, handleClear));
+        }
+    }
+
+    const handleChange = (name: string, value: any) => {
+        setFormData((prev: any) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={handleClose}
+            width="450px"
+            className="rounded-[24px]"
+        >
+            <div className="p-[16px]  space-y-2">
+                {/* Header */}
+                <div className="text-center">
+                    <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">
+                        {companyData ? 'Edit Company Details' : 'Add New Company Details'}
+                    </h2>
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4">
+                    {/* Company Name */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Company Name</label>
+                        <input
+                            type="text"
+                            placeholder="Nexus FinTech Global"
+                            value={formData.name}
+                            onChange={(e) => handleChange('name', e.target.value)}
+                            className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                        />
+                    </div>
+
+                    {/* Industry Dropdown */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Industry</label>
+                        <div className="relative group w-full">
+                            <select
+                                value={formData.industry}
+                                onChange={(e) => handleChange('industry', e.target.value)}
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                            >
+                                <option value="technology_and_saas">Technology & SaaS</option>
+                                <option value="architecture_and_design">Architecture & Design</option>
+                                <option value="financial_services">Financial Services</option>
+                            </select>
+                            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                        </div>
+                    </div>
+
+                    {/* Currency Dropdown */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Currency</label>
+                        <div className="relative group w-full">
+                            <select
+                                value={formData.currency}
+                                onChange={(e) => handleChange('currency', e.target.value)}
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                            >
+                                <option value="usd">USD - US Dollar</option>
+                                <option value="inr">INR - Indian Rupee</option>
+                                <option value="eur">EUR - Euro</option>
+                            </select>
+                            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                        </div>
+                    </div>
+
+                    {/* Primary Status Dropdown */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Set as Primary</label>
+                        <div className="relative group w-full">
+                            <select
+                                value={formData.isPrimary ? "true" : "false"}
+                                onChange={(e) => handleChange('isPrimary', e.target.value === "true")}
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                            >
+                                <option value="false">No (Subsidiary Entity)</option>
+                                <option value="true">Yes (Primary Account Workspace)</option>
+                            </select>
+                            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-center gap-3 pt-2">
+                    <button
+                        onClick={handleClose}
+                        className=" w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleAddCompany}
+                        className="w-full h-[36px] px-[12px] py-[4px] bg-[#2563eb] border border-white/20 rounded-[8px] text-[14px] font-medium text-white font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)] hover:bg-blue-600 transition-all active:scale-[0.98]"
+                    >
+                        {companyData ? 'Save' : 'Add'}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    )
+}
+
+export default AddcompanyModal
