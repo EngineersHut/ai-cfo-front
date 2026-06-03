@@ -181,3 +181,54 @@ export const ProfilePicInterceptor = FileInterceptor(
     5 * 1024 * 1024, // 5MB limit
   ),
 );
+
+export const reportFileFilter = (
+  req: any,
+  file: Express.Multer.File,
+  cb: any,
+) => {
+  const allowedMimeTypes = [
+    "application/pdf",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv",
+  ];
+
+  const allowedExtensions = [".pdf", ".xls", ".xlsx", ".csv"];
+  const fileExtension = extname(file.originalname).toLowerCase();
+
+  if (
+    !allowedMimeTypes.includes(file.mimetype) &&
+    !allowedExtensions.includes(fileExtension)
+  ) {
+    return cb(
+      new BadRequestException(
+        "Invalid file type. Allowed: PDF, Excel (XLS/XLSX), CSV.",
+      ),
+      false,
+    );
+  }
+
+  const maxSize = 50 * 1024 * 1024; // 50MB limit
+  if (file.size && file.size > maxSize) {
+    return cb(
+      new BadRequestException(
+        `File size too large. Maximum allowed size is 50MB.`,
+      ),
+      false,
+    );
+  }
+
+  return cb(null, true);
+};
+
+export const ReportFileInterceptor = FileInterceptor(
+  "file",
+  createMulterConfig(
+    "reports", // folder
+    "report", // prefix
+    1, // max files
+    50 * 1024 * 1024, // 50MB limit
+    reportFileFilter, // custom filter
+  ),
+);
