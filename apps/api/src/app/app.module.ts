@@ -8,6 +8,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { DashboardConfigModule } from '../dashboard-config/dashboard-config.module';
 import { CompanyModule } from '../company/company.module';
 import { NotificationSettingsModule } from '../notification-settings/notification-settings.module';
+import { ReportModule } from '../report/report.module';
 
 let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
 
@@ -33,6 +34,7 @@ let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
     DashboardConfigModule,
     CompanyModule,
     NotificationSettingsModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
