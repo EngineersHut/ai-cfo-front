@@ -10,7 +10,6 @@ export interface Company {
 
 export interface CompanyStateProps {
   companies: Company[];
-  
   loading: boolean;
   error: string | null;
   actionLoading: boolean;

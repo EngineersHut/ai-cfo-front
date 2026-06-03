@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     List,
     Activity,
@@ -14,6 +14,9 @@ import ListView from './components/ListView';
 import TimelineView from './components/TimelineView';
 import ReportDetail from './components/ReportDetail';
 import DeleteModal from './components/DeleteModal';
+import { dispatch, useSelector } from '@/store';
+import { getAllReports, deleteReport } from '@/store/slices/report';
+import { Report } from '@/types';
 
 export default function ReportsPage() {
     const [view, setView] = useState<'list' | 'timeline'>('list');
@@ -22,6 +25,13 @@ export default function ReportsPage() {
     const [reportToDelete, setReportToDelete] = useState<any>(null);
     const [isAddingReport, setIsAddingReport] = useState(false);
     const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [reportData, setReportData] = useState<Report[]>([])
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [searchQuery, setSearchQuery] = useState('');
+    const { reports, actionLoading } = useSelector((state) => state.report)
+    console.log(reportData, "reportData");
+
 
     const handleDeleteClick = (e: React.MouseEvent, report: any) => {
         e.stopPropagation();
@@ -29,16 +39,80 @@ export default function ReportsPage() {
         setIsDeleteModalOpen(true);
     };
 
+    const handleConfirmDelete = () => {
+        if (reportToDelete) {
+            const deleteId = reportToDelete._id || reportToDelete.id;
+            dispatch(deleteReport(deleteId, () => {
+                setIsDeleteModalOpen(false);
+                setReportToDelete(null);
+                loadReports();
+            }));
+        }
+    };
+
     const handleReportClick = (report: any) => {
         setSelectedReport(report);
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        loadReports(page, limit);
+    };
+
+    const handleLimitChange = (newLimit: number) => {
+        setLimit(newLimit);
+        setCurrentPage(1);
+        loadReports(1, newLimit, searchQuery);
+    };
+
+    const handleSearchChange = (val: string) => {
+        setSearchQuery(val);
+        setCurrentPage(1);
+        loadReports(1, limit, val);
+    };
+
+    const loadReports = (pageNumber = currentPage, limitVal = limit, searchVal = searchQuery) => {
+        const queryParams = new URLSearchParams();
+        queryParams.append('page', String(pageNumber));
+        queryParams.append('limit', String(limitVal));
+        if (searchVal) {
+            queryParams.append('search', searchVal);
+        }
+        dispatch(getAllReports(`?${queryParams.toString()}`));
+    };
+
+    useEffect(() => {
+        loadReports(1, 10, '');
+    }, [])
+
+    useEffect(() => {
+        if (reports) {
+            const dataArray = Array.isArray(reports) ? reports : (reports.data || []);
+            setReportData(dataArray);
+            if (dataArray.length > 0) {
+                setActivePeriod(dataArray[0].periodStartDate || dataArray[0].period || '');
+            }
+        }
+    }, [reports])
+
+    const paginationObj = reports && !Array.isArray(reports) ? {
+        total: reports.total ?? 0,
+        page: reports.page ?? 1,
+        limit: reports.limit ?? 10,
+        totalPages: reports.totalPages ?? 1
+    } : {
+        total: reportData.length,
+        page: 1,
+        limit: reportData.length || 10,
+        totalPages: 1
     };
 
     return (
         <div className="flex flex-col gap-5  max-w-[1400px] mx-auto animate-in fade-in duration-500">
             {selectedReport ? (
-                <ReportDetail 
-                    reportId={selectedReport.id} 
-                    onBack={() => setSelectedReport(null)} 
+                <ReportDetail
+                    reportId={selectedReport._id || selectedReport.id}
+                    onBack={() => setSelectedReport(null)}
                 />
             ) : isAddingReport ? (
                 <ReportUpload onCancel={() => setIsAddingReport(false)} />
@@ -98,13 +172,18 @@ export default function ReportsPage() {
                     {/* Content Section */}
                     {view === 'list' ? (
                         <ListView
-                            reportsData={reportsData}
+                            reportsData={reportData}
                             onDeleteClick={handleDeleteClick}
                             onReportClick={handleReportClick}
+                            pagination={paginationObj}
+                            onPageChange={handlePageChange}
+                            onLimitChange={handleLimitChange}
+                            searchQuery={searchQuery}
+                            onSearchChange={handleSearchChange}
                         />
                     ) : (
                         <TimelineView
-                            reportsData={reportsData}
+                            reportsData={reportData}
                             activePeriod={activePeriod}
                             setActivePeriod={setActivePeriod}
                             onDeleteClick={handleDeleteClick}
@@ -118,7 +197,9 @@ export default function ReportsPage() {
             <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
                 reportToDelete={reportToDelete}
+                isDeleting={actionLoading}
             />
         </div>
     );

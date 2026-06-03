@@ -8,6 +8,7 @@ import { AuthStateProps } from './auth';
 import { UserStateProps } from './user';
 import { DashboardStateProps } from './dashboard';
 import { CompanyStateProps } from './company';
+import { ReportStateProps, ReportTypeEnum, Report } from './report';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
@@ -76,6 +77,7 @@ export interface DefaultRootStateProps {
   dashboard: DashboardStateProps;
   company: CompanyStateProps;
   notification: NotificationStateProps;
+  report: ReportStateProps;
 }
 
 export interface ColorProps {
@@ -117,3 +119,6 @@ export type ChangeEventFunc = (e: React.ChangeEvent<HTMLInputElement>) => void;
 export type KeyedObject = {
   [key: string]: string | number | KeyedObject | any;
 };
+
+export { ReportTypeEnum };
+export type { Report };

@@ -44,6 +44,16 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
     return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
+            <div className="flex items-center">
+                <button
+                    onClick={onBack}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-[#e2e8f0] bg-white text-[13px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.06)] font-inter"
+                >
+                    <ArrowLeft size={16} />
+                    Back to Reports
+                </button>
+            </div>
+
             <div className="w-full bg-white rounded-[12px] border border-slate-100 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div className="flex flex-wrap items-center gap-8 sm:gap-16">
                     <div className="space-y-1">

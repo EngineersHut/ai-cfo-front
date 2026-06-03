@@ -6,11 +6,17 @@ import { X, AlertTriangle } from 'lucide-react';
 interface DeleteModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onConfirm: () => void;
     reportToDelete: any;
+    isDeleting?: boolean;
 }
 
-export default function DeleteModal({ isOpen, onClose, reportToDelete }: DeleteModalProps) {
+export default function DeleteModal({ isOpen, onClose, onConfirm, reportToDelete, isDeleting }: DeleteModalProps) {
     if (!isOpen) return null;
+
+    const reportIdentifier = reportToDelete?.reportName || 
+        (reportToDelete?.period ? `${reportToDelete.period} ${reportToDelete.type || ''}` : '') || 
+        'this report';
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -18,7 +24,8 @@ export default function DeleteModal({ isOpen, onClose, reportToDelete }: DeleteM
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    disabled={isDeleting}
+                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <X size={20} />
                 </button>
@@ -36,20 +43,29 @@ export default function DeleteModal({ isOpen, onClose, reportToDelete }: DeleteM
 
                     {/* Description */}
                     <p className="text-[15px] text-[#4b5563] leading-[24px] font-inter">
-                        This action cannot be undone. All data associated with <span className="font-bold text-[#111827]">"{reportToDelete?.period} {reportToDelete?.type}"</span> will be permanently removed from the CFO vault.
+                        This action cannot be undone. All data associated with <span className="font-bold text-[#111827]">"{reportIdentifier}"</span> will be permanently removed from the CFO vault.
                     </p>
 
                     {/* Actions */}
                     <div className="flex flex-col gap-3 w-full">
                         <button
-                            onClick={onClose}
-                            className="w-[336px] h-[36px] bg-[#eb5757] text-white rounded-[8px] text-[14px] font-bold hover:opacity-90 transition-all flex items-center justify-center pt-[14px] pb-[14px] opacity-100 rotate-0"
+                            onClick={onConfirm}
+                            disabled={isDeleting}
+                            className="w-[336px] h-[36px] bg-[#eb5757] text-white rounded-[8px] text-[14px] font-bold hover:opacity-90 transition-all flex items-center justify-center pt-[14px] pb-[14px] opacity-100 rotate-0 disabled:opacity-50 disabled:cursor-not-allowed gap-2"
                         >
-                            Delete Report
+                            {isDeleting ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Delete Report'
+                            )}
                         </button>
                         <button
                             onClick={onClose}
-                            className="w-[336px] h-[36px] bg-[#f6f8fa] text-[#394c84] rounded-[8px] text-[16px] font-normal font-inter leading-[24px] flex items-center justify-center p-[20px] opacity-100 rotate-0 transition-all hover:bg-[#eef2f6]"
+                            disabled={isDeleting}
+                            className="w-[336px] h-[36px] bg-[#f6f8fa] text-[#394c84] rounded-[8px] text-[16px] font-normal font-inter leading-[24px] flex items-center justify-center p-[20px] opacity-100 rotate-0 transition-all hover:bg-[#eef2f6] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Cancel
                         </button>

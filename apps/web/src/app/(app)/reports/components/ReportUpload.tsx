@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-    Calendar,
     CheckCircle2,
     FileText,
     UploadCloud,
@@ -10,9 +9,40 @@ import {
     Info,
     Loader2,
     CheckCircle,
-    BadgeCheck
+    BadgeCheck,
+    ChevronDown
 } from 'lucide-react';
 import { useEffect } from 'react';
+import { ReportTypeEnum } from '@/types';
+import * as yup from 'yup';
+import { dispatch, useSelector } from '@/store';
+import { createReport, hasActionError } from '@/store/slices/report';
+import { ErrorAlert } from '@/components/common/errorMessage';
+
+const reportUploadSchema = yup.object().shape({
+    reportName: yup.string().required('Report Name is required'),
+    reportType: yup.string().required('Report Type is required'),
+    periodStartDate: yup.string().required('Start Date is required'),
+    periodEndDate: yup.string().required('End Date is required'),
+    file: yup.array()
+        .min(1, 'At least one file is required')
+        .required('At least one file is required')
+        .test('fileType', 'Only Excel (.xlsx, .xls) or CSV files are supported', (files) => {
+            if (!files) return true;
+            return files.every((file: any) => {
+                const name = file.name ? file.name.toLowerCase() : '';
+                return name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv');
+            });
+        })
+});
+
+const reportTypeOptions = [
+    { label: 'Income Statement', value: ReportTypeEnum.INCOME_STATEMENT },
+    { label: 'Balance Sheet', value: ReportTypeEnum.BALANCE_SHEET },
+    { label: 'Cash Flow', value: ReportTypeEnum.CASH_FLOW },
+    { label: 'Financial Statement', value: ReportTypeEnum.FINANCIAL_STATEMENT },
+    { label: 'Other', value: ReportTypeEnum.OTHER },
+];
 
 interface ReportUploadProps {
     onCancel: () => void;
@@ -21,13 +51,25 @@ interface ReportUploadProps {
 export default function ReportUpload({ onCancel }: ReportUploadProps) {
     const [formData, setFormData] = useState({
         reportName: "",
-        reportingPeriod: "",
-        files: [] as any[]
+        periodStartDate: "",
+        periodEndDate: "",
+        reportType: "" as ReportTypeEnum | "",
+        file: [] as any[]
     });
 
+    const { actionLoading, actionError } = useSelector((state) => state.report);
+
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisStep, setAnalysisStep] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
+
+    useEffect(() => {
+        dispatch(hasActionError(null));
+        return () => {
+            dispatch(hasActionError(null));
+        };
+    }, []);
 
     const steps = [
         "Scanning Bank statements...",
@@ -53,18 +95,51 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        setValidationErrors(prev => ({ ...prev, [field]: "" }));
     };
 
-    const handleGenerate = () => {
-        setIsAnalyzing(true);
-        setAnalysisStep(0);
-        console.log("Generate Report Payload (FormData):", formData);
+    const handleGenerate = async () => {
+        setValidationErrors({});
+        dispatch(hasActionError(null));
+        try {
+            await reportUploadSchema.validate(formData, { abortEarly: false });
+
+            const companyId = localStorage.getItem('selectedCompany') || '';
+            const payload = new FormData();
+            payload.append('reportName', formData.reportName);
+            payload.append('periodStartDate', formData.periodStartDate);
+            payload.append('periodEndDate', formData.periodEndDate);
+            payload.append('reportType', formData.reportType);
+            payload.append('companyId', companyId);
+
+            formData.file.forEach((f: any) => {
+                payload.append('file', f);
+            });
+
+            dispatch(createReport(payload, () => {
+                setIsAnalyzing(true);
+                setAnalysisStep(0);
+            }));
+            console.log("Generate Report Payload (FormData):", formData, "with companyId:", companyId);
+        } catch (err: any) {
+            if (err instanceof yup.ValidationError) {
+                const errors: Record<string, string> = {};
+                err.inner.forEach((error) => {
+                    if (error.path) {
+                        errors[error.path] = error.message;
+                    }
+                });
+                setValidationErrors(errors);
+            } else {
+                console.error("Non-validation error:", err);
+            }
+        }
     };
 
     const handleFileBrowse = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            handleInputChange('files', newFiles);
+            handleInputChange('file', newFiles);
             console.log("Files selected:", newFiles);
         }
     };
@@ -137,6 +212,8 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                 <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px]">Integrate new financial data points into the Precision Ledger ecosystem. Ensure all documents meet our architectural quant standards for processing.</p>
             </div>
 
+
+
             {/* Grid for Metadata and Precision Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 {/* Metadata Card */}
@@ -154,25 +231,76 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                                 value={formData.reportName}
                                 onChange={(e) => handleInputChange('reportName', e.target.value)}
                                 placeholder="e.g. Q3 Architecture Sustainability Audit"
-                                className="w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
+                                className={`w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm ${validationErrors.reportName ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                    }`}
                             />
+                            {validationErrors.reportName && (
+                                <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.reportName}</span>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
-                                Reporting Period <span className="text-red-500">*</span>
+                                Report Type <span className="text-red-500">*</span>
                             </label>
                             <div className="relative group max-w-[648px] w-full">
-                                <input
-                                    type="text"
-                                    value={formData.reportingPeriod}
-                                    onChange={(e) => handleInputChange('reportingPeriod', e.target.value)}
-                                    placeholder="mm/dd/yyyy"
-                                    className="w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm"
-                                />
+                                <select
+                                    value={formData.reportType}
+                                    onChange={(e) => handleInputChange('reportType', e.target.value)}
+                                    className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${validationErrors.reportType ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                        }`}
+                                >
+                                    <option value="" disabled>Select report type</option>
+                                    {reportTypeOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none">
-                                    <Calendar size={18} />
+                                    <ChevronDown size={18} />
                                 </div>
+                            </div>
+                            {validationErrors.reportType && (
+                                <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.reportType}</span>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4 max-w-[648px] w-full">
+                            <div className="flex-1 flex flex-col gap-2">
+                                <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
+                                    Start Date <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative group w-full">
+                                    <input
+                                        type="date"
+                                        value={formData.periodStartDate}
+                                        onChange={(e) => handleInputChange('periodStartDate', e.target.value)}
+                                        className={`w-full h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm text-slate-800 ${validationErrors.periodStartDate ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                            }`}
+                                    />
+                                </div>
+                                {validationErrors.periodStartDate && (
+                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.periodStartDate}</span>
+                                )}
+                            </div>
+
+                            <div className="flex-1 flex flex-col gap-2">
+                                <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
+                                    End Date <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative group w-full">
+                                    <input
+                                        type="date"
+                                        value={formData.periodEndDate}
+                                        onChange={(e) => handleInputChange('periodEndDate', e.target.value)}
+                                        className={`w-full h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm text-slate-800 ${validationErrors.periodEndDate ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                            }`}
+                                    />
+                                </div>
+                                {validationErrors.periodEndDate && (
+                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.periodEndDate}</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -230,18 +358,20 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                     </div>
                 </div>
 
-                <div className="border-2 border-dashed border-slate-200 rounded-[16px] p-8 flex flex-col items-center justify-center gap-6 bg-slate-50/20 hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer group">
+                <div className={`border-2 border-dashed rounded-[16px] p-8 flex flex-col items-center justify-center gap-6 bg-slate-50/20 hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer group relative ${validationErrors.file ? 'border-red-400 bg-red-50/5 hover:border-red-500' : 'border-slate-200'
+                    }`}>
                     <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
                         <UploadCloud width={44} height={32} className="text-[#94a3b8]" />
                     </div>
                     <div className="text-center space-y-2">
                         <h4 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Drag and drop documents here</h4>
-                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] text-center">PDF, CSV, or XLSX formats supported (Max 50MB)</p>
+                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] text-center">XLSX, XLS, or CSV formats supported (Max 50MB)</p>
                     </div>
                     <div className="relative">
                         <input
                             type="file"
                             multiple
+                            accept=".xlsx, .xls, .csv"
                             onChange={handleFileBrowse}
                             className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                         />
@@ -251,8 +381,43 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                         </button>
                     </div>
                 </div>
-            </div>
+                {validationErrors.file && (
+                    <span className="text-red-500 text-[11px] mt-1 block text-center">{validationErrors.file}</span>
+                )}
 
+                {formData.file && formData.file.length > 0 && (
+                    <div className="flex flex-col gap-2 mt-2">
+                        <p className="text-[12px] font-semibold text-slate-500 font-inter">Selected Files:</p>
+                        <div className="flex flex-wrap gap-2">
+                            {formData.file.map((f: any, index: number) => (
+                                <div key={index} className="flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full text-[12px] text-slate-600 font-inter">
+                                    <Paperclip size={12} className="text-slate-400" />
+                                    <span>{f.name}</span>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const updatedFiles = formData.file.filter((_, i) => i !== index);
+                                            handleInputChange('file', updatedFiles);
+                                        }}
+                                        className="text-slate-400 hover:text-red-500 font-bold ml-1 transition-colors"
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+            {actionError && (
+                <div className=" w-full">
+                    <ErrorAlert
+                        error={actionError}
+                        onDismiss={() => dispatch(hasActionError(null))}
+                    />
+                </div>
+            )}
             {/* Footer Section */}
             <div className="flex flex-col gap-6 ">
                 <div className="w-full h-[68px] px-4 rounded-[12px] border border-[#f2f2f3] bg-white flex items-center justify-between shadow-sm">
@@ -266,9 +431,17 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
                         <button
                             onClick={handleGenerate}
-                            className="w-[140px] h-[36px] px-[12px] py-[4px] gap-[6px] bg-[#2563eb] text-[#f8fafc] font-normal font-inter text-[14px] leading-[20px] tracking-[0%] rounded-[8px] border border-white/10 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all flex items-center justify-center active:scale-95"
+                            disabled={actionLoading}
+                            className="w-[140px] h-[36px] px-[12px] py-[4px] gap-[6px] bg-[#2563eb] disabled:bg-blue-400 disabled:cursor-not-allowed text-[#f8fafc] font-normal font-inter text-[14px] leading-[20px] tracking-[0%] rounded-[8px] border border-white/10 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all flex items-center justify-center active:scale-95"
                         >
-                            Generate Report
+                            {actionLoading ? (
+                                <div className="flex items-center gap-2">
+                                    <Loader2 size={16} className="animate-spin" />
+                                    <span>Uploading...</span>
+                                </div>
+                            ) : (
+                                'Generate Report'
+                            )}
                         </button>
                     </div>
                 </div>
