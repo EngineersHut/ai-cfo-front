@@ -50,12 +50,19 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
   useEffect(() => {
     if (dynamicOptions.length > 0) {
-      const exists = dynamicOptions.find(opt => opt.id === selectedWorkspace?.id);
-      if (!exists) {
-        setSelectedWorkspace(dynamicOptions[0]);
+      const savedCompanyId = localStorage.getItem('selectedCompany');
+      const found = savedCompanyId ? dynamicOptions.find(opt => opt.id === savedCompanyId) : null;
+      if (found) {
+        setSelectedWorkspace(found);
+      } else {
+        const defaultOpt = dynamicOptions[0];
+        setSelectedWorkspace(defaultOpt);
+        if (defaultOpt) {
+          localStorage.setItem('selectedCompany', defaultOpt.id);
+        }
       }
     }
-  }, [dynamicOptions, selectedWorkspace]);
+  }, [dynamicOptions]);
 
   // Determine page title based on current path
   const getPageTitle = () => {
@@ -121,6 +128,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
                     key={option.id}
                     onClick={() => {
                       setSelectedWorkspace(option);
+                      localStorage.setItem('selectedCompany', option.id);
                       setIsOpen(false);
                     }}
                     className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'

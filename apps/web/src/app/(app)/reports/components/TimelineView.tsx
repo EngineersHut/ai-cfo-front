@@ -15,6 +15,46 @@ interface TimelineViewProps {
     onReportClick: (report: any) => void;
 }
 
+const getPeriodString = (dateStr?: string) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+};
+
+const getReportTypeLabel = (type?: string) => {
+    if (!type) return 'N/A';
+    switch (type) {
+        case 'income_statement': return 'Income Statement';
+        case 'balance_sheet': return 'Balance Sheet';
+        case 'cash_flow': return 'Cash Flow';
+        case 'financial_statement': return 'Financial Statement';
+        case 'other': return 'Other';
+        default: return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+};
+
+const getEndDateStr = (report: any) => {
+    if (report.periodEndDate) {
+        const d = new Date(report.periodEndDate);
+        if (!isNaN(d.getTime())) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+    }
+    if (report.dateRange && report.dateRange.includes(' - ')) {
+        return report.dateRange.split(' - ')[1];
+    }
+    return report.dateRange || 'N/A';
+};
+
+const getStatusLabel = (status?: string) => {
+    const s = status ? status.toLowerCase() : 'processing';
+    if (s === 'completed' || s === 'processed' || s === 'success') {
+        return 'Processed';
+    }
+    return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
 export default function TimelineView({ 
     reportsData, 
     activePeriod, 
@@ -38,83 +78,88 @@ export default function TimelineView({
                 <div className="absolute top-[73px] left-0 w-full h-[2px] bg-slate-100 z-0" />
 
                 <div className="flex items-start gap-8 overflow-x-auto no-scrollbar pb-4 relative z-10">
-                    {reportsData.map((report, idx) => (
-                        <div
-                            key={report.id}
-                            className="flex-shrink-0 w-[256px] flex flex-col items-center cursor-pointer"
-                            onClick={() => setActivePeriod(report.period)}
-                        >
-                            {/* Month Label - Positioned above the line */}
-                            <span className={`text-[12px] font-bold font-inter mb-[32px] uppercase tracking-widest transition-colors duration-300 ${activePeriod === report.period ? 'text-[#5345cc]' : 'text-slate-400'}`}>
-                                {report.period}
-                            </span>
+                    {reportsData.map((report, idx) => {
+                        const reportPeriod = report.periodStartDate || report.period || '';
+                        const isPeriodActive = activePeriod === reportPeriod;
 
-                            {/* Node Dot - Centered on the line */}
-                            <div className="relative mb-4 h-6 flex items-center justify-center">
-                                {activePeriod === report.period ? (
-                                    <div className="w-6 h-6 rounded-full border-[4px] border-[#5345cc] bg-white z-20 shadow-sm transition-all duration-300" />
-                                ) : (
-                                    <div className="w-5 h-5 rounded-full bg-[#f1f5f9] flex items-center justify-center z-10">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-[#94a3b8]" />
+                        return (
+                            <div
+                                key={report._id || report.id}
+                                className="flex-shrink-0 w-[256px] flex flex-col items-center cursor-pointer"
+                                onClick={() => setActivePeriod(reportPeriod)}
+                            >
+                                {/* Month Label - Positioned above the line */}
+                                <span className={`text-[12px] font-bold font-inter mb-[32px] uppercase tracking-widest transition-colors duration-300 ${isPeriodActive ? 'text-[#5345cc]' : 'text-slate-400'}`}>
+                                    {getPeriodString(reportPeriod)}
+                                </span>
+
+                                {/* Node Dot - Centered on the line */}
+                                <div className="relative mb-4 h-6 flex items-center justify-center">
+                                    {isPeriodActive ? (
+                                        <div className="w-6 h-6 rounded-full border-[4px] border-[#5345cc] bg-white z-20 shadow-sm transition-all duration-300" />
+                                    ) : (
+                                        <div className="w-5 h-5 rounded-full bg-[#f1f5f9] flex items-center justify-center z-10">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[#94a3b8]" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Card */}
+                                <div 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onReportClick(report);
+                                    }}
+                                    className={`w-[256px] h-[190px] p-[20px] rounded-[12px] border transition-all duration-300 shadow-sm relative group flex flex-col gap-[14px] ${isPeriodActive
+                                    ? 'bg-[#5345cc] border-[#5345cc] text-white shadow-xl shadow-[#5345cc]/20 scale-[1.02] z-20'
+                                    : 'bg-slate-50/50 border-slate-100 hover:border-slate-200'
+                                    }`}>
+                                    {/* Status Badge */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="inline-flex items-center gap-[6px] w-[92px] h-[20px] rounded-[4px] border border-[#bee5d0] bg-[#f2fffa] text-[#2cac68] text-[14px] font-normal font-inter leading-[20px] pt-[2px] pr-[6px] pb-[2px] pl-[4px]">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#2cac68]" />
+                                            {getStatusLabel(report.uploadStatus || report.status)}
+                                        </div>
+                                        <button
+                                            onClick={(e) => onDeleteClick(e, report)}
+                                            className={`${isPeriodActive ? 'text-white/60 hover:text-white' : 'text-slate-300 hover:text-slate-500'} transition-colors`}
+                                        >
+                                            <MoreVertical size={18} />
+                                        </button>
                                     </div>
-                                )}
+
+                                    {/* Title & Desc */}
+                                    <div className="flex flex-col gap-2">
+                                        <h4 className={`text-[14px] font-medium font-inter leading-[20px] ${isPeriodActive ? 'text-white' : 'text-[#0a092e]'}`}>
+                                            {getReportTypeLabel(report.reportType || report.type)}
+                                        </h4>
+                                        <p className={`text-[14px] font-normal font-inter leading-[20px] line-clamp-2 ${isPeriodActive ? 'text-white/80' : 'text-[#64748b]'}`}>
+                                            {idx === 0 ? 'Verified and matches expected balance' :
+                                                idx === 1 ? 'Successfully validated and accepted' :
+                                                    idx === 2 ? 'Format not supported, needs re-upload' :
+                                                        'Verified and processed successfully'}
+                                        </p>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="mt-auto flex items-center justify-between pt-3 border-t border-current/10">
+                                        <div className="flex items-center gap-2">
+                                            {isPeriodActive ? (
+                                                <div className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-white">
+                                                    IN PROGRESS
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-[12px] font-normal text-[#0b1c30] font-inter leading-[16px]">
+                                                    <FileText size={14} className="text-slate-400" />
+                                                    {getEndDateStr(report)}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
-                            {/* Card */}
-                            <div 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onReportClick(report);
-                                }}
-                                className={`w-[256px] h-[190px] p-[20px] rounded-[12px] border transition-all duration-300 shadow-sm relative group flex flex-col gap-[14px] ${activePeriod === report.period
-                                ? 'bg-[#5345cc] border-[#5345cc] text-white shadow-xl shadow-[#5345cc]/20 scale-[1.02] z-20'
-                                : 'bg-slate-50/50 border-slate-100 hover:border-slate-200'
-                                }`}>
-                                {/* Status Badge */}
-                                <div className="flex items-center justify-between">
-                                    <div className="inline-flex items-center gap-[6px] w-[92px] h-[20px] rounded-[4px] border border-[#bee5d0] bg-[#f2fffa] text-[#2cac68] text-[14px] font-normal font-inter leading-[20px] pt-[2px] pr-[6px] pb-[2px] pl-[4px]">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#2cac68]" />
-                                        {report.status}
-                                    </div>
-                                    <button
-                                        onClick={(e) => onDeleteClick(e, report)}
-                                        className={`${activePeriod === report.period ? 'text-white/60 hover:text-white' : 'text-slate-300 hover:text-slate-500'} transition-colors`}
-                                    >
-                                        <MoreVertical size={18} />
-                                    </button>
-                                </div>
-
-                                {/* Title & Desc */}
-                                <div className="flex flex-col gap-2">
-                                    <h4 className={`text-[14px] font-medium font-inter leading-[20px] ${activePeriod === report.period ? 'text-white' : 'text-[#0a092e]'}`}>
-                                        {report.type}
-                                    </h4>
-                                    <p className={`text-[14px] font-normal font-inter leading-[20px] line-clamp-2 ${activePeriod === report.period ? 'text-white/80' : 'text-[#64748b]'}`}>
-                                        {idx === 0 ? 'Verified and matches expected balance' :
-                                            idx === 1 ? 'Successfully validated and accepted' :
-                                                idx === 2 ? 'Format not supported, needs re-upload' :
-                                                    'Verified and processed successfully'}
-                                    </p>
-                                </div>
-
-                                {/* Footer */}
-                                <div className="mt-auto flex items-center justify-between pt-3 border-t border-current/10">
-                                    <div className="flex items-center gap-2">
-                                        {activePeriod === report.period ? (
-                                            <div className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-white">
-                                                IN PROGRESS
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-[12px] font-normal text-[#0b1c30] font-inter leading-[16px]">
-                                                <FileText size={14} className="text-slate-400" />
-                                                {report.dateRange.split(' - ')[1]}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
