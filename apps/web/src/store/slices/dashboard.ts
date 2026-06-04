@@ -61,6 +61,8 @@ interface DashboardState {
   revenueData: typeof revenueData;
   healthData: typeof healthData;
   healthScore: number;
+  auditCompliance: number;
+  equityHealth: number;
   aiInsights: typeof aiInsightsData;
   costEfficiency: typeof detailedCostData;
   kpiStats: {
@@ -81,6 +83,8 @@ const initialState: DashboardState = {
   revenueData: revenueData,
   healthData: healthData,
   healthScore: 84,
+  auditCompliance: 98,
+  equityHealth: 84,
   aiInsights: aiInsightsData,
   costEfficiency: detailedCostData,
   kpiStats: {
@@ -112,6 +116,107 @@ const slice = createSlice({
     },
     resetDashboardConfigState(state) {
       state.visibility = getInitialVisibility();
+    },
+    getDashboardDataSuccess(state, action) {
+      const apiData = action.payload;
+      if (!apiData) return;
+
+      const summary = apiData.summaryCards || {};
+      const health = apiData.healthMeter || {};
+      const cost = apiData.costEfficiency || {};
+
+      // 1. Update KPI stats
+      state.kpiStats = {
+        totalTrips: {
+          value: summary.totalDeliveries !== undefined ? String(summary.totalDeliveries) : state.kpiStats.totalTrips.value,
+          trend: summary.growthPercent !== undefined ? `${summary.growthPercent >= 0 ? '+' : ''}${summary.growthPercent}%` : state.kpiStats.totalTrips.trend,
+          sub: state.kpiStats.totalTrips.sub
+        },
+        delPerVeh: {
+          value: summary.deliveriesPerVehicle !== undefined ? String(summary.deliveriesPerVehicle) : state.kpiStats.delPerVeh.value,
+          unit: state.kpiStats.delPerVeh.unit,
+          trend: state.kpiStats.delPerVeh.trend,
+          sub: state.kpiStats.delPerVeh.sub
+        },
+        fleetUtil: {
+          value: summary.fleetUtilization !== undefined ? `${summary.fleetUtilization}%` : state.kpiStats.fleetUtil.value,
+          trend: state.kpiStats.fleetUtil.trend,
+          isDown: state.kpiStats.fleetUtil.isDown,
+          sub: state.kpiStats.fleetUtil.sub
+        },
+        driverEff: {
+          value: summary.driverEfficiency !== undefined ? `${summary.driverEfficiency}%` : state.kpiStats.driverEff.value,
+          trend: state.kpiStats.driverEff.trend,
+          sub: state.kpiStats.driverEff.sub
+        },
+        cashRunway: {
+          value: summary.cashRunway !== undefined ? `${summary.cashRunway} months` : state.kpiStats.cashRunway.value,
+          trend: state.kpiStats.cashRunway.trend,
+          sub: state.kpiStats.cashRunway.sub
+        },
+        growth: {
+          value: summary.growthPercent !== undefined ? `${summary.growthPercent}%` : state.kpiStats.growth.value,
+          trend: state.kpiStats.growth.trend,
+          sub: state.kpiStats.growth.sub
+        },
+        ebitda: {
+          value: summary.ebitda !== undefined ? `$${summary.ebitda.toLocaleString()}` : state.kpiStats.ebitda.value,
+          trend: state.kpiStats.ebitda.trend,
+          isDown: state.kpiStats.ebitda.isDown,
+          sub: state.kpiStats.ebitda.sub
+        },
+        cashflow: {
+          value: summary.operatingCashFlow !== undefined ? `$${summary.operatingCashFlow.toLocaleString()}` : state.kpiStats.cashflow.value,
+          unit: state.kpiStats.cashflow.unit,
+          trend: state.kpiStats.cashflow.trend,
+          sub: state.kpiStats.cashflow.sub
+        }
+      };
+
+      // 2. Update Revenue Trend
+      if (Array.isArray(apiData.revenueTrend) && apiData.revenueTrend.length > 0) {
+        state.revenueData = apiData.revenueTrend;
+      }
+
+      // 3. Update Health Score
+      if (health.score !== undefined) {
+        state.healthScore = health.score;
+      }
+      if (health.auditCompliance !== undefined) {
+        state.auditCompliance = health.auditCompliance;
+      }
+      if (health.equityHealth !== undefined) {
+        state.equityHealth = health.equityHealth;
+      }
+
+      // 4. Update Cost & Efficiency summary cards
+      state.costEfficiency = {
+        ...state.costEfficiency,
+        summary: [
+          { id: 'totalExpenses', label: 'Total Expenses', value: cost.totalExpenses !== undefined ? `$${(cost.totalExpenses / 1000).toFixed(0)}K` : state.costEfficiency.summary[0].value, trend: state.costEfficiency.summary[0].trend, isUp: state.costEfficiency.summary[0].isUp },
+          { id: 'costRevenue', label: 'Cost of Revenue', value: cost.costOfRevenue !== undefined ? `${cost.costOfRevenue}%` : state.costEfficiency.summary[1].value, trend: state.costEfficiency.summary[1].trend, isUp: state.costEfficiency.summary[1].isUp },
+          { id: 'costClient', label: 'Cost per Client', value: cost.costPerClient !== undefined ? `$${cost.costPerClient}` : state.costEfficiency.summary[2].value, trend: state.costEfficiency.summary[2].trend, isUp: state.costEfficiency.summary[2].isUp },
+          { id: 'opExpRatio', label: 'Operating Expense Ratio', value: cost.operatingExpenseRatio !== undefined ? `${cost.operatingExpenseRatio}%` : state.costEfficiency.summary[3].value, trend: state.costEfficiency.summary[3].trend, isUp: state.costEfficiency.summary[3].isUp }
+        ],
+        breakdown: state.costEfficiency.breakdown.map((item: any) => {
+          if (item.metric === 'Total Expenses' && cost.totalExpenses !== undefined) {
+            return { ...item, value: `$${cost.totalExpenses.toLocaleString()}` };
+          }
+          if (item.metric === 'Cost % of Revenue' && cost.costOfRevenue !== undefined) {
+            return { ...item, value: `${cost.costOfRevenue}%` };
+          }
+          return item;
+        }),
+        unitEconomics: state.costEfficiency.unitEconomics.map((item: any) => {
+          if (item.metric === 'Cost per Client' && cost.costPerClient !== undefined) {
+            return { ...item, value: `$${cost.costPerClient}` };
+          }
+          if (item.metric === 'Operating Expense Ratio' && cost.operatingExpenseRatio !== undefined) {
+            return { ...item, value: `${cost.operatingExpenseRatio}%` };
+          }
+          return item;
+        })
+      };
     }
   }
 });
@@ -120,7 +225,8 @@ export const {
   setTimeframe,
   getDashboardConfigSuccess,
   toggleDashboardVisibilityState,
-  resetDashboardConfigState
+  resetDashboardConfigState,
+  getDashboardDataSuccess
 } = slice.actions;
 
 export const fetchDashboardConfig = () => {
@@ -165,6 +271,20 @@ export const resetDashboardConfig = () => {
       await patchData('/api/dashboard-config', payload);
     } catch (error) {
       console.error("Failed to reset dashboard config via API", error);
+    }
+  };
+};
+
+export const fetchDashboardData = (companyId: string, period: string) => {
+  return async () => {
+    try {
+      const response = await getData(`/api/dashboard?companyId=${companyId}&period=${period.toLowerCase()}`);
+      const data = response?.data || response;
+      if (data) {
+        dispatch(getDashboardDataSuccess(data));
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard data from API", error);
     }
   };
 };

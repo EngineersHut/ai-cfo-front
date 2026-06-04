@@ -10,7 +10,7 @@ import {
     Plus,
     Play
 } from 'lucide-react';
-import { detailedCostData } from '@/data/dashboardData';
+import { useSelector } from '@/store';
 import { useDashboardSettings } from '@/context/DashboardContext';
 
 const IconMap: any = {
@@ -21,7 +21,8 @@ const IconMap: any = {
 };
 
 export default function CostEfficiencyAnalysis() {
-    const { summary, breakdown, unitEconomics, insights } = detailedCostData;
+    const { costEfficiency } = useSelector((state) => state.dashboard);
+    const { summary, breakdown, unitEconomics, insights } = costEfficiency;
     const { visibility } = useDashboardSettings();
 
     return (

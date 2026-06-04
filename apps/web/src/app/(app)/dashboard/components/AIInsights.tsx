@@ -2,9 +2,22 @@
 
 import React from 'react';
 import { Pin } from 'lucide-react';
-import { aiInsightsData } from '@/data/dashboardData';
+import { useSelector } from '@/store';
 
-export default function AIInsights() {
+interface AIInsightItem {
+  id: string;
+  title: string;
+  description: string;
+  percentage?: string;
+  color?: string;
+  bgColor?: string;
+  textColor?: string;
+}
+
+export default function AIInsights({ insights }: { insights?: AIInsightItem[] }) {
+  const { aiInsights: dashboardInsights } = useSelector((state) => state.dashboard);
+  const activeInsights = insights || dashboardInsights || [];
+
   return (
     <div className="w-full h-auto md:h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden pb-4 md:pb-0">
       {/* Header */}
@@ -17,7 +30,7 @@ export default function AIInsights() {
 
       {/* Insights Grid */}
       <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
-        {aiInsightsData.map((item) => (
+        {activeInsights.map((item) => (
           <div key={item.id} className="flex gap-2 group">
             {/* Left Indicator Bar */}
             <div

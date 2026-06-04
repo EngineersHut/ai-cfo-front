@@ -9,9 +9,12 @@ import { UserStateProps } from './user';
 import { DashboardStateProps } from './dashboard';
 import { CompanyStateProps } from './company';
 import { ReportStateProps, ReportTypeEnum, Report } from './report';
+import { OperationalStateProps } from './operational';
+import { GrowthStateProps } from './growth';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
+
 
 export type DateRange = { start: number | Date; end: number | Date };
 
@@ -78,6 +81,8 @@ export interface DefaultRootStateProps {
   company: CompanyStateProps;
   notification: NotificationStateProps;
   report: ReportStateProps;
+  operational: OperationalStateProps;
+  growth: GrowthStateProps;
 }
 
 export interface ColorProps {
