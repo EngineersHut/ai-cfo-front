@@ -36,11 +36,14 @@ import {
   Pie
 } from 'recharts';
 import { useDashboardSettings } from '@/context/DashboardContext';
-import { revenueData, healthData, aiInsightsData } from '@/data/dashboardData';
+import { healthData } from '@/data/dashboardData';
 import AIInsights from './components/AIInsights';
 import CostEfficiencyAnalysis from './components/Cost-Efficiency-Analysis';
 import { KPICardProps } from '@/types/dashboard';
 import KPICard from '@/components/common/KPICard';
+import { useDispatch, useSelector } from '@/store';
+import { fetchDashboardData } from '@/store/slices/dashboard';
+import { useEffect } from 'react';
 
 // Custom Gauge Needle Component - Proportional to Compact Gauge
 const RADIAN = Math.PI / 180;
@@ -97,8 +100,42 @@ const renderOuterLabel = (props: any) => {
 
 export default function ReportPage() {
   const { visibility } = useDashboardSettings();
-  const [timeframe, setTimeframe] = useState('Monthly');
+  const [timeframe, setTimeframeState] = useState('Monthly');
   const [activeChart, setActiveChart] = useState('line');
+
+  const dispatch = useDispatch();
+  const { kpiStats, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth } = useSelector((state) => state.dashboard);
+
+  const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedCompanyId = localStorage.getItem('selectedCompany');
+    if (savedCompanyId) {
+      setCurrentCompanyId(savedCompanyId);
+    }
+
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('selectedCompany');
+      if (saved !== currentCompanyId) {
+        setCurrentCompanyId(saved);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentCompanyId]);
+
+  useEffect(() => {
+    if (currentCompanyId) {
+      dispatch(fetchDashboardData(currentCompanyId, timeframe));
+    }
+  }, [currentCompanyId, timeframe, dispatch]);
+
+  const getHealthClassification = (score: number) => {
+    if (score <= 25) return 'POOR';
+    if (score <= 50) return 'FAIR';
+    if (score <= 75) return 'GOOD';
+    return 'EXCELLENT';
+  };
 
   // Vibrant Gradient definitions
   const gaugeGradients = [
@@ -140,7 +177,7 @@ export default function ReportPage() {
           {['Monthly', 'Quarterly', 'Yearly'].map((option) => (
             <button
               key={option}
-              onClick={() => setTimeframe(option)}
+              onClick={() => setTimeframeState(option)}
               className={`w-[86px] h-[36px] flex items-center justify-center py-[4px] px-[16px] text-[12px] font-semibold rounded-[8px] transition-all duration-200 ${timeframe === option
                 ? 'bg-[#2563eb] text-white shadow-md border border-[#2563eb]'
                 : 'text-slate-400 hover:text-slate-600'
@@ -155,16 +192,16 @@ export default function ReportPage() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[16px]">
         {/* Row 1 Operational */}
-        {visibility['total-trips'] && <KPICard icon={<Truck size={14} />} label="Total Deliveries / Trips" value="70" trend="+12.5%" sub="Healthy Liquidity Profile" />}
-        {visibility['del-per-veh'] && <KPICard icon={<Activity size={14} />} label="Deliveries Per Vehicle" value="200" unit="/ Day" trend="+1.5%" sub="Per vehicle daily average" />}
-        {visibility['fleet-util'] && <KPICard icon={<Zap size={14} />} label="Fleet Utilization" value="95%" trend="-1.2%" isDown sub="Near-optimal fleet coverage" />}
-        {visibility['driver-eff'] && <KPICard icon={<Users size={14} />} label="Driver Efficiency" value="80%" trend="Stable" noTrendIcon sub="Below 85% target review score..." />}
+        {visibility['total-trips'] && <KPICard icon={<Truck size={14} />} label="Total Deliveries / Trips" value={kpiStats.totalTrips.value} trend={kpiStats.totalTrips.trend} sub={kpiStats.totalTrips.sub} />}
+        {visibility['del-per-veh'] && <KPICard icon={<Activity size={14} />} label="Deliveries Per Vehicle" value={kpiStats.delPerVeh.value} unit={kpiStats.delPerVeh.unit} trend={kpiStats.delPerVeh.trend} sub={kpiStats.delPerVeh.sub} />}
+        {visibility['fleet-util'] && <KPICard icon={<Zap size={14} />} label="Fleet Utilization" value={kpiStats.fleetUtil.value} trend={kpiStats.fleetUtil.trend} isDown={kpiStats.fleetUtil.isDown || kpiStats.fleetUtil.trend.includes('-')} sub={kpiStats.fleetUtil.sub} />}
+        {visibility['driver-eff'] && <KPICard icon={<Users size={14} />} label="Driver Efficiency" value={kpiStats.driverEff.value} trend={kpiStats.driverEff.trend} noTrendIcon={kpiStats.driverEff.trend === 'Stable'} sub={kpiStats.driverEff.sub} />}
 
         {/* Row 2 Financial */}
-        {visibility['runway'] && <KPICard icon={<Clock size={14} />} label="Cash Runway" value="12 months" trend="+12.5%" sub="Projected survival time" />}
-        {visibility['growth'] && <KPICard icon={<TrendingUp size={14} />} label="Growth %" value="18.2%" trend="+5.4%" sub="Month-over-month increase" />}
-        {visibility['ebitda'] && <KPICard icon={<DollarSign size={14} />} label="EBITDA" value="$45,000" trend="-1.2%" isDown sub="Earnings before interest" />}
-        {visibility['cashflow'] && <KPICard icon={<Wallet size={14} />} label="Operating Cash Flow" value="$22,000" unit="/ Month" trend="+3.2%" sub="Net cash from operations" />}
+        {visibility['runway'] && <KPICard icon={<Clock size={14} />} label="Cash Runway" value={kpiStats.cashRunway.value} trend={kpiStats.cashRunway.trend} sub={kpiStats.cashRunway.sub} />}
+        {visibility['growth'] && <KPICard icon={<TrendingUp size={14} />} label="Growth %" value={kpiStats.growth.value} trend={kpiStats.growth.trend} sub={kpiStats.growth.sub} />}
+        {visibility['ebitda'] && <KPICard icon={<DollarSign size={14} />} label="EBITDA" value={kpiStats.ebitda.value} trend={kpiStats.ebitda.trend} isDown={kpiStats.ebitda.isDown || kpiStats.ebitda.trend.includes('-')} sub={kpiStats.ebitda.sub} />}
+        {visibility['cashflow'] && <KPICard icon={<Wallet size={14} />} label="Operating Cash Flow" value={kpiStats.cashflow.value} unit={kpiStats.cashflow.unit} trend={kpiStats.cashflow.trend} sub={kpiStats.cashflow.sub} />}
       </div>
 
       {/* Charts & Widgets Section */}
@@ -211,7 +248,7 @@ export default function ReportPage() {
               <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
                 <div className="flex-1 w-full relative p-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={reduxRevenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
@@ -342,15 +379,15 @@ export default function ReportPage() {
                     </ResponsiveContainer>
 
                     {/* Independent Needle Layer */}
-                    <NeedleLayer value={84} cx={130} cy={140} iR={30} oR={85} />
+                    <NeedleLayer value={healthScore} cx={130} cy={140} iR={30} oR={85} />
                   </div>
                 </div>
 
                 <div className="text-center mt-[-10px] mb-2">
                   <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
-                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
+                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">{getHealthClassification(healthScore)}</span>
+                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">{healthScore}</span>
                   </div>
                 </div>
 
@@ -358,11 +395,11 @@ export default function ReportPage() {
                 <div className="px-5 space-y-3 border-t border-slate-50 pt-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
-                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
+                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{auditCompliance}%</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Equity Health</span>
-                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
+                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{equityHealth}%</span>
                   </div>
                 </div>
               </div>

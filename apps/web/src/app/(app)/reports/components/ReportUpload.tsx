@@ -10,7 +10,8 @@ import {
     Loader2,
     CheckCircle,
     BadgeCheck,
-    ChevronDown
+    ChevronDown,
+    ArrowLeft
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { ReportTypeEnum } from '@/types';
@@ -206,6 +207,17 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
     return (
         <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-4 duration-500">
+            {/* Back Button */}
+            <div className="flex items-center">
+                <button
+                    onClick={onCancel}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-[#e2e8f0] bg-white text-[13px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.06)] font-inter"
+                >
+                    <ArrowLeft size={16} />
+                    Back to Reports
+                </button>
+            </div>
+
             {/* New Report Upload Header */}
             <div className="space-y-1">
                 <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px]">New Report Upload</h1>
@@ -428,7 +440,14 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                         <p className="text-[14px] font-inter text-[#434654] font-normal leading-[20px] tracking-[0px]">Final submission will trigger an email notification to the compliance team.</p>
                     </div>
                     <div className="flex items-center gap-4">
-
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            disabled={actionLoading}
+                            className="w-[100px] h-[36px] px-[12px] py-[4px] bg-[#f6f8fa] text-[#394c84] rounded-[8px] border border-[#e2e8f0] text-[14px] font-normal font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-[#eef2f6] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                        >
+                            Cancel
+                        </button>
                         <button
                             onClick={handleGenerate}
                             disabled={actionLoading}

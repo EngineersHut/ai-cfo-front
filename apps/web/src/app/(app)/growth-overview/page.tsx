@@ -14,7 +14,12 @@ import {
     PieChart as PieChartIcon,
     ArrowRight,
     Briefcase,
-    AreaChart as AreaChartIcon
+    AreaChart as AreaChartIcon,
+    Calendar,
+    BarChart,
+    DollarSign,
+    Banknote,
+    Wallet
 } from 'lucide-react';
 import {
     ResponsiveContainer,
@@ -30,16 +35,11 @@ import {
 } from 'recharts';
 import KPICard from '@/components/common/KPICard';
 import DetailedMetricsCard from '@/components/common/DetailedMetricsCard';
-import {
-    growthMetrics,
-    additionalGrowthMetrics,
-    channelGrowthData,
-    segmentPerformanceData,
-    growthHealthData,
-    growthTrendData
-} from '@/data/growthData';
 import { healthData, revenueData } from '@/data/dashboardData';
 import AIInsights from '../dashboard/components/AIInsights';
+import { useDispatch, useSelector } from '@/store';
+import { fetchGrowthData } from '@/store/slices/growth';
+import { useEffect } from 'react';
 
 // Custom Gauge Components
 const RADIAN = Math.PI / 180;
@@ -90,9 +90,132 @@ const renderOuterLabel = (props: any) => {
     );
 };
 
+const IconMap: any = {
+    TrendingUp: <TrendingUp size={18} />,
+    Calendar: <Calendar size={18} />,
+    BarChart: <BarChart size={18} />,
+    DollarSign: <DollarSign size={18} />,
+    Banknote: <Banknote size={18} />,
+    Wallet: <Wallet size={18} />,
+    Zap: <Zap size={18} />,
+    Target: <Target size={18} />
+};
+
 export default function GrowthOverview() {
     const [timeframe, setTimeframe] = useState('Quarterly');
     const [activeChart, setActiveChart] = useState('line');
+
+    const dispatch = useDispatch();
+    const { data } = useSelector((state) => state.growth);
+    const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const savedCompanyId = localStorage.getItem('selectedCompany');
+        if (savedCompanyId) {
+            setCurrentCompanyId(savedCompanyId);
+        }
+
+        const interval = setInterval(() => {
+            const saved = localStorage.getItem('selectedCompany');
+            if (saved !== currentCompanyId) {
+                setCurrentCompanyId(saved);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [currentCompanyId]);
+
+    useEffect(() => {
+        if (currentCompanyId) {
+            dispatch(fetchGrowthData(currentCompanyId, timeframe));
+        }
+    }, [currentCompanyId, timeframe, dispatch]);
+
+    const growthMetrics = [
+        {
+            label: 'Monthly Growth %',
+            value: data?.cards?.monthlyGrowthPercent !== undefined ? `${data.cards.monthlyGrowthPercent}%` : '0%',
+            trend: '+12.5%',
+            isUp: true,
+            icon: IconMap.TrendingUp,
+            sub: 'Compared to last month'
+        },
+        {
+            label: 'Quarterly Growth',
+            value: data?.cards?.quarterlyGrowthPercent !== undefined ? `${data.cards.quarterlyGrowthPercent}%` : '0%',
+            trend: '+1.5%',
+            isUp: true,
+            icon: IconMap.Calendar,
+            sub: 'Q2 performance'
+        },
+        {
+            label: 'Year-over-Year Growth',
+            value: data?.cards?.yearlyGrowthPercent !== undefined ? `${data.cards.yearlyGrowthPercent}%` : '0%',
+            trend: '-1.2%',
+            isUp: false,
+            icon: IconMap.BarChart,
+            sub: 'Annual growth rate'
+        },
+        {
+            label: 'Revenue per Client',
+            value: data?.cards?.revenuePerClient !== undefined ? `$${Number(data.cards.revenuePerClient).toLocaleString()}` : '$0',
+            trend: '+1.5%',
+            isUp: true,
+            icon: IconMap.DollarSign,
+            sub: 'Average per customer'
+        }
+    ];
+
+    const additionalGrowthMetrics = [
+        {
+            label: 'Revenue per Employee',
+            value: data?.cards?.revenuePerEmployee !== undefined ? `$${Number(data.cards.revenuePerEmployee).toLocaleString()}` : '$0',
+            trend: '+12.5%',
+            isUp: true,
+            icon: IconMap.Banknote,
+            sub: 'Efficiency metric'
+        },
+        {
+            label: 'Employee Growth',
+            value: data?.cards?.employeeGrowthPercent !== undefined ? `${data.cards.employeeGrowthPercent}%` : '0%',
+            trend: '+12.5%',
+            isUp: true,
+            icon: IconMap.TrendingUp,
+            sub: 'Team expansion'
+        },
+        {
+            label: 'Client Growth',
+            value: data?.cards?.clientGrowthPercent !== undefined ? `${data.cards.clientGrowthPercent}%` : '0%',
+            trend: '+12.5%',
+            isUp: true,
+            icon: IconMap.Wallet,
+            sub: 'Retention rate'
+        }
+    ];
+
+    const score = data?.growthHealth?.growthHealthScore ?? 0;
+    const status = score >= 80 ? 'EXCELLENT' : score >= 60 ? 'GOOD' : score >= 40 ? 'FAIR' : 'POOR';
+    const growthHealth = {
+        score,
+        status,
+        metrics: [
+            { label: 'Revenue Growth', value: data?.growthHealth?.revenueGrowthScore !== undefined ? `${data.growthHealth.revenueGrowthScore}%` : '0%' },
+            { label: 'Client Retention', value: data?.growthHealth?.clientRetentionScore !== undefined ? `${data.growthHealth.clientRetentionScore}%` : '0%' },
+            { label: 'Scaling Efficiency', value: data?.growthHealth?.scalingEfficiencyScore !== undefined ? `${data.growthHealth.scalingEfficiencyScore}%` : '0%' }
+        ]
+    };
+
+    const growthTrendData = data?.growthTrend || [];
+
+    const insights = data?.insights?.map((item: any, idx: number) => ({
+        id: idx.toString(),
+        title: item.title,
+        description: item.description,
+        percentage: item.percentage || '',
+        color: item.color || '#6366f1',
+        bgColor: item.bgColor || '#e0e7ff',
+        textColor: item.textColor || '#4f46e5'
+    })) || [];
 
     const gaugeGradients = [
         { id: 'gradPoor', stops: [{ offset: '0%', color: '#ef4444' }, { offset: '100%', color: '#b91c1c' }] },
@@ -357,32 +480,26 @@ export default function GrowthOverview() {
                                     </ResponsiveContainer>
 
                                     {/* Independent Needle Layer */}
-                                    <NeedleLayer value={84} cx={130} cy={140} iR={30} oR={85} />
+                                    <NeedleLayer value={growthHealth.score} cx={130} cy={140} iR={30} oR={85} />
                                 </div>
                             </div>
 
                             <div className="text-center mt-[-10px] mb-2">
                                 <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                                 <div className="flex items-center justify-center gap-2">
-                                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
-                                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
+                                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">{growthHealth.status}</span>
+                                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">{growthHealth.score}</span>
                                 </div>
                             </div>
 
                             {/* Health Metrics Details */}
                             <div className="px-5 space-y-6 border-t border-slate-50 pt-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Revenue Growth</span>
-                                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Client Retention</span>
-                                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Scaling Efficiency</span>
-                                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
-                                </div>
+                                {growthHealth.metrics.map((item: any, i: number) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">{item.label}</span>
+                                        <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{item.value}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -395,7 +512,7 @@ export default function GrowthOverview() {
             {/* AI Insights Row */}
 
             <div className="">
-                <AIInsights />
+                <AIInsights insights={insights} />
             </div>
 
         </div>
