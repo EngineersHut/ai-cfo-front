@@ -12,10 +12,7 @@ export class GetReportsDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  companyId?: string;
+
 
   @ApiPropertyOptional({ enum: ReportTypeEnum })
   @IsOptional()

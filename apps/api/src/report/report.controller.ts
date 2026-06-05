@@ -23,12 +23,15 @@ import { ReportService } from "./report.service";
 import { CreateReportDto } from "./dto/create-report.dto";
 import { UpdateReportDto } from "./dto/update-report.dto";
 import { GetReportsDto } from "./dto/get-reports.dto";
+import { GetReportPeriodFilterDto } from "./dto/get-report-period.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { CompanyGuard } from "../auth/guards/company.guard";
+import { CurrentCompany } from "../common/decorators/company.decorator";
 import { ReportFileInterceptor } from "../common/helpers/multer-config";
 
 @ApiTags("Reports")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CompanyGuard)
 @Controller("reports")
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
@@ -48,21 +51,22 @@ export class ReportController {
           type: "string",
           format: "binary",
         },
-        companyId: { type: "string" },
         reportName: { type: "string" },
         reportType: { type: "string" },
-        periodStartDate: { type: "string", format: "date", nullable: true },
-        periodEndDate: { type: "string", format: "date", nullable: true },
+        month: { type: "number", nullable: true, example: 10 },
+        year: { type: "number", nullable: true, example: 2026 },
       },
     },
   })
   create(
     @Request() req: any,
+    @CurrentCompany() company: any,
     @UploadedFile() file: Express.Multer.File,
     @Body() createReportDto: CreateReportDto,
   ) {
     return this.reportService.create(
       req.user._id || req.user.id,
+      company,
       file,
       createReportDto,
     );
@@ -73,17 +77,45 @@ export class ReportController {
   @ApiOperation({
     summary: "Get all reports with optional filtering and pagination",
   })
-  findAll(@Request() req: any, @Query() queryDto: GetReportsDto) {
-    return this.reportService.findAll(req.user._id || req.user.id, queryDto);
+  findAll(@Request() req: any, @CurrentCompany() company: any, @Query() queryDto: GetReportsDto) {
+    return this.reportService.findAll(req.user._id || req.user.id, company, queryDto);
   }
 
   // || ---------------------- Get Report By ID API ---------------------|| //
-  @Get(":id")
+  @Get(":reportId")
   @ApiOperation({
-    summary: "Get a specific report by ID",
+    summary: "Get frontend-ready report details by ID",
   })
-  findOne(@Param("id") id: string, @Request() req: any) {
-    return this.reportService.findOne(id, req.user._id || req.user.id);
+  findOne(@Param("reportId") reportId: string, @Request() req: any, @CurrentCompany() company: any) {
+    return this.reportService.findOne(reportId, req.user._id || req.user.id, company);
+  }
+
+  // || ---------------------- Get Report Revenue Trend API ---------------------|| //
+  @Get(":reportId/revenue-trend")
+  @ApiOperation({
+    summary: "Get report revenue trend with period filter",
+  })
+  getRevenueTrend(
+    @Param("reportId") reportId: string, 
+    @Query() queryDto: GetReportPeriodFilterDto,
+    @Request() req: any,
+    @CurrentCompany() company: any
+  ) {
+    return this.reportService.getReportRevenueTrend(reportId, queryDto.period || "monthly", req.user._id || req.user.id, company);
+  }
+
+  // || ---------------------- Get Report Expense Breakdown API ---------------------|| //
+  @Get(":reportId/expense-breakdown")
+  @ApiOperation({
+    summary: "Get report expense breakdown with period filter",
+  })
+  getExpenseBreakdown(
+    @Param("reportId") reportId: string, 
+    @Query() queryDto: GetReportPeriodFilterDto,
+    @Request() req: any,
+    @CurrentCompany() company: any
+  ) {
+    return this.reportService.getReportExpenseBreakdown(reportId, queryDto.period || "monthly", req.user._id || req.user.id, company);
   }
 
   // || ---------------------- Update Report API ---------------------|| //
@@ -94,11 +126,13 @@ export class ReportController {
   update(
     @Param("id") id: string,
     @Request() req: any,
+    @CurrentCompany() company: any,
     @Body() updateReportDto: UpdateReportDto,
   ) {
     return this.reportService.update(
       id,
       req.user._id || req.user.id,
+      company,
       updateReportDto,
     );
   }
@@ -108,7 +142,7 @@ export class ReportController {
   @ApiOperation({
     summary: "Soft delete a report",
   })
-  remove(@Param("id") id: string, @Request() req: any) {
-    return this.reportService.softDelete(id, req.user._id || req.user.id);
+  remove(@Param("id") id: string, @Request() req: any, @CurrentCompany() company: any) {
+    return this.reportService.softDelete(id, req.user._id || req.user.id, company);
   }
 }

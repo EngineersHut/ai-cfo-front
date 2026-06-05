@@ -10,6 +10,9 @@ export class Report extends BaseDocument {
   @Prop({ required: true, type: String, ref: "Company" })
   companyId!: string;
 
+  @Prop({ required: true, default: "report" })
+  collectionType!: string;
+
   @Prop({ required: true, type: String, ref: "User" })
   uploadedBy!: string;
 
@@ -24,6 +27,12 @@ export class Report extends BaseDocument {
 
   @Prop({ default: null })
   periodEndDate?: Date;
+
+  @Prop({ default: null })
+  month?: number;
+
+  @Prop({ default: null })
+  year?: number;
 
   @Prop({ required: true })
   originalFileName!: string;
@@ -61,6 +70,40 @@ export class Report extends BaseDocument {
 
   @Prop({ default: null })
   errorMessage?: string;
+
+  @Prop({ type: Object, default: {} })
+  analytics!: {
+    financial: {
+      revenue: number;
+      expenses: number;
+      grossProfit: number;
+      netProfit: number;
+      ebitda: number;
+      netCashFlow: number;
+      cashBalance: number;
+      cashInflow: number;
+      cashOutflow: number;
+    };
+    growth: {
+      clientCount: number;
+      newClients: number;
+      employeeCount: number;
+    };
+    operational: {
+      totalVehicles: number;
+      activeVehicles: number;
+      inactiveVehicles: number;
+      totalDeliveries: number;
+      onTimeDeliveries: number;
+      totalTrips: number;
+      completedTrips: number;
+      cancelledTrips: number;
+      fuelCost: number;
+      maintenanceCost: number;
+      costPerTrip: number;
+      costPerKm: number;
+    };
+  };
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);

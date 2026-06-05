@@ -6,14 +6,10 @@ import {
   IsOptional,
   IsDateString,
 } from "class-validator";
+import { Transform } from "class-transformer";
 import { ReportTypeEnum } from "../../common/enums/report.enum";
 
 export class CreateReportDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  companyId!: string;
-
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -26,11 +22,21 @@ export class CreateReportDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsDateString()
-  periodStartDate?: string;
+  month?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsDateString()
-  periodEndDate?: string;
+  year?: number;
+
+  // --- Financial & Growth Data (Optional, mapped from Excel or passed from frontend) ---
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => {
+    try {
+      return typeof value === "string" ? JSON.parse(value) : value;
+    } catch (e) {
+      return value;
+    }
+  })
+  analytics?: any;
 }
