@@ -13,4 +13,7 @@ export class BaseDocument {
 
   @Prop({ default: null })
   deletedAt!: Date;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
