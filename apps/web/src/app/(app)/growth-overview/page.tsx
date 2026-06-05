@@ -40,6 +40,8 @@ import AIInsights from '../dashboard/components/AIInsights';
 import { useDispatch, useSelector } from '@/store';
 import { fetchGrowthData } from '@/store/slices/growth';
 import { useEffect } from 'react';
+import { IndustryEnum, GROWTH_KPI_CONFIGS, GROWTH_ADDITIONAL_KPI_CONFIGS, GROWTH_HEADER_CONFIGS } from '@/config/industryConfig';
+import * as LucideIcons from 'lucide-react';
 
 // Custom Gauge Components
 const RADIAN = Math.PI / 180;
@@ -108,22 +110,31 @@ export default function GrowthOverview() {
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.growth);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
     useEffect(() => {
         const savedCompanyId = localStorage.getItem('selectedCompany');
         if (savedCompanyId) {
             setCurrentCompanyId(savedCompanyId);
         }
+        const savedType = localStorage.getItem('selectedCompanyType');
+        if (savedType) {
+            setCompanyType(savedType);
+        }
 
         const interval = setInterval(() => {
-            const saved = localStorage.getItem('selectedCompany');
-            if (saved !== currentCompanyId) {
-                setCurrentCompanyId(saved);
+            const savedId = localStorage.getItem('selectedCompany');
+            if (savedId !== currentCompanyId) {
+                setCurrentCompanyId(savedId);
+            }
+            const savedTypeVal = localStorage.getItem('selectedCompanyType');
+            if (savedTypeVal && savedTypeVal !== companyType) {
+                setCompanyType(savedTypeVal);
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [currentCompanyId]);
+    }, [currentCompanyId, companyType]);
 
     useEffect(() => {
         if (currentCompanyId) {
@@ -131,67 +142,46 @@ export default function GrowthOverview() {
         }
     }, [currentCompanyId, timeframe, dispatch]);
 
-    const growthMetrics = [
-        {
-            label: 'Monthly Growth %',
-            value: data?.cards?.monthlyGrowthPercent !== undefined ? `${data.cards.monthlyGrowthPercent}%` : '0%',
-            trend: '+12.5%',
-            isUp: true,
-            icon: IconMap.TrendingUp,
-            sub: 'Compared to last month'
-        },
-        {
-            label: 'Quarterly Growth',
-            value: data?.cards?.quarterlyGrowthPercent !== undefined ? `${data.cards.quarterlyGrowthPercent}%` : '0%',
-            trend: '+1.5%',
-            isUp: true,
-            icon: IconMap.Calendar,
-            sub: 'Q2 performance'
-        },
-        {
-            label: 'Year-over-Year Growth',
-            value: data?.cards?.yearlyGrowthPercent !== undefined ? `${data.cards.yearlyGrowthPercent}%` : '0%',
-            trend: '-1.2%',
-            isUp: false,
-            icon: IconMap.BarChart,
-            sub: 'Annual growth rate'
-        },
-        {
-            label: 'Revenue per Client',
-            value: data?.cards?.revenuePerClient !== undefined ? `$${Number(data.cards.revenuePerClient).toLocaleString()}` : '$0',
-            trend: '+1.5%',
-            isUp: true,
-            icon: IconMap.DollarSign,
-            sub: 'Average per customer'
-        }
-    ];
+    const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] || GROWTH_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const currentAdditionalKPIs = GROWTH_ADDITIONAL_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_ADDITIONAL_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
 
-    const additionalGrowthMetrics = [
-        {
-            label: 'Revenue per Employee',
-            value: data?.cards?.revenuePerEmployee !== undefined ? `$${Number(data.cards.revenuePerEmployee).toLocaleString()}` : '$0',
-            trend: '+12.5%',
-            isUp: true,
-            icon: IconMap.Banknote,
-            sub: 'Efficiency metric'
-        },
-        {
-            label: 'Employee Growth',
-            value: data?.cards?.employeeGrowthPercent !== undefined ? `${data.cards.employeeGrowthPercent}%` : '0%',
-            trend: '+12.5%',
-            isUp: true,
-            icon: IconMap.TrendingUp,
-            sub: 'Team expansion'
-        },
-        {
-            label: 'Client Growth',
-            value: data?.cards?.clientGrowthPercent !== undefined ? `${data.cards.clientGrowthPercent}%` : '0%',
-            trend: '+12.5%',
-            isUp: true,
-            icon: IconMap.Wallet,
-            sub: 'Retention rate'
+    const getIcon = (iconName: string) => {
+        const IconComp = (LucideIcons as any)[iconName];
+        if (IconComp) return <IconComp size={18} />;
+        return <LucideIcons.Activity size={18} />;
+    };
+
+    const getKpiValue = (key: string, format: string) => {
+        const val = data?.cards?.[key];
+        if (val === undefined || val === null) {
+            if (format === 'currency') return '$0';
+            if (format === 'percent') return '0%';
+            return '0';
         }
-    ];
+        const num = Number(val);
+        if (isNaN(num)) return String(val);
+
+        if (format === 'currency') {
+            return `$${num.toLocaleString()}`;
+        }
+        if (format === 'percent') {
+            return `${num.toFixed(1)}%`;
+        }
+        return num.toLocaleString();
+    };
+
+    const getTrendValue = (key: string) => {
+        if (key === 'monthlyGrowthPercent') return '+12.5%';
+        if (key === 'quarterlyGrowthPercent') return '+1.5%';
+        if (key === 'yearlyGrowthPercent') return '-1.2%';
+        return '+1.5%';
+    };
+
+    const getIsDown = (key: string) => {
+        if (key === 'yearlyGrowthPercent') return true;
+        return false;
+    };
 
     const score = data?.growthHealth?.growthHealthScore ?? 0;
     const status = score >= 80 ? 'EXCELLENT' : score >= 60 ? 'GOOD' : score >= 40 ? 'FAIR' : 'POOR';
@@ -239,8 +229,8 @@ export default function GrowthOverview() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">Growth Overview</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Analyze business growth trends, revenue scaling, a.</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
@@ -261,14 +251,14 @@ export default function GrowthOverview() {
 
             {/* Summary Grid - Row 1 */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {growthMetrics.map((metric, i) => (
+                {currentKPIs.map((metric, i) => (
                     <KPICard
                         key={i}
                         label={metric.label}
-                        value={metric.value}
-                        trend={metric.trend}
-                        isDown={!metric.isUp}
-                        icon={metric.icon}
+                        value={getKpiValue(metric.key, metric.format)}
+                        trend={getTrendValue(metric.key)}
+                        isDown={getIsDown(metric.key)}
+                        icon={getIcon(metric.icon)}
                         sub={metric.sub}
                     />
                 ))}
@@ -276,23 +266,23 @@ export default function GrowthOverview() {
 
             {/* Summary Grid - Row 2 (Compact) - Inline Implementation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {additionalGrowthMetrics.map((metric, i) => (
+                {currentAdditionalKPIs.map((metric, i) => (
                     <div key={i} className="h-[110px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col p-0 hover:shadow-md transition-all duration-300 overflow-hidden">
                         {/* Top Section - 50% (55px) */}
                         <div className="h-[55px] flex items-center gap-3 border-b border-slate-100 px-4 bg-slate-50/30">
                             <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400">
-                                {metric.icon}
+                                {getIcon(metric.icon)}
                             </div>
                             <span className="text-[14px] font-normal text-slate-500 font-inter leading-[20px] tracking-[0%]">{metric.label}</span>
                         </div>
 
                         {/* Bottom Section - 50% (55px) */}
                         <div className="h-[55px] flex items-center justify-between px-4">
-                            <span className="text-[24px] font-medium text-slate-900 font-inter leading-[32px] tracking-[0%]">{metric.value}</span>
-                            <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] border text-[12px] font-medium ${metric.isUp ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-500 border-red-100'
+                            <span className="text-[24px] font-medium text-slate-900 font-inter leading-[32px] tracking-[0%]">{getKpiValue(metric.key, metric.format)}</span>
+                            <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] border text-[12px] font-medium ${!getIsDown(metric.key) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-500 border-red-100'
                                 }`}>
-                                {metric.isUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                                {metric.trend}
+                                {!getIsDown(metric.key) ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                                {getTrendValue(metric.key)}
                             </div>
                         </div>
                     </div>

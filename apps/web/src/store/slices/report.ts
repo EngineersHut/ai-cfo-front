@@ -10,6 +10,9 @@ const initialState: DefaultRootStateProps['report'] = {
   actionLoading: false,
   error: null,
   actionError: null,
+  reportDetail: null,
+  revenueTrend: null,
+  expenseBreakdown: null,
 };
 
 const slice = createSlice({
@@ -30,6 +33,20 @@ const slice = createSlice({
     },
     getReportsSuccess(state, action) {
       state.reports = action.payload;
+    },
+    getReportDetailSuccess(state, action) {
+      state.reportDetail = action.payload;
+    },
+    getRevenueTrendSuccess(state, action) {
+      state.revenueTrend = action.payload;
+    },
+    getExpenseBreakdownSuccess(state, action) {
+      state.expenseBreakdown = action.payload;
+    },
+    clearReportDetail(state) {
+      state.reportDetail = null;
+      state.revenueTrend = null;
+      state.expenseBreakdown = null;
     }
   }
 });
@@ -39,7 +56,11 @@ export const {
   hasActionError,
   getReportsLoading,
   actionLoadingSuccess,
-  getReportsSuccess
+  getReportsSuccess,
+  getReportDetailSuccess,
+  getRevenueTrendSuccess,
+  getExpenseBreakdownSuccess,
+  clearReportDetail
 } = slice.actions;
 
 //----------------------------  Report Thunks ------------------------------//
@@ -85,6 +106,45 @@ export const deleteReport = (id: string | number, callback?: () => void) => {
       dispatch(hasActionError(errorMessage));
     } finally {
       dispatch(actionLoadingSuccess(false));
+    }
+  };
+};
+
+export const getReportDetail = (id: string | number) => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(getReportsLoading(true));
+    try {
+      const response = await getData(`/api/reports/${id}`);
+      dispatch(getReportDetailSuccess(response));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      dispatch(hasError(errorMessage));
+    } finally {
+      dispatch(getReportsLoading(false));
+    }
+  };
+};
+
+export const getReportRevenueTrend = (id: string | number, period: string) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const response = await getData(`/api/reports/${id}/revenue-trend?period=${period.toLowerCase()}`);
+      dispatch(getRevenueTrendSuccess(response));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      dispatch(hasError(errorMessage));
+    }
+  };
+};
+
+export const getReportExpenseBreakdown = (id: string | number, period: string) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const response = await getData(`/api/reports/${id}/expense-breakdown?period=${period.toLowerCase()}`);
+      dispatch(getExpenseBreakdownSuccess(response));
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      dispatch(hasError(errorMessage));
     }
   };
 };

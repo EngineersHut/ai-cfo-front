@@ -2,55 +2,73 @@
 
 import React, { useState } from 'react';
 import {
-    Wallet,
-    TrendingDown,
-    TrendingUp,
+
     PieChart as PieChartIcon,
-    BarChart3,
     ArrowUpRight,
     ArrowDownRight,
-    AlertCircle,
-    CheckCircle2,
-    Briefcase,
-    Pin,
     DollarSign,
     SquarePen,
     Plus
 } from 'lucide-react';
-import {
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    Cell,
-    PieChart,
-    Pie
-} from 'recharts';
+
 import KPICard from '@/components/common/KPICard';
-import DetailedMetricsCard from '@/components/common/DetailedMetricsCard';
 import {
     budgetMetrics,
-    departmentBudgetData,
-    budgetTrendData,
-    varianceAnalysisData,
     budgetSummaryData,
-    budgetPlanningData
 } from '@/data/budgetData';
+import { useEffect } from 'react';
+import { IndustryEnum, BUDGET_KPI_CONFIGS, BUDGET_HEADER_CONFIGS } from '@/config/industryConfig';
+import * as LucideIcons from 'lucide-react';
 
 export default function BudgetVsActual() {
     const [timeframe, setTimeframe] = useState('Quarterly');
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+
+    useEffect(() => {
+        const savedType = localStorage.getItem('selectedCompanyType');
+        if (savedType) {
+            setCompanyType(savedType);
+        }
+
+        const interval = setInterval(() => {
+            const saved = localStorage.getItem('selectedCompanyType');
+            if (saved && saved !== companyType) {
+                setCompanyType(saved);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [companyType]);
+
+    const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] || BUDGET_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] || BUDGET_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+
+    const getIcon = (iconName: string) => {
+        const IconComp = (LucideIcons as any)[iconName];
+        if (IconComp) return <IconComp size={18} />;
+        return <LucideIcons.Activity size={18} />;
+    };
+
+    const getKpiValue = (key: string, format: string) => {
+        if (key === 'budgetRevenue') return '$128,400';
+        if (key === 'actualRevenue') return '$115,000';
+        if (key === 'revenueVariance') return '-10.4%';
+        if (key === 'overBudgetItems') return '$1,200';
+        return '$0';
+    };
+
+    const getIsDown = (key: string) => {
+        if (key === 'revenueVariance') return true;
+        return false;
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header Section */}
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">Budget vs Actual</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Compare planned vs actual performance and manage f.</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
@@ -71,16 +89,16 @@ export default function BudgetVsActual() {
 
             {/* Summary Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {budgetMetrics.map((metric, i) => (
+                {currentKPIs.map((metric, i) => (
                     <KPICard
                         key={i}
                         label={metric.label}
-                        value={metric.value}
+                        value={getKpiValue(metric.key, metric.format)}
                         trend={metric.trend}
-                        isDown={!metric.isUp}
-                        icon={metric.icon}
+                        isDown={getIsDown(metric.key)}
+                        icon={getIcon(metric.icon)}
                         sub={metric.sub}
-                        showTrend={false}
+                        showTrend={true}
                     />
                 ))}
             </div>

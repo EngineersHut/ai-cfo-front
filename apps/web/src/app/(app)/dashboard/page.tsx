@@ -3,9 +3,7 @@
 import React, { useState } from 'react';
 import {
   TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  DollarSign,
+
   Wallet,
   Briefcase,
   Activity,
@@ -19,7 +17,8 @@ import {
   PieChart,
   Target,
   ArrowRight,
-  Pin
+  Pin,
+  DollarSign
 } from 'lucide-react';
 import {
   XAxis,
@@ -44,6 +43,8 @@ import KPICard from '@/components/common/KPICard';
 import { useDispatch, useSelector } from '@/store';
 import { fetchDashboardData } from '@/store/slices/dashboard';
 import { useEffect } from 'react';
+import { DASHBOARD_KPI_CONFIGS, DASHBOARD_HEADER_CONFIGS, IndustryEnum } from '@/config/industryConfig';
+import * as LucideIcons from 'lucide-react';
 
 // Custom Gauge Needle Component - Proportional to Compact Gauge
 const RADIAN = Math.PI / 180;
@@ -104,9 +105,10 @@ export default function ReportPage() {
   const [activeChart, setActiveChart] = useState('line');
 
   const dispatch = useDispatch();
-  const { kpiStats, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth } = useSelector((state) => state.dashboard);
+  const { kpiStats, rawSummary, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth } = useSelector((state) => state.dashboard);
 
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+  const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
   useEffect(() => {
     const savedCompanyId = localStorage.getItem('selectedCompany');
@@ -125,10 +127,120 @@ export default function ReportPage() {
   }, [currentCompanyId]);
 
   useEffect(() => {
+    const savedType = localStorage.getItem('selectedCompanyType');
+    if (savedType) {
+      setCompanyType(savedType);
+    }
+
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('selectedCompanyType');
+      if (saved && saved !== companyType) {
+        setCompanyType(saved);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [companyType]);
+
+  useEffect(() => {
     if (currentCompanyId) {
       dispatch(fetchDashboardData(currentCompanyId, timeframe));
     }
   }, [currentCompanyId, timeframe, dispatch]);
+
+  const currentKPIs = DASHBOARD_KPI_CONFIGS[companyType as IndustryEnum] || DASHBOARD_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const currentHeader = DASHBOARD_HEADER_CONFIGS[companyType as IndustryEnum] || DASHBOARD_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+
+  const getIcon = (iconName: string) => {
+    const IconComp = (LucideIcons as any)[iconName];
+    if (IconComp) return <IconComp size={14} />;
+    return <LucideIcons.Activity size={14} />;
+  };
+
+  const formatValue = (val: any, format: string) => {
+    if (val === undefined || val === null) return 'N/A';
+    if (typeof val === 'object' && val.value !== undefined) {
+      return val.value;
+    }
+    const num = Number(val);
+    if (isNaN(num)) return String(val);
+
+    if (format === 'currency') {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(num);
+    }
+    if (format === 'percent') {
+      return `${num.toFixed(1)}%`;
+    }
+    return new Intl.NumberFormat('en-US').format(num);
+  };
+
+  const getKpiValue = (kpiKey: string, format: string) => {
+    let rawVal = rawSummary?.[kpiKey];
+    if (rawVal === undefined) {
+      if (kpiKey === 'totalTrips') rawVal = rawSummary?.totalDeliveries;
+      else if (kpiKey === 'delPerVeh') rawVal = rawSummary?.deliveriesPerVehicle;
+      else if (kpiKey === 'fleetUtil') rawVal = rawSummary?.fleetUtilization;
+      else if (kpiKey === 'driverEff') rawVal = rawSummary?.driverEfficiency;
+      else if (kpiKey === 'cashRunway') rawVal = rawSummary?.cashRunway;
+      else if (kpiKey === 'growth') rawVal = rawSummary?.growthPercent;
+      else if (kpiKey === 'ebitda') rawVal = rawSummary?.ebitda;
+      else if (kpiKey === 'cashflow') rawVal = rawSummary?.operatingCashFlow;
+    }
+
+    if (rawVal !== undefined) {
+      return formatValue(rawVal, format);
+    }
+
+    const legacyStats = (kpiStats as any)[kpiKey];
+    if (legacyStats?.value !== undefined) {
+      return legacyStats.value;
+    }
+
+    return 'N/A';
+  };
+
+  const getTrendValue = (kpiKey: string) => {
+    const summaryVal = rawSummary?.[kpiKey];
+    if (summaryVal && typeof summaryVal === 'object' && summaryVal.trend !== undefined) {
+      return summaryVal.trend;
+    }
+    const legacyStats = (kpiStats as any)[kpiKey];
+    if (legacyStats?.trend !== undefined) {
+      return legacyStats.trend;
+    }
+    if (kpiKey === 'totalTrips' && rawSummary?.growthPercent !== undefined) {
+      return `${rawSummary.growthPercent >= 0 ? '+' : ''}${rawSummary.growthPercent}%`;
+    }
+    return undefined;
+  };
+
+  const getSubValue = (kpiKey: string, defaultSub: string) => {
+    const summaryVal = rawSummary?.[kpiKey];
+    if (summaryVal && typeof summaryVal === 'object' && summaryVal.sub !== undefined) {
+      return summaryVal.sub;
+    }
+    const legacyStats = (kpiStats as any)[kpiKey];
+    if (legacyStats?.sub !== undefined) {
+      return legacyStats.sub;
+    }
+    return defaultSub;
+  };
+
+  const isDownTrend = (kpiKey: string, isDownPositive?: boolean) => {
+    const trend = getTrendValue(kpiKey);
+    if (!trend) return false;
+    const hasMinus = trend.includes('-');
+    if (isDownPositive) {
+      return !hasMinus && trend !== 'Stable' && trend !== '0%';
+    }
+    return hasMinus;
+  };
+
 
   const getHealthClassification = (score: number) => {
     if (score <= 25) return 'POOR';
@@ -169,8 +281,8 @@ export default function ReportPage() {
       {/* Dashboard Header */}
       <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
         <div className="space-y-1">
-          <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">Operational Overview</h1>
-          <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Track fleet performance, cost efficiency, and drive actionable insights.</p>
+          <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{currentHeader.title}</h1>
+          <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{currentHeader.subtitle}</p>
         </div>
 
         <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
@@ -191,17 +303,34 @@ export default function ReportPage() {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[16px]">
-        {/* Row 1 Operational */}
-        {visibility['total-trips'] && <KPICard icon={<Truck size={14} />} label="Total Deliveries / Trips" value={kpiStats.totalTrips.value} trend={kpiStats.totalTrips.trend} sub={kpiStats.totalTrips.sub} />}
-        {visibility['del-per-veh'] && <KPICard icon={<Activity size={14} />} label="Deliveries Per Vehicle" value={kpiStats.delPerVeh.value} unit={kpiStats.delPerVeh.unit} trend={kpiStats.delPerVeh.trend} sub={kpiStats.delPerVeh.sub} />}
-        {visibility['fleet-util'] && <KPICard icon={<Zap size={14} />} label="Fleet Utilization" value={kpiStats.fleetUtil.value} trend={kpiStats.fleetUtil.trend} isDown={kpiStats.fleetUtil.isDown || kpiStats.fleetUtil.trend.includes('-')} sub={kpiStats.fleetUtil.sub} />}
-        {visibility['driver-eff'] && <KPICard icon={<Users size={14} />} label="Driver Efficiency" value={kpiStats.driverEff.value} trend={kpiStats.driverEff.trend} noTrendIcon={kpiStats.driverEff.trend === 'Stable'} sub={kpiStats.driverEff.sub} />}
+        {currentKPIs.map((kpi) => {
+          // Check visibility of the card
+          const visibilityKey = kpi.key === 'totalTrips' ? 'total-trips'
+            : kpi.key === 'delPerVeh' ? 'del-per-veh'
+              : kpi.key === 'fleetUtil' ? 'fleet-util'
+                : kpi.key === 'driverEff' ? 'driver-eff'
+                  : kpi.key === 'cashRunway' ? 'runway'
+                    : kpi.key === 'growth' ? 'growth'
+                      : kpi.key === 'ebitda' ? 'ebitda'
+                        : kpi.key === 'cashflow' ? 'cashflow'
+                          : kpi.key;
 
-        {/* Row 2 Financial */}
-        {visibility['runway'] && <KPICard icon={<Clock size={14} />} label="Cash Runway" value={kpiStats.cashRunway.value} trend={kpiStats.cashRunway.trend} sub={kpiStats.cashRunway.sub} />}
-        {visibility['growth'] && <KPICard icon={<TrendingUp size={14} />} label="Growth %" value={kpiStats.growth.value} trend={kpiStats.growth.trend} sub={kpiStats.growth.sub} />}
-        {visibility['ebitda'] && <KPICard icon={<DollarSign size={14} />} label="EBITDA" value={kpiStats.ebitda.value} trend={kpiStats.ebitda.trend} isDown={kpiStats.ebitda.isDown || kpiStats.ebitda.trend.includes('-')} sub={kpiStats.ebitda.sub} />}
-        {visibility['cashflow'] && <KPICard icon={<Wallet size={14} />} label="Operating Cash Flow" value={kpiStats.cashflow.value} unit={kpiStats.cashflow.unit} trend={kpiStats.cashflow.trend} sub={kpiStats.cashflow.sub} />}
+          const isVisible = visibility[visibilityKey] ?? true;
+          if (!isVisible) return null;
+
+          return (
+            <KPICard
+              key={kpi.key}
+              icon={getIcon(kpi.icon)}
+              label={kpi.label}
+              value={getKpiValue(kpi.key, kpi.format)}
+              trend={getTrendValue(kpi.key)}
+              sub={getSubValue(kpi.key, kpi.sub)}
+              isDown={isDownTrend(kpi.key, kpi.isDownPositive)}
+              noTrendIcon={getTrendValue(kpi.key) === 'Stable'}
+            />
+          );
+        })}
       </div>
 
       {/* Charts & Widgets Section */}
@@ -209,7 +338,7 @@ export default function ReportPage() {
 
         {/* Revenue Over Time Chart (Span 2) */}
         {visibility['rev-time'] && (
-          <div className="lg:col-span-2 max-w-[726px] w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col mx-auto lg:mx-0 overflow-hidden">
+          <div className="lg:col-span-2 w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
             {/* Chart Header - 68px */}
             <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
               <div className="flex items-center gap-3">

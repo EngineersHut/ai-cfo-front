@@ -25,4 +25,7 @@ export interface ReportStateProps {
   actionLoading: boolean;
   error: any;
   actionError: any;
+  reportDetail: any | null;
+  revenueTrend: any | null;
+  expenseBreakdown: any | null;
 }

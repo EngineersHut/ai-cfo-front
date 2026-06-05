@@ -35,11 +35,19 @@ import KPICard from '@/components/common/KPICard';
 import {
   forecastChartData,
   scenarioData,
-  aiForecastInsights,
   ForecastChartItem
 } from '@/data/forecastData';
-import { expenseBreakdownData, revenueData } from '@/data/reportsData';
-import { aiInsightsData, healthData } from '@/data/dashboardData';
+import { revenueData } from '@/data/reportsData';
+import { healthData } from '@/data/dashboardData';
+import {
+  IndustryEnum,
+  FORECAST_HEADER_CONFIGS,
+  FORECAST_KPI_CONFIGS,
+  FORECAST_EXPENSE_CONFIGS,
+  FORECAST_COST_DETAILS_CONFIGS,
+  FORECAST_AI_INSIGHTS_CONFIGS
+} from '@/config/industryConfig';
+import * as LucideIcons from 'lucide-react';
 
 // Custom Gauge Components & Constants
 const RADIAN = Math.PI / 180;
@@ -118,6 +126,43 @@ export default function ForecastPage() {
   // Simulated data state
   const [simulatedData, setSimulatedData] = useState<ForecastChartItem[]>(forecastChartData);
 
+  const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+
+  useEffect(() => {
+    const savedType = localStorage.getItem('selectedCompanyType');
+    if (savedType) {
+      setCompanyType(savedType);
+    }
+    
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('selectedCompanyType');
+      if (saved && saved !== companyType) {
+        setCompanyType(saved);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [companyType]);
+
+  const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] || FORECAST_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] || FORECAST_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const activeExpenseData = FORECAST_EXPENSE_CONFIGS[companyType as IndustryEnum] || FORECAST_EXPENSE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const activeCostDetails = FORECAST_COST_DETAILS_CONFIGS[companyType as IndustryEnum] || FORECAST_COST_DETAILS_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const activeAIInsights = FORECAST_AI_INSIGHTS_CONFIGS[companyType as IndustryEnum] || FORECAST_AI_INSIGHTS_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+
+  useEffect(() => {
+    const marginKpi = currentKPIs.find(k => k.key === 'opMargin');
+    if (marginKpi && marginKpi.defaultValue !== undefined) {
+      setMargin(marginKpi.defaultValue);
+    }
+  }, [companyType, currentKPIs]);
+
+  const getIcon = (iconName: string) => {
+    const IconComp = (LucideIcons as any)[iconName];
+    if (IconComp) return <IconComp size={16} className="text-blue-500" />;
+    return <LucideIcons.Activity size={16} className="text-blue-500" />;
+  };
+
   // Sync simulator controls when clicking a preset scenario card
 
 
@@ -170,9 +215,9 @@ export default function ForecastPage() {
       {/* Premium Header Layout matching mockup */}
       <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-[16px] pt-[4px] pb-[4px]">
         <div className="space-y-1">
-          <h1 className="text-[24px] font-semibold text-slate-800 font-inter leading-[32px] tracking-tight">Financial Forecast</h1>
+          <h1 className="text-[24px] font-semibold text-slate-800 font-inter leading-[32px] tracking-tight">{activeHeader.title}</h1>
           <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px]">
-            FY2024 Q4 Performance Projection & Strategy
+            {activeHeader.subtitle}
           </p>
         </div>
 
@@ -195,45 +240,32 @@ export default function ForecastPage() {
 
       {/* KPI Cards Grid exactly as shown in the mockup */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Operating Margin */}
-        <KPICard
-          icon={<Coins size={16} className="text-blue-500" />}
-          label="Operating Margin"
-          value={`${margin.toFixed(1)}%`}
-          trend="+12.5%"
-          progress={margin}
-        />
+        {currentKPIs.map((metric, i) => {
+          let valueStr = '';
+          if (metric.key === 'opMargin') {
+            valueStr = `${margin.toFixed(1)}%`;
+          } else if (metric.key === 'burnRate') {
+            valueStr = '$32,800';
+          } else if (metric.key === 'runway') {
+            valueStr = '$95,600';
+          } else if (metric.key === 'cashInBank') {
+            valueStr = formatCurrency(simulatedData[0]?.cashReserve || 1248000);
+          }
 
-        {/* Card 2: Cash Burn Rate */}
-        <KPICard
-          icon={<Wallet size={16} className="text-blue-500" />}
-          label="Cash Burn Rate"
-          value="$32,800"
-          unit="/ Month"
-          trend="+1.5%"
-          sub="Consistent with Q3 Forecast"
-        />
-
-        {/* Card 3: Cash Runway */}
-        <KPICard
-          icon={<Clock size={16} className="text-blue-500" />}
-          label="Cash Runway"
-          value="$95,600"
-          unit="/ Month"
-          trend="-1.2%"
-          isDown={true}
-          sub="Healthy Liquidity Profile"
-        />
-
-        {/* Card 4: Cash in Bank Today */}
-        <KPICard
-          icon={<Landmark size={16} className="text-blue-500" />}
-          label="Cash in Bank Today"
-          value={formatCurrency(simulatedData[0]?.cashReserve || 1248000)}
-          trend="Stable"
-          noTrendIcon={true}
-          sub="Last synced 14m ago"
-        />
+          return (
+            <KPICard
+              key={i}
+              icon={getIcon(metric.icon)}
+              label={metric.label}
+              value={valueStr}
+              unit={metric.unit}
+              trend={metric.trend}
+              isDown={metric.isDown}
+              progress={metric.key === 'opMargin' ? margin : undefined}
+              sub={metric.sub}
+            />
+          );
+        })}
       </div>
 
       {/* Interactive Forecast Scenario Simulator & Charts Row */}
@@ -504,7 +536,7 @@ export default function ForecastPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <RePieChart>
                   <Pie
-                    data={expenseBreakdownData}
+                    data={activeExpenseData}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -513,7 +545,7 @@ export default function ForecastPage() {
                     dataKey="value"
                     stroke="none"
                   >
-                    {expenseBreakdownData.map((entry, index) => (
+                    {activeExpenseData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -528,7 +560,7 @@ export default function ForecastPage() {
 
             {/* Custom Legend */}
             <div className="grid grid-cols-2 gap-x-2 gap-y-3  w-full ">
-              {expenseBreakdownData.map((item, idx) => (
+              {activeExpenseData.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                   <span className="text-[13px] font-medium text-[#0a092e] font-inter leading-[20px] tracking-[0%]">
@@ -552,12 +584,7 @@ export default function ForecastPage() {
           </div>
 
           <div className="p-6 flex flex-col justify-between flex-grow space-y-6">
-            {[
-              { name: 'Utilities Bills & Pay Labour', value: '$14.5k', trend: '+12.5%', progress: 75, color: '#5345cc', dotColor: '#5345cc' },
-              { name: 'Transportation', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#f59e0b', dotColor: '#f59e0b' },
-              { name: 'Subscription', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#84cc16', dotColor: '#84cc16' },
-              { name: 'Other', value: '$14.5k', trend: '+12.5%', progress: 70, color: '#bfdbfe', dotColor: '#5345cc' },
-            ].map((item: any, idx: number) => (
+            {activeCostDetails.map((item: any, idx: number) => (
               <div key={idx} className="space-y-2 pb-4 last:pb-0 border-b last:border-0 border-slate-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -597,7 +624,7 @@ export default function ForecastPage() {
 
         {/* Insights Grid */}
         <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
-          {aiInsightsData.map((item) => (
+          {activeAIInsights.map((item) => (
             <div key={item.id} className="flex gap-2 group">
               {/* Left Indicator Bar */}
               <div
