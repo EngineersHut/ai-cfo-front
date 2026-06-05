@@ -41,7 +41,7 @@ export const fetchOperationalData = (companyId: string, period: string) => {
   return async () => {
     dispatch(slice.actions.getOperationalLoading(true));
     try {
-      const response = await getData(`/api/operational-overview?companyId=${companyId}&period=${period.toLowerCase()}`);
+      const response = await getData(`/api/operational-overview?period=${period.toLowerCase()}`);
       const data = response?.data || response;
       if (data) {
         dispatch(slice.actions.getOperationalDataSuccess(data));

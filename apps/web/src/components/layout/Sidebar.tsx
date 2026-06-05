@@ -195,13 +195,13 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
           href="/forecast"
           active={pathname === '/forecast'}
         />
-        <NavItem
+        {/* <NavItem
           icon={<ForcastReportIcon />}
           label="Forcast Reports"
           isCollapsed={isCollapsed}
           href="/forecast-reports"
           active={pathname === '/forecast-reports'}
-        />
+        /> */}
       </nav>
 
       {/* User Section - Restoring sequence while maintaining size parity */}

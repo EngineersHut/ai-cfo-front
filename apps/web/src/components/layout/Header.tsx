@@ -13,10 +13,11 @@ import {
   Check,
   Building2
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { workspaceOptions, WorkspaceOption } from '@/components/common/Option';
 import { dispatch, useSelector } from '@/store';
 import { getAllCompanies } from '@/store/slices/company';
+import NotificationModal from './NotificationModal';
 
 interface HeaderProps {
   onToggleMenu?: () => void;
@@ -26,7 +27,10 @@ interface HeaderProps {
 export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   const { companies } = useSelector((state) => state.company);
 
@@ -36,13 +40,25 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
   const dynamicOptions = React.useMemo(() => {
     if (!companies || companies.length === 0) {
-      return workspaceOptions;
+      return workspaceOptions.map((opt, idx) => {
+        const mockIndustries = [
+          'technology_and_saas',
+          'architecture_and_design',
+          'financial_services',
+          'fleet_management'
+        ];
+        return {
+          ...opt,
+          industry: mockIndustries[idx % mockIndustries.length]
+        };
+      });
     }
     return companies.map((c: any) => ({
       id: c._id,
       label: c.name,
       description: c.industry ? c.industry.replace(/_/g, ' ').toUpperCase() : 'Company Workspace',
-      icon: <Building2 size={16} />
+      icon: <Building2 size={16} />,
+      industry: c.industry
     }));
   }, [companies]);
 
@@ -54,15 +70,33 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
       const found = savedCompanyId ? dynamicOptions.find(opt => opt.id === savedCompanyId) : null;
       if (found) {
         setSelectedWorkspace(found);
+        const savedType = localStorage.getItem('selectedCompanyType');
+        if (found.industry && savedType !== found.industry) {
+          localStorage.setItem('selectedCompanyType', found.industry);
+        }
       } else {
+        // If we are using mock options and there is a saved company ID in localStorage,
+        // do not overwrite it with a mock ID. We are probably just waiting for the real companies to load.
+        if ((!companies || companies.length === 0) && savedCompanyId) {
+          const matchedMock = dynamicOptions.find(opt => opt.id === savedCompanyId);
+          setSelectedWorkspace(matchedMock || dynamicOptions[0]);
+          return;
+        }
+
         const defaultOpt = dynamicOptions[0];
         setSelectedWorkspace(defaultOpt);
         if (defaultOpt) {
-          localStorage.setItem('selectedCompany', defaultOpt.id);
+          const isInitialLoadLoading = (!companies || companies.length === 0);
+          if (!savedCompanyId || (!isInitialLoadLoading && !found)) {
+            localStorage.setItem('selectedCompany', defaultOpt.id);
+            if (defaultOpt.industry) {
+              localStorage.setItem('selectedCompanyType', defaultOpt.industry);
+            }
+          }
         }
       }
     }
-  }, [dynamicOptions]);
+  }, [dynamicOptions, companies]);
 
   // Determine page title based on current path
   const getPageTitle = () => {
@@ -80,6 +114,9 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -129,6 +166,9 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
                     onClick={() => {
                       setSelectedWorkspace(option);
                       localStorage.setItem('selectedCompany', option.id);
+                      if (option.industry) {
+                        localStorage.setItem('selectedCompanyType', option.industry);
+                      }
                       setIsOpen(false);
                     }}
                     className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
@@ -167,9 +207,12 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
       <div className="flex items-center gap-2 md:gap-[20px]">
         {/* Functional Icons Group - Hidden on very small screens, scrollable or wrap on medium */}
         <div className="hidden sm:flex items-center justify-between gap-3 md:gap-[16px]">
-          <IconButton icon={<Sun size={18} />} />
-          <IconButton icon={<Settings size={18} />} />
-          <IconButton icon={<Bell size={18} />} />
+          {/* <IconButton icon={<Sun size={18} />} /> */}
+          <IconButton icon={<Settings size={18} />} onClick={() => router.push('/settings')} />
+          <div className="relative flex items-center" ref={notificationRef}>
+            <IconButton icon={<Bell size={18} />} onClick={() => setIsNotificationOpen(!isNotificationOpen)} />
+            <NotificationModal isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+          </div>
         </div>
 
         <div className="hidden sm:block h-6 w-px bg-slate-200" />
@@ -189,7 +232,10 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter hidden md:inline">Export</span>
           </button>
 
-          <button className="h-[36px] w-auto px-3 md:w-[125px] flex items-center justify-center gap-[6px] bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 shadow-md shadow-blue-100 transition-all active:scale-95 whitespace-nowrap">
+          <button 
+            onClick={() => router.push('/reports?add=true')}
+            className="h-[36px] w-auto px-3 md:w-[125px] flex items-center justify-center gap-[6px] bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 shadow-md shadow-blue-100 transition-all active:scale-95 whitespace-nowrap"
+          >
             <Plus size={18} />
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter tracking-normal hidden sm:inline">Add Report</span>
           </button>
@@ -199,9 +245,9 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   );
 }
 
-function IconButton({ icon }: { icon: React.ReactNode }) {
+function IconButton({ icon, onClick }: { icon: React.ReactNode; onClick?: () => void }) {
   return (
-    <button className="flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all p-1">
+    <button onClick={onClick} className="flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all p-1">
       {icon}
     </button>
   );

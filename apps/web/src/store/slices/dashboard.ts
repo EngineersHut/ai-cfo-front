@@ -75,6 +75,7 @@ interface DashboardState {
     ebitda: { value: string; trend: string; isDown: boolean; sub: string };
     cashflow: { value: string; unit: string; trend: string; sub: string };
   };
+  rawSummary: any;
   visibility: Record<string, boolean>;
 }
 
@@ -97,6 +98,7 @@ const initialState: DashboardState = {
     ebitda: { value: "$45,000", trend: "-1.2%", isDown: true, sub: "Earnings before interest" },
     cashflow: { value: "$22,000", unit: "/ Month", trend: "+3.2%", sub: "Net cash from operations" }
   },
+  rawSummary: {},
   visibility: getInitialVisibility()
 };
 
@@ -124,6 +126,8 @@ const slice = createSlice({
       const summary = apiData.summaryCards || {};
       const health = apiData.healthMeter || {};
       const cost = apiData.costEfficiency || {};
+
+      state.rawSummary = summary;
 
       // 1. Update KPI stats
       state.kpiStats = {
@@ -278,7 +282,7 @@ export const resetDashboardConfig = () => {
 export const fetchDashboardData = (companyId: string, period: string) => {
   return async () => {
     try {
-      const response = await getData(`/api/dashboard?companyId=${companyId}&period=${period.toLowerCase()}`);
+      const response = await getData(`/api/dashboard?period=${period.toLowerCase()}`);
       const data = response?.data || response;
       if (data) {
         dispatch(getDashboardDataSuccess(data));

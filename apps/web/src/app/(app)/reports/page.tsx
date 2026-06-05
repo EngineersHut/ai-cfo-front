@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
     List,
     Activity,
@@ -17,20 +18,47 @@ import DeleteModal from './components/DeleteModal';
 import { dispatch, useSelector } from '@/store';
 import { getAllReports, deleteReport } from '@/store/slices/report';
 import { Report } from '@/types';
+import { IndustryEnum, REPORTS_HEADER_CONFIGS } from '@/config/industryConfig';
 
 export default function ReportsPage() {
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+
+    useEffect(() => {
+        const savedType = localStorage.getItem('selectedCompanyType');
+        if (savedType) {
+            setCompanyType(savedType);
+        }
+
+        const interval = setInterval(() => {
+            const saved = localStorage.getItem('selectedCompanyType');
+            if (saved && saved !== companyType) {
+                setCompanyType(saved);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [companyType]);
+
+    const activeHeader = REPORTS_HEADER_CONFIGS[companyType as IndustryEnum] || REPORTS_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
     const [view, setView] = useState<'list' | 'timeline'>('list');
     const [activePeriod, setActivePeriod] = useState<string>('Jan 2025');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [reportToDelete, setReportToDelete] = useState<any>(null);
     const [isAddingReport, setIsAddingReport] = useState(false);
     const [selectedReport, setSelectedReport] = useState<any>(null);
+    const searchParams = useSearchParams();
+    const addParam = searchParams.get('add');
+
+    useEffect(() => {
+        if (addParam === 'true') {
+            setIsAddingReport(true);
+        }
+    }, [addParam]);
     const [reportData, setReportData] = useState<Report[]>([])
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
     const { reports, actionLoading } = useSelector((state) => state.report)
-    console.log(reportData, "reportData");
 
 
     const handleDeleteClick = (e: React.MouseEvent, report: any) => {
@@ -81,6 +109,12 @@ export default function ReportsPage() {
         dispatch(getAllReports(`?${queryParams.toString()}`));
     };
 
+    const handleUploadClose = () => {
+        setIsAddingReport(false);
+        window.history.replaceState({}, '', '/reports');
+        loadReports(1, limit, searchQuery);
+    };
+
     useEffect(() => {
         loadReports(1, 10, '');
     }, [])
@@ -115,14 +149,14 @@ export default function ReportsPage() {
                     onBack={() => setSelectedReport(null)}
                 />
             ) : isAddingReport ? (
-                <ReportUpload onCancel={() => setIsAddingReport(false)} />
+                <ReportUpload onCancel={handleUploadClose} />
             ) : (
                 <>
                     {/* Header Section */}
                     <div className="flex flex-col gap-4">
                         <div className="space-y-1">
-                            <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">Report Timeline</h1>
-                            <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Your Q1 2026 financial performance metrics have been consolidated. AI CFO has identified 3 key optimization trends..</p>
+                            <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                            <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                         </div>
 
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

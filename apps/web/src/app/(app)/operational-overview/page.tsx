@@ -14,6 +14,8 @@ import { healthData } from '@/data/dashboardData';
 import { useDispatch, useSelector } from '@/store';
 import { fetchOperationalData } from '@/store/slices/operational';
 import { useEffect } from 'react';
+import { IndustryEnum, OPERATIONAL_KPI_CONFIGS, OPERATIONAL_HEADER_CONFIGS, OPERATIONAL_CORE_CONFIGS } from '@/config/industryConfig';
+import * as LucideIcons from 'lucide-react';
 
 const IconMap: any = {
     Zap: Zap,
@@ -82,22 +84,31 @@ export default function OperationalOverview() {
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
     useEffect(() => {
         const savedCompanyId = localStorage.getItem('selectedCompany');
         if (savedCompanyId) {
             setCurrentCompanyId(savedCompanyId);
         }
+        const savedType = localStorage.getItem('selectedCompanyType');
+        if (savedType) {
+            setCompanyType(savedType);
+        }
 
         const interval = setInterval(() => {
-            const saved = localStorage.getItem('selectedCompany');
-            if (saved !== currentCompanyId) {
-                setCurrentCompanyId(saved);
+            const savedId = localStorage.getItem('selectedCompany');
+            if (savedId !== currentCompanyId) {
+                setCurrentCompanyId(savedId);
+            }
+            const savedTypeVal = localStorage.getItem('selectedCompanyType');
+            if (savedTypeVal && savedTypeVal !== companyType) {
+                setCompanyType(savedTypeVal);
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [currentCompanyId]);
+    }, [currentCompanyId, companyType]);
 
     useEffect(() => {
         if (currentCompanyId) {
@@ -105,80 +116,75 @@ export default function OperationalOverview() {
         }
     }, [currentCompanyId, timeframe, dispatch]);
 
-    const metrics = [
-        {
-            label: 'Total Deliveries / Trips',
-            value: data?.summaryCards?.totalDeliveriesTrips !== undefined ? `${data.summaryCards.totalDeliveriesTrips}` : '0',
-            trend: '+2.4%',
-            isUp: true,
-            icon: 'Zap',
-            sub: 'vs. last month'
-        },
-        {
-            label: 'Deliveries Per Vehicle',
-            value: data?.summaryCards?.deliveriesPerVehicle !== undefined ? `${data.summaryCards.deliveriesPerVehicle}` : '0',
-            trend: '+1.2%',
-            isUp: true,
-            icon: 'Users',
-            sub: 'Optimal range'
-        },
-        {
-            label: 'Fleet Utilization',
-            value: data?.summaryCards?.fleetUtilizationPercent !== undefined ? `${data.summaryCards.fleetUtilizationPercent}%` : '0%',
-            trend: 'Stable',
-            isUp: false,
-            icon: 'Clock',
-            sub: 'Across 12 units',
-            noTrendIcon: true
-        },
-        {
-            label: 'Driver Efficiency',
-            value: data?.summaryCards?.driverEfficiency !== undefined ? `${data.summaryCards.driverEfficiency}%` : '0%',
-            trend: '+150K',
-            isUp: true,
-            icon: 'BarChart3',
-            sub: 'Projected +5%'
-        }
-    ];
+    const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
 
-    const coreOperations = [
-        {
-            metric: 'Total Deliveries / Trips',
-            value: data?.coreOperations?.totalDeliveriesTrips?.value !== undefined ? `${data.coreOperations.totalDeliveriesTrips.value}` : '0',
-            sub: 'Completed today',
-            trend: data?.coreOperations?.totalDeliveriesTrips?.vsPrior !== undefined ? `${data.coreOperations.totalDeliveriesTrips.vsPrior >= 0 ? '+' : ''}${data.coreOperations.totalDeliveriesTrips.vsPrior}%` : '0%',
-            isUp: (data?.coreOperations?.totalDeliveriesTrips?.vsPrior ?? 0) >= 0,
-            distribution: data?.coreOperations?.totalDeliveriesTrips?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Deliveries per Vehicle',
-            value: data?.coreOperations?.deliveriesPerVehicle?.value !== undefined ? `${data.coreOperations.deliveriesPerVehicle.value}` : '0',
-            sub: 'Daily average',
-            trend: data?.coreOperations?.deliveriesPerVehicle?.vsPrior !== undefined ? `${data.coreOperations.deliveriesPerVehicle.vsPrior >= 0 ? '+' : ''}${data.coreOperations.deliveriesPerVehicle.vsPrior}%` : '0%',
-            isUp: (data?.coreOperations?.deliveriesPerVehicle?.vsPrior ?? 0) >= 0,
-            distribution: data?.coreOperations?.deliveriesPerVehicle?.distribution ?? 65,
-            color: '#f59e0b'
-        },
-        {
-            metric: 'On-Time Delivery %',
-            value: data?.coreOperations?.onTimeDeliveryPercent?.value !== undefined ? `${data.coreOperations.onTimeDeliveryPercent.value}%` : '0%',
-            sub: 'Target: ≥ 90%',
-            trend: data?.coreOperations?.onTimeDeliveryPercent?.vsPrior !== undefined ? `${data.coreOperations.onTimeDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.coreOperations.onTimeDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.coreOperations?.onTimeDeliveryPercent?.vsPrior ?? 0) >= 0,
-            distribution: data?.coreOperations?.onTimeDeliveryPercent?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Failed Delivery %',
-            value: data?.coreOperations?.failedDeliveryPercent?.value !== undefined ? `${data.coreOperations.failedDeliveryPercent.value}%` : '0%',
-            sub: 'Threshold: < 2%',
-            trend: data?.coreOperations?.failedDeliveryPercent?.vsPrior !== undefined ? `${data.coreOperations.failedDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.coreOperations.failedDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.coreOperations?.failedDeliveryPercent?.vsPrior ?? 0) < 0,
-            distribution: data?.coreOperations?.failedDeliveryPercent?.distribution ?? 80,
-            color: '#ef4444'
+    const getIcon = (iconName: string) => {
+        const IconComp = (LucideIcons as any)[iconName];
+        if (IconComp) return <IconComp size={18} />;
+        return <LucideIcons.Activity size={18} />;
+    };
+
+    const getKpiValue = (key: string, format: string) => {
+        let val = data?.summaryCards?.[key];
+
+        if (val === undefined || val === null) {
+            if (format === 'percent') return '0%';
+            return '0';
         }
-    ];
+
+        const num = Number(val);
+        if (isNaN(num)) return String(val);
+
+        if (format === 'percent') {
+            return `${num.toFixed(1)}%`;
+        }
+        return num.toLocaleString();
+    };
+
+    const getIsDown = (key: string) => {
+        if (key === 'activeTickets' || key === 'resolutionTime' || key === 'reviewTurnaround' || key === 'settlementTime') return true;
+        return false;
+    };
+
+    const currentCoreConfigs = OPERATIONAL_CORE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_CORE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+
+    const coreOperations = currentCoreConfigs.map((cfg) => {
+        const rawItem = data?.coreOperations?.[cfg.key];
+        
+        let valueStr = '0';
+        if (rawItem?.value !== undefined && rawItem?.value !== null) {
+            if (cfg.format === 'percent') {
+                valueStr = `${rawItem.value}%`;
+            } else {
+                valueStr = String(rawItem.value);
+            }
+        } else {
+            if (cfg.format === 'percent') {
+                valueStr = '0%';
+            }
+        }
+
+        let trendStr = '0%';
+        let isUp = true;
+        if (rawItem?.vsPrior !== undefined && rawItem?.vsPrior !== null) {
+            const vsPrior = Number(rawItem.vsPrior);
+            trendStr = `${vsPrior >= 0 ? '+' : ''}${vsPrior}%`;
+            isUp = cfg.isDownPositive ? vsPrior < 0 : vsPrior >= 0;
+        }
+
+        const distributionVal = rawItem?.distribution ?? 0;
+
+        return {
+            metric: cfg.metric,
+            value: valueStr,
+            sub: cfg.sub,
+            trend: trendStr,
+            isUp,
+            distribution: distributionVal,
+            color: cfg.color
+        };
+    });
 
     const score = data?.operationalHealth?.healthScore ?? 0;
     const status = score >= 80 ? 'EXCELLENT' : score >= 60 ? 'GOOD' : score >= 40 ? 'FAIR' : 'POOR';
@@ -338,8 +344,8 @@ export default function OperationalOverview() {
         <div className=" space-y-8 animate-in fade-in duration-500">
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">Operational Overview</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">Track fleet performance, cost efficiency, and driv.</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
@@ -360,16 +366,15 @@ export default function OperationalOverview() {
 
             {/* Summary Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {metrics.map((metric: any, i: number) => {
-                    const IconComponent = IconMap[metric.icon] || Zap;
+                {currentKPIs.map((metric: any, i: number) => {
                     return (
                         <KPICard
                             key={i}
                             label={metric.label}
-                            value={metric.value}
+                            value={getKpiValue(metric.key, metric.format)}
                             trend={metric.trend}
-                            isDown={!metric.isUp}
-                            icon={<IconComponent size={18} />}
+                            isDown={getIsDown(metric.key)}
+                            icon={getIcon(metric.icon)}
                             sub={metric.sub}
                             noTrendIcon={metric.noTrendIcon}
                         />

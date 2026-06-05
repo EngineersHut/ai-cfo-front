@@ -39,18 +39,18 @@ export const {
 
 export const fetchGrowthData = (companyId: string, period: string) => {
   return async () => {
-    dispatch(slice.actions.getGrowthLoading(true));
+    dispatch(getGrowthLoading(true));
     try {
-      const response = await getData(`/api/growth-overview?companyId=${companyId}&period=${period.toLowerCase()}`);
+      const response = await getData(`/api/growth-overview?period=${period.toLowerCase()}`);
       const data = response?.data || response;
       if (data) {
-        dispatch(slice.actions.getGrowthDataSuccess(data));
+        dispatch(getGrowthDataSuccess(data));
       }
     } catch (error) {
       console.error("Failed to fetch growth data from API", error);
-      dispatch(slice.actions.hasError(error));
+      dispatch(hasError(error));
     } finally {
-      dispatch(slice.actions.getGrowthLoading(false));
+      dispatch(getGrowthLoading(false));
     }
   };
 };

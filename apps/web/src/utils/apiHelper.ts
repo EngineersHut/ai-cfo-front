@@ -107,24 +107,19 @@ instance.interceptors.request.use((config) => {
 
     const accessToken = localStorage.getItem('token') || localStorage.getItem('access_token');
     const resetToken = localStorage.getItem('resetPassToken');
-    const tenantId = localStorage.getItem('x-tenant-id');
+    const companyId = localStorage.getItem('selectedCompany');
+    
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     } else if (resetToken) {
       config.headers.Authorization = `Bearer ${resetToken}`;
     }
-    if (tenantId) {
-      config.headers['x-tenant-id'] = tenantId;
+    if (companyId) {
+      config.headers['x-company-id'] = companyId;
     }
   }
   return config;
 });
-
-// Generic API Methods
-// export const getData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-//   const response = await instance.get<T>(url, config);
-//   return response.data;
-// };
 export const getData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
   const response = await instance.get<T>(url, {
     ...config,

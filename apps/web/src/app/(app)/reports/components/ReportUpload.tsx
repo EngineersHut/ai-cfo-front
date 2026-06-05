@@ -23,8 +23,8 @@ import { ErrorAlert } from '@/components/common/errorMessage';
 const reportUploadSchema = yup.object().shape({
     reportName: yup.string().required('Report Name is required'),
     reportType: yup.string().required('Report Type is required'),
-    periodStartDate: yup.string().required('Start Date is required'),
-    periodEndDate: yup.string().required('End Date is required'),
+    month: yup.string().required('Month is required'),
+    year: yup.string().required('Year is required'),
     file: yup.array()
         .min(1, 'At least one file is required')
         .required('At least one file is required')
@@ -45,6 +45,27 @@ const reportTypeOptions = [
     { label: 'Other', value: ReportTypeEnum.OTHER },
 ];
 
+const monthOptions = [
+    { label: 'January', value: '0' },
+    { label: 'February', value: '1' },
+    { label: 'March', value: '2' },
+    { label: 'April', value: '3' },
+    { label: 'May', value: '4' },
+    { label: 'June', value: '5' },
+    { label: 'July', value: '6' },
+    { label: 'August', value: '7' },
+    { label: 'September', value: '8' },
+    { label: 'October', value: '9' },
+    { label: 'November', value: '10' },
+    { label: 'December', value: '11' }
+];
+
+const currentYear = new Date().getFullYear();
+const yearOptions = Array.from({ length: 11 }, (_, i) => {
+    const y = currentYear - 5 + i;
+    return { label: String(y), value: String(y) };
+});
+
 interface ReportUploadProps {
     onCancel: () => void;
 }
@@ -52,8 +73,8 @@ interface ReportUploadProps {
 export default function ReportUpload({ onCancel }: ReportUploadProps) {
     const [formData, setFormData] = useState({
         reportName: "",
-        periodStartDate: "",
-        periodEndDate: "",
+        month: String(new Date().getMonth()),
+        year: String(new Date().getFullYear()),
         reportType: "" as ReportTypeEnum | "",
         file: [] as any[]
     });
@@ -105,13 +126,11 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
         try {
             await reportUploadSchema.validate(formData, { abortEarly: false });
 
-            const companyId = localStorage.getItem('selectedCompany') || '';
             const payload = new FormData();
             payload.append('reportName', formData.reportName);
-            payload.append('periodStartDate', formData.periodStartDate);
-            payload.append('periodEndDate', formData.periodEndDate);
+            payload.append('month', formData.month);
+            payload.append('year', formData.year);
             payload.append('reportType', formData.reportType);
-            payload.append('companyId', companyId);
 
             formData.file.forEach((f: any) => {
                 payload.append('file', f);
@@ -121,7 +140,6 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                 setIsAnalyzing(true);
                 setAnalysisStep(0);
             }));
-            console.log("Generate Report Payload (FormData):", formData, "with companyId:", companyId);
         } catch (err: any) {
             if (err instanceof yup.ValidationError) {
                 const errors: Record<string, string> = {};
@@ -141,7 +159,6 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
             handleInputChange('file', newFiles);
-            console.log("Files selected:", newFiles);
         }
     };
 
@@ -281,37 +298,53 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                         <div className="flex flex-col sm:flex-row gap-4 max-w-[648px] w-full">
                             <div className="flex-1 flex flex-col gap-2">
                                 <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
-                                    Start Date <span className="text-red-500">*</span>
+                                    Month <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative group w-full">
-                                    <input
-                                        type="date"
-                                        value={formData.periodStartDate}
-                                        onChange={(e) => handleInputChange('periodStartDate', e.target.value)}
-                                        className={`w-full h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm text-slate-800 ${validationErrors.periodStartDate ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                    <select
+                                        value={formData.month}
+                                        onChange={(e) => handleInputChange('month', e.target.value)}
+                                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${validationErrors.month ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
                                             }`}
-                                    />
+                                    >
+                                        {monthOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none">
+                                        <ChevronDown size={18} />
+                                    </div>
                                 </div>
-                                {validationErrors.periodStartDate && (
-                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.periodStartDate}</span>
+                                {validationErrors.month && (
+                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.month}</span>
                                 )}
                             </div>
 
                             <div className="flex-1 flex flex-col gap-2">
                                 <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
-                                    End Date <span className="text-red-500">*</span>
+                                    Year <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative group w-full">
-                                    <input
-                                        type="date"
-                                        value={formData.periodEndDate}
-                                        onChange={(e) => handleInputChange('periodEndDate', e.target.value)}
-                                        className={`w-full h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm text-slate-800 ${validationErrors.periodEndDate ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
+                                    <select
+                                        value={formData.year}
+                                        onChange={(e) => handleInputChange('year', e.target.value)}
+                                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${validationErrors.year ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-[#e2e8f0]'
                                             }`}
-                                    />
+                                    >
+                                        {yearOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none">
+                                        <ChevronDown size={18} />
+                                    </div>
                                 </div>
-                                {validationErrors.periodEndDate && (
-                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.periodEndDate}</span>
+                                {validationErrors.year && (
+                                    <span className="text-red-500 text-[11px] mt-1 block">{validationErrors.year}</span>
                                 )}
                             </div>
                         </div>

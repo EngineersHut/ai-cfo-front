@@ -62,7 +62,6 @@ export default function AuthModal({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { error: errors, actionError, actionLoading } = useSelector((state) => state.auth);
-  console.log("actionError", actionError);
 
   const handleClose = () => {
     dispatch(hasError(null));
@@ -153,7 +152,6 @@ export default function AuthModal({
     try {
       if (mode === 'register') {
         await registerSchema.validate(formData, { abortEarly: false });
-        console.log("Registering user:", formData);
         dispatch(userSignUp(formData, () => {
           setSuccessMessage("User created successfully! Please login now.");
           setTimeout(() => {

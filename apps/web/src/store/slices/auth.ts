@@ -63,7 +63,6 @@ export function createsignIn(payload: any, handleClose?: any) {
     dispatch(getAuthActionLoading(true));
     try {
       const response = await postData('/api/user/signin', payload);
-      console.log(response,"response");
       
       if (response?.data?.token) {
         localStorage.setItem('token',response?.data?.token);
