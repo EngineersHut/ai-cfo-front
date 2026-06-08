@@ -97,3 +97,143 @@ export const OPERATIONAL_CORE_CONFIGS: Record<IndustryEnum, OperationalCoreConfi
     { key: 'failedDeliveryPercent', metric: 'Failed Delivery %', sub: 'Threshold: < 2%', format: 'percent', color: '#ef4444', isDownPositive: true }
   ],
 };
+
+export interface OperationalSectionConfig {
+  costEfficiencyTitle: string;
+  costEfficiencyIcon: string;
+  utilizationTitle: string;
+  utilizationIcon: string;
+  performanceTitle: string;
+  performanceIcon: string;
+  healthMetric1Label: string;
+  healthMetric2Label: string;
+  healthMetric3Label: string;
+}
+
+export const OPERATIONAL_SECTION_CONFIGS: Record<IndustryEnum, OperationalSectionConfig> = {
+  [IndustryEnum.TECHNOLOGY_AND_SAAS]: {
+    costEfficiencyTitle: 'SaaS Cost Efficiency',
+    costEfficiencyIcon: 'Wallet',
+    utilizationTitle: 'Team & Resource Utilization',
+    utilizationIcon: 'Users',
+    performanceTitle: 'Support Team Performance',
+    performanceIcon: 'Zap',
+    healthMetric1Label: 'System Uptime',
+    healthMetric2Label: 'SLA Success Rate',
+    healthMetric3Label: 'Cost Efficiency'
+  },
+  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: {
+    costEfficiencyTitle: 'Project Cost Efficiency',
+    costEfficiencyIcon: 'DollarSign',
+    utilizationTitle: 'Architect & Project Utilization',
+    utilizationIcon: 'Clock',
+    performanceTitle: 'Architect Performance',
+    performanceIcon: 'Award',
+    healthMetric1Label: 'Architect Utilization',
+    healthMetric2Label: 'Project Success Rate',
+    healthMetric3Label: 'Cost Efficiency'
+  },
+  [IndustryEnum.FINANCIAL_SERVICES]: {
+    costEfficiencyTitle: 'Operating Cost Efficiency',
+    costEfficiencyIcon: 'TrendingDown',
+    utilizationTitle: 'System & Fund Utilization',
+    utilizationIcon: 'Activity',
+    performanceTitle: 'System / Broker Performance',
+    performanceIcon: 'ShieldCheck',
+    healthMetric1Label: 'System Uptime',
+    healthMetric2Label: 'Settlement Rate',
+    healthMetric3Label: 'Cost Efficiency'
+  },
+  [IndustryEnum.FLEET_MANAGEMENT]: {
+    costEfficiencyTitle: 'Cost Efficiency',
+    costEfficiencyIcon: 'Truck',
+    utilizationTitle: 'Fleet & Driver Utilization',
+    utilizationIcon: 'Users',
+    performanceTitle: 'Driver Performance',
+    performanceIcon: 'Zap',
+    healthMetric1Label: 'Fleet Efficiency',
+    healthMetric2Label: 'Delivery Success Rate',
+    healthMetric3Label: 'Cost Efficiency'
+  }
+};
+
+export const OPERATIONAL_COST_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+    { key: 'hostingCost', metric: 'Hosting / Cloud Cost', sub: 'Infrastructure spend', format: 'currency', color: '#6366f1', isDownPositive: true },
+    { key: 'supportToolsCost', metric: 'Support Tools Cost', sub: 'Software subscriptions', format: 'currency', color: '#f59e0b', isDownPositive: true },
+    { key: 'costPerUser', metric: 'Cost per Active User', sub: 'Average support cost', format: 'currency', color: '#10b981', isDownPositive: true },
+    { key: 'onboardingCost', metric: 'Onboarding Cost', sub: 'Average onboarding expense', format: 'currency', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+    { key: 'softwareLicenseCost', metric: 'Software Licenses Cost', sub: 'CAD & rendering tools', format: 'currency', color: '#6366f1', isDownPositive: true },
+    { key: 'materialCost', metric: 'Materials & Printing', sub: 'Model building & print', format: 'currency', color: '#f59e0b', isDownPositive: true },
+    { key: 'costPerPhase', metric: 'Cost per Project Phase', sub: 'Average operational spend', format: 'currency', color: '#10b981', isDownPositive: true },
+    { key: 'travelCost', metric: 'Site Travel Cost', sub: 'Inspection transport spend', format: 'currency', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.FINANCIAL_SERVICES]: [
+    { key: 'clearingFees', metric: 'Clearing & Brokerage Fees', sub: 'Execution fees spend', format: 'currency', color: '#6366f1', isDownPositive: true },
+    { key: 'complianceAuditCost', metric: 'Compliance Audit Cost', sub: 'Regulatory audits', format: 'currency', color: '#f59e0b', isDownPositive: true },
+    { key: 'systemRunCost', metric: 'System/API Run Cost', sub: 'Feed provider costs', format: 'currency', color: '#10b981', isDownPositive: true },
+    { key: 'custodyFees', metric: 'Asset Custody Fees', sub: 'Storage & safekeeping', format: 'currency', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.FLEET_MANAGEMENT]: [
+    { key: 'fuelCost', metric: 'Fuel Cost', sub: 'Fuel expenditure', format: 'currency', color: '#6366f1', isDownPositive: true },
+    { key: 'maintenanceCost', metric: 'Maintenance Cost', sub: 'Vehicle maintenance', format: 'currency', color: '#f59e0b', isDownPositive: true },
+    { key: 'costPerTrip', metric: 'Cost per Trip', sub: 'Average cost per delivery', format: 'currency', color: '#10b981', isDownPositive: true },
+    { key: 'costPerKm', metric: 'Cost per Km', sub: 'Average cost per kilometer', format: 'currency', color: '#ef4444', isDownPositive: true }
+  ]
+};
+
+export const OPERATIONAL_UTILIZATION_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+    { key: 'activeAgents', metric: 'Active Support Agents', sub: 'Agents currently online', format: 'number', color: '#6366f1' },
+    { key: 'agentCapacity', metric: 'Agent Utilization %', sub: 'Target: 80-85%', format: 'percent', color: '#10b981' },
+    { key: 'serverLoad', metric: 'Avg Server Load %', sub: 'CPU/Memory utilization', format: 'percent', color: '#ef4444', isDownPositive: true },
+    { key: 'idleHours', metric: 'System Idle Hours', sub: 'Low traffic periods', format: 'number', color: '#f59e0b', isDownPositive: true }
+  ],
+  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+    { key: 'totalArchitects', metric: 'Total Architects', sub: 'Total design team', format: 'number', color: '#6366f1' },
+    { key: 'billableHoursPercent', metric: 'Billable Allocation %', sub: 'Target: ≥ 75%', format: 'percent', color: '#10b981' },
+    { key: 'nonBillableHoursPercent', metric: 'Admin/Bench Time %', sub: 'Non-billable tasks', format: 'percent', color: '#ef4444', isDownPositive: true },
+    { key: 'projectLoad', metric: 'Avg Projects per Architect', sub: 'Project distribution', format: 'number', color: '#f59e0b' }
+  ],
+  [IndustryEnum.FINANCIAL_SERVICES]: [
+    { key: 'totalProcessors', metric: 'Total Core Processors', sub: 'Transaction clusters', format: 'number', color: '#6366f1' },
+    { key: 'processorLoad', metric: 'Processor Load %', sub: 'Average engine load', format: 'percent', color: '#10b981' },
+    { key: 'inactiveChannels', metric: 'Inactive API Gateways', sub: 'Offline bank channels', format: 'number', color: '#ef4444', isDownPositive: true },
+    { key: 'fundDeploymentPercent', metric: 'Fund Deployment %', sub: 'Target: ≥ 90%', format: 'percent', color: '#f59e0b' }
+  ],
+  [IndustryEnum.FLEET_MANAGEMENT]: [
+    { key: 'totalVehicles', metric: 'Total Vehicles', sub: 'Total fleet size', format: 'number', color: '#6366f1' },
+    { key: 'activeVehicles', metric: 'Active Vehicles', sub: 'Vehicles currently on road', format: 'number', color: '#10b981' },
+    { key: 'inactiveVehicles', metric: 'Inactive Vehicles', sub: 'Vehicles in maintenance or idle', format: 'number', color: '#ef4444', isDownPositive: true },
+    { key: 'fleetUtilizationPercent', metric: 'Fleet Utilization %', sub: 'Target: ≥ 85%', format: 'percent', color: '#f59e0b' }
+  ]
+};
+
+export const OPERATIONAL_PERFORMANCE_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+    { key: 'ticketsResolved', metric: 'Resolved Tickets', sub: 'Completed today', format: 'number', color: '#6366f1' },
+    { key: 'avgResponseTime', metric: 'Avg Response Time', sub: 'Optimal response speed', format: 'text', color: '#f59e0b', isDownPositive: true },
+    { key: 'slaMetPercent', metric: 'SLA Met %', sub: 'Target: ≥ 95%', format: 'percent', color: '#6366f1' },
+    { key: 'escalatedPercent', metric: 'Escalation Rate %', sub: 'Threshold: < 5%', format: 'percent', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+    { key: 'milestonesCompleted', metric: 'Completed Milestones', sub: 'Completed today', format: 'number', color: '#6366f1' },
+    { key: 'avgRevisionCycles', metric: 'Avg Revision Cycles', sub: 'Target: ≤ 2 cycles', format: 'number', color: '#f59e0b', isDownPositive: true },
+    { key: 'onTimeSubmissionPercent', metric: 'On-Time Submission %', sub: 'Target: ≥ 90%', format: 'percent', color: '#6366f1' },
+    { key: 'rejectedSubmissionsPercent', metric: 'Client Rejections %', sub: 'Threshold: < 5%', format: 'percent', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.FINANCIAL_SERVICES]: [
+    { key: 'transactionsExecuted', metric: 'Executed Transactions', sub: 'Processed today', format: 'number', color: '#6366f1' },
+    { key: 'avgSettlementTime', metric: 'Avg Settlement Time', sub: 'Clearance speed', format: 'text', color: '#f59e0b', isDownPositive: true },
+    { key: 'reconciliationSuccessPercent', metric: 'Reconciliation Success %', sub: 'Target: 100%', format: 'percent', color: '#6366f1' },
+    { key: 'failedTransactionsPercent', metric: 'Failed Transactions %', sub: 'Threshold: < 0.5%', format: 'percent', color: '#ef4444', isDownPositive: true }
+  ],
+  [IndustryEnum.FLEET_MANAGEMENT]: [
+    { key: 'totalDeliveriesTrips', metric: 'Total Deliveries / Trips', sub: 'Completed today', format: 'number', color: '#6366f1' },
+    { key: 'deliveriesPerVehicle', metric: 'Deliveries per Vehicle', sub: 'Daily average', format: 'number', color: '#f59e0b' },
+    { key: 'onTimeDeliveryPercent', metric: 'On-Time Delivery %', sub: 'Target: ≥ 90%', format: 'percent', color: '#6366f1' },
+    { key: 'failedDeliveryPercent', metric: 'Failed Delivery %', sub: 'Threshold: < 2%', format: 'percent', color: '#ef4444', isDownPositive: true }
+  ]
+};

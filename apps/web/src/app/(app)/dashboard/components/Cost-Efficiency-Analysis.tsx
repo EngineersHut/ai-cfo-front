@@ -20,7 +20,7 @@ const IconMap: any = {
 };
 
 export default function CostEfficiencyAnalysis() {
-    const { costEfficiency } = useSelector((state) => state.dashboard);
+    const { costEfficiency, cfoInsights } = useSelector((state) => state.dashboard);
     const { summary, breakdown, unitEconomics, insights } = costEfficiency;
     const { visibility } = useDashboardSettings();
 
@@ -184,31 +184,56 @@ export default function CostEfficiencyAnalysis() {
                         </div>
 
                         <div className="space-y-3">
-                            {insights.map((insight) => {
-                                const Icon = IconMap[insight.icon] || Info;
-                                return (
-                                    <div key={insight.id} className="w-full  p-[12px] gap-[10px] rounded-[12px] border bg-blue-50/40 border-blue-100/50 flex flex-col">
-                                        <div className="flex items-center gap-3 ">
-                                            <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
-                                                <Icon size={14} />
+                            {cfoInsights && cfoInsights.length > 0 ? (
+                                cfoInsights.map((insight, idx) => {
+                                    const colors = [
+                                        { bg: 'bg-blue-50/40 border-blue-100/50', iconBg: 'bg-blue-100 text-blue-600', bullet: 'bg-blue-500' },
+                                        { bg: 'bg-emerald-50/40 border-emerald-100/50', iconBg: 'bg-emerald-100 text-emerald-600', bullet: 'bg-emerald-500' },
+                                        { bg: 'bg-amber-50/40 border-amber-100/50', iconBg: 'bg-amber-100 text-amber-600', bullet: 'bg-amber-500' },
+                                        { bg: 'bg-purple-50/40 border-purple-100/50', iconBg: 'bg-purple-100 text-purple-600', bullet: 'bg-purple-500' }
+                                    ];
+                                    const style = colors[idx % colors.length];
+                                    return (
+                                        <div key={idx} className={`w-full p-[12px] gap-[10px] rounded-[12px] border ${style.bg} flex flex-col`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-1.5 rounded-md ${style.iconBg}`}>
+                                                    <ShieldCheck size={14} />
+                                                </div>
+                                                <h4 className="text-[12.5px] font-semibold text-slate-800 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
                                             </div>
-                                            <h4 className="text-[12.5px] font-semibold text-blue-900 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
+                                            <p className="text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px] pl-[34px]">
+                                                {insight.description}
+                                            </p>
                                         </div>
-                                        <ul className="space-y-2">
-                                            {insight.points.map((point: string, j: number) => {
-                                                const isWarning = point.includes('above') || point.includes('increased');
-                                                const bulletColor = isWarning ? 'bg-amber-500' : 'bg-emerald-500';
-                                                return (
-                                                    <li key={j} className="flex gap-3 text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px]">
-                                                        <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${bulletColor}`} />
-                                                        {point}
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })
+                            ) : (
+                                insights.map((insight) => {
+                                    const Icon = IconMap[insight.icon] || Info;
+                                    return (
+                                        <div key={insight.id} className="w-full  p-[12px] gap-[10px] rounded-[12px] border bg-blue-50/40 border-blue-100/50 flex flex-col">
+                                            <div className="flex items-center gap-3 ">
+                                                <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
+                                                    <Icon size={14} />
+                                                </div>
+                                                <h4 className="text-[12.5px] font-semibold text-blue-900 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
+                                            </div>
+                                            <ul className="space-y-2">
+                                                {insight.points.map((point: string, j: number) => {
+                                                    const isWarning = point.includes('above') || point.includes('increased');
+                                                    const bulletColor = isWarning ? 'bg-amber-500' : 'bg-emerald-500';
+                                                    return (
+                                                        <li key={j} className="flex gap-3 text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px]">
+                                                            <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${bulletColor}`} />
+                                                            {point}
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
 
                         {/* Analyse CTA */}

@@ -105,10 +105,16 @@ export default function ReportPage() {
   const [activeChart, setActiveChart] = useState('line');
 
   const dispatch = useDispatch();
-  const { kpiStats, rawSummary, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth } = useSelector((state) => state.dashboard);
+  const { kpiStats, rawSummary, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth, cfoInsights, forecastVsReality } = useSelector((state) => state.dashboard);
 
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
   const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+
+  const formatChartValue = (value: number) => {
+    if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(0)}k`;
+    return String(value);
+  };
 
   useEffect(() => {
     const savedCompanyId = localStorage.getItem('selectedCompany');
@@ -192,8 +198,19 @@ export default function ReportPage() {
       else if (kpiKey === 'cashflow') rawVal = rawSummary?.operatingCashFlow;
     }
 
+    if (rawVal !== undefined && typeof rawVal === 'object' && rawVal.value !== undefined) {
+      rawVal = rawVal.value;
+    }
+
     if (rawVal !== undefined) {
-      return formatValue(rawVal, format);
+      let formatted = formatValue(rawVal, format);
+      if (kpiKey === 'cashRunway' && !formatted.includes('month')) {
+        formatted = `${formatted} months`;
+      }
+      if (kpiKey === 'driverEff' && !formatted.includes('%')) {
+        formatted = `${formatted}%`;
+      }
+      return formatted;
     }
 
     const legacyStats = (kpiStats as any)[kpiKey];
@@ -205,16 +222,28 @@ export default function ReportPage() {
   };
 
   const getTrendValue = (kpiKey: string) => {
-    const summaryVal = rawSummary?.[kpiKey];
-    if (summaryVal && typeof summaryVal === 'object' && summaryVal.trend !== undefined) {
-      return summaryVal.trend;
+    let rawVal = rawSummary?.[kpiKey];
+    if (rawVal === undefined) {
+      if (kpiKey === 'totalTrips') rawVal = rawSummary?.totalDeliveries;
+      else if (kpiKey === 'delPerVeh') rawVal = rawSummary?.deliveriesPerVehicle;
+      else if (kpiKey === 'fleetUtil') rawVal = rawSummary?.fleetUtilization;
+      else if (kpiKey === 'driverEff') rawVal = rawSummary?.driverEfficiency;
+      else if (kpiKey === 'cashRunway') rawVal = rawSummary?.cashRunway;
+      else if (kpiKey === 'growth') rawVal = rawSummary?.growthPercent;
+      else if (kpiKey === 'ebitda') rawVal = rawSummary?.ebitda;
+      else if (kpiKey === 'cashflow') rawVal = rawSummary?.operatingCashFlow;
     }
-    const legacyStats = (kpiStats as any)[kpiKey];
-    if (legacyStats?.trend !== undefined) {
-      return legacyStats.trend;
+
+    if (rawVal && typeof rawVal === 'object' && rawVal.trend !== undefined) {
+      return rawVal.trend;
     }
-    if (kpiKey === 'totalTrips' && rawSummary?.growthPercent !== undefined) {
-      return `${rawSummary.growthPercent >= 0 ? '+' : ''}${rawSummary.growthPercent}%`;
+
+    if ((kpiKey === 'totalTrips' || kpiKey === 'growth') && rawSummary?.growthPercent !== undefined) {
+      const growthVal = rawSummary.growthPercent;
+      const val = typeof growthVal === 'object' ? growthVal.value : growthVal;
+      if (val !== undefined) {
+        return `${Number(val) >= 0 ? '+' : ''}${val}%`;
+      }
     }
     return undefined;
   };
@@ -328,6 +357,7 @@ export default function ReportPage() {
               sub={getSubValue(kpi.key, kpi.sub)}
               isDown={isDownTrend(kpi.key, kpi.isDownPositive)}
               noTrendIcon={getTrendValue(kpi.key) === 'Stable'}
+              showTrend={!!getTrendValue(kpi.key)}
             />
           );
         })}
@@ -394,11 +424,20 @@ export default function ReportPage() {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fontSize: 11, fill: '#94a3b8' }}
-                        tickFormatter={(value) => `${value / 100}k`}
+                        tickFormatter={formatChartValue}
                       />
                       <Tooltip
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                         itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                        formatter={(value: any) => [
+                          new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }).format(Number(value)),
+                          undefined
+                        ]}
                       />
                       <Area
                         type="monotone"
@@ -545,17 +584,19 @@ export default function ReportPage() {
             <div className="relative z-10">
               <div className="flex items-center justify-between text-[11px] font-medium text-white/70">
                 <span>Market Penetration Goal</span>
-                <span>40% achieved</span>
+                <span>{forecastVsReality?.percentageAchieved ?? 40}% achieved</span>
               </div>
               <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full w-[40%]" />
+                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${forecastVsReality?.percentageAchieved ?? 40}%` }} />
               </div>
             </div>
 
             <div className="flex items-center justify-between  relative z-10">
               <div>
                 <p className="text-[12px] text-white/60 font-normal font-inter uppercase leading-[16px] tracking-[0%] align-middle mb-1">Current Progress</p>
-                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">Achieved 2% of 5% target</h4>
+                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">
+                  Achieved {forecastVsReality?.currentValue ?? 2}% of {forecastVsReality?.targetValue ?? 5}% target
+                </h4>
               </div>
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
                 <ArrowRight size={18} />
