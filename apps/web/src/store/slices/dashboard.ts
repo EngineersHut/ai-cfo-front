@@ -58,13 +58,19 @@ export const mapFromApiKeys = (data: any) => {
 
 interface DashboardState {
   timeframe: string;
-  revenueData: typeof revenueData;
+  revenueData: any[];
   healthData: typeof healthData;
   healthScore: number;
   auditCompliance: number;
   equityHealth: number;
-  aiInsights: typeof aiInsightsData;
-  costEfficiency: typeof detailedCostData;
+  aiInsights: any[];
+  cfoInsights: { title: string; description: string }[];
+  forecastVsReality: {
+    percentageAchieved: number;
+    currentValue: number;
+    targetValue: number;
+  };
+  costEfficiency: any;
   kpiStats: {
     totalTrips: { value: string; trend: string; sub: string };
     delPerVeh: { value: string; unit: string; trend: string; sub: string };
@@ -87,6 +93,12 @@ const initialState: DashboardState = {
   auditCompliance: 98,
   equityHealth: 84,
   aiInsights: aiInsightsData,
+  cfoInsights: [],
+  forecastVsReality: {
+    percentageAchieved: 40,
+    currentValue: 2,
+    targetValue: 5
+  },
   costEfficiency: detailedCostData,
   kpiStats: {
     totalTrips: { value: "70", trend: "+12.5%", sub: "Healthy Liquidity Profile" },
@@ -116,6 +128,12 @@ const slice = createSlice({
       const id = action.payload;
       state.visibility[id] = !state.visibility[id];
     },
+    setDashboardVisibilityBulkState(state, action) {
+      const { ids, visible } = action.payload;
+      ids.forEach((id: string) => {
+        state.visibility[id] = visible;
+      });
+    },
     resetDashboardConfigState(state) {
       state.visibility = getInitialVisibility();
     },
@@ -123,104 +141,15 @@ const slice = createSlice({
       const apiData = action.payload;
       if (!apiData) return;
 
-      const summary = apiData.summaryCards || {};
-      const health = apiData.healthMeter || {};
-      const cost = apiData.costEfficiency || {};
-
-      state.rawSummary = summary;
-
-      // 1. Update KPI stats
-      state.kpiStats = {
-        totalTrips: {
-          value: summary.totalDeliveries !== undefined ? String(summary.totalDeliveries) : state.kpiStats.totalTrips.value,
-          trend: summary.growthPercent !== undefined ? `${summary.growthPercent >= 0 ? '+' : ''}${summary.growthPercent}%` : state.kpiStats.totalTrips.trend,
-          sub: state.kpiStats.totalTrips.sub
-        },
-        delPerVeh: {
-          value: summary.deliveriesPerVehicle !== undefined ? String(summary.deliveriesPerVehicle) : state.kpiStats.delPerVeh.value,
-          unit: state.kpiStats.delPerVeh.unit,
-          trend: state.kpiStats.delPerVeh.trend,
-          sub: state.kpiStats.delPerVeh.sub
-        },
-        fleetUtil: {
-          value: summary.fleetUtilization !== undefined ? `${summary.fleetUtilization}%` : state.kpiStats.fleetUtil.value,
-          trend: state.kpiStats.fleetUtil.trend,
-          isDown: state.kpiStats.fleetUtil.isDown,
-          sub: state.kpiStats.fleetUtil.sub
-        },
-        driverEff: {
-          value: summary.driverEfficiency !== undefined ? `${summary.driverEfficiency}%` : state.kpiStats.driverEff.value,
-          trend: state.kpiStats.driverEff.trend,
-          sub: state.kpiStats.driverEff.sub
-        },
-        cashRunway: {
-          value: summary.cashRunway !== undefined ? `${summary.cashRunway} months` : state.kpiStats.cashRunway.value,
-          trend: state.kpiStats.cashRunway.trend,
-          sub: state.kpiStats.cashRunway.sub
-        },
-        growth: {
-          value: summary.growthPercent !== undefined ? `${summary.growthPercent}%` : state.kpiStats.growth.value,
-          trend: state.kpiStats.growth.trend,
-          sub: state.kpiStats.growth.sub
-        },
-        ebitda: {
-          value: summary.ebitda !== undefined ? `$${summary.ebitda.toLocaleString()}` : state.kpiStats.ebitda.value,
-          trend: state.kpiStats.ebitda.trend,
-          isDown: state.kpiStats.ebitda.isDown,
-          sub: state.kpiStats.ebitda.sub
-        },
-        cashflow: {
-          value: summary.operatingCashFlow !== undefined ? `$${summary.operatingCashFlow.toLocaleString()}` : state.kpiStats.cashflow.value,
-          unit: state.kpiStats.cashflow.unit,
-          trend: state.kpiStats.cashflow.trend,
-          sub: state.kpiStats.cashflow.sub
-        }
-      };
-
-      // 2. Update Revenue Trend
-      if (Array.isArray(apiData.revenueTrend) && apiData.revenueTrend.length > 0) {
-        state.revenueData = apiData.revenueTrend;
-      }
-
-      // 3. Update Health Score
-      if (health.score !== undefined) {
-        state.healthScore = health.score;
-      }
-      if (health.auditCompliance !== undefined) {
-        state.auditCompliance = health.auditCompliance;
-      }
-      if (health.equityHealth !== undefined) {
-        state.equityHealth = health.equityHealth;
-      }
-
-      // 4. Update Cost & Efficiency summary cards
-      state.costEfficiency = {
-        ...state.costEfficiency,
-        summary: [
-          { id: 'totalExpenses', label: 'Total Expenses', value: cost.totalExpenses !== undefined ? `$${(cost.totalExpenses / 1000).toFixed(0)}K` : state.costEfficiency.summary[0].value, trend: state.costEfficiency.summary[0].trend, isUp: state.costEfficiency.summary[0].isUp },
-          { id: 'costRevenue', label: 'Cost of Revenue', value: cost.costOfRevenue !== undefined ? `${cost.costOfRevenue}%` : state.costEfficiency.summary[1].value, trend: state.costEfficiency.summary[1].trend, isUp: state.costEfficiency.summary[1].isUp },
-          { id: 'costClient', label: 'Cost per Client', value: cost.costPerClient !== undefined ? `$${cost.costPerClient}` : state.costEfficiency.summary[2].value, trend: state.costEfficiency.summary[2].trend, isUp: state.costEfficiency.summary[2].isUp },
-          { id: 'opExpRatio', label: 'Operating Expense Ratio', value: cost.operatingExpenseRatio !== undefined ? `${cost.operatingExpenseRatio}%` : state.costEfficiency.summary[3].value, trend: state.costEfficiency.summary[3].trend, isUp: state.costEfficiency.summary[3].isUp }
-        ],
-        breakdown: state.costEfficiency.breakdown.map((item: any) => {
-          if (item.metric === 'Total Expenses' && cost.totalExpenses !== undefined) {
-            return { ...item, value: `$${cost.totalExpenses.toLocaleString()}` };
-          }
-          if (item.metric === 'Cost % of Revenue' && cost.costOfRevenue !== undefined) {
-            return { ...item, value: `${cost.costOfRevenue}%` };
-          }
-          return item;
-        }),
-        unitEconomics: state.costEfficiency.unitEconomics.map((item: any) => {
-          if (item.metric === 'Cost per Client' && cost.costPerClient !== undefined) {
-            return { ...item, value: `$${cost.costPerClient}` };
-          }
-          if (item.metric === 'Operating Expense Ratio' && cost.operatingExpenseRatio !== undefined) {
-            return { ...item, value: `${cost.operatingExpenseRatio}%` };
-          }
-          return item;
-        })
-      };
+      state.rawSummary = apiData.summaryCards || {};
+      state.revenueData = apiData.revenueTrend || [];
+      state.healthScore = apiData.healthMeter?.score ?? 84;
+      state.auditCompliance = apiData.healthMeter?.auditCompliance ?? 98;
+      state.equityHealth = apiData.healthMeter?.equityHealth ?? 84;
+      state.costEfficiency = apiData.costEfficiency || {};
+      state.cfoInsights = apiData.cfoInsights || [];
+      state.forecastVsReality = apiData.forecastVsReality || {};
+      state.aiInsights = apiData.aiInsights || [];
     }
   }
 });
@@ -229,6 +158,7 @@ export const {
   setTimeframe,
   getDashboardConfigSuccess,
   toggleDashboardVisibilityState,
+  setDashboardVisibilityBulkState,
   resetDashboardConfigState,
   getDashboardDataSuccess
 } = slice.actions;
@@ -275,6 +205,26 @@ export const resetDashboardConfig = () => {
       await patchData('/api/dashboard-config', payload);
     } catch (error) {
       console.error("Failed to reset dashboard config via API", error);
+    }
+  };
+};
+
+export const toggleDashboardVisibilityBulk = (ids: string[], visible: boolean, currentVisibility: Record<string, boolean>) => {
+  return async () => {
+    // Optimistically update local Redux state
+    dispatch(setDashboardVisibilityBulkState({ ids, visible }));
+
+    try {
+      const updated = {
+        ...currentVisibility
+      };
+      ids.forEach((id) => {
+        updated[id] = visible;
+      });
+      const payload = mapToApiKeys(updated);
+      await patchData('/api/dashboard-config', payload);
+    } catch (error) {
+      console.error("Failed to update bulk dashboard config via API", error);
     }
   };
 };

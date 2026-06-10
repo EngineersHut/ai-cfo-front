@@ -11,7 +11,19 @@ interface CustomizeDrawerProps {
 }
 
 export default function CustomizeDrawer({ isOpen, onClose }: CustomizeDrawerProps) {
-  const { visibility, toggleVisibility, resetToDefaults } = useDashboardSettings();
+  const { visibility, toggleVisibility, toggleVisibilityBulk, resetToDefaults } = useDashboardSettings();
+
+  const allVisible = drawerGroups.every(group => 
+    group.sections.every(section => 
+      section.items.every(item => visibility[item.id] ?? true)
+    )
+  );
+
+  const allHidden = drawerGroups.every(group => 
+    group.sections.every(section => 
+      section.items.every(item => !(visibility[item.id] ?? true))
+    )
+  );
 
   return (
     <>
@@ -58,33 +70,47 @@ export default function CustomizeDrawer({ isOpen, onClose }: CustomizeDrawerProp
               </div>
 
               <div className="space-y-[11px]">
-                {group.sections.map((section) => (
-                  <div key={section.id} className="w-[292px] border border-slate-100 rounded-[10px] bg-white flex flex-col overflow-hidden mx-auto shadow-sm">
-                    <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between bg-white">
-                      <div className="flex items-center gap-2">
-                        <section.icon size={15} className="text-blue-500" />
-                        <span className="text-[12px] font-semibold text-slate-800 font-inter leading-[18px] tracking-[0px]">{section.title}</span>
+                {group.sections.map((section) => {
+                  const sectionItemIds = section.items.map(item => item.id);
+                  const visibleCount = section.items.filter(item => visibility[item.id] ?? true).length;
+                  const totalCount = section.items.length;
+                  const isAllHidden = visibleCount === 0;
+
+                  return (
+                    <div key={section.id} className="w-[292px] border border-slate-100 rounded-[10px] bg-white flex flex-col overflow-hidden mx-auto shadow-sm">
+                      <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between bg-white">
+                        <div className="flex items-center gap-2">
+                          <section.icon size={15} className="text-blue-500" />
+                          <span className="text-[12px] font-semibold text-slate-800 font-inter leading-[18px] tracking-[0px]">{section.title}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-0.5 text-[11px] font-bold rounded-full ${isAllHidden ? 'bg-slate-100 text-slate-500' : 'bg-green-50 text-green-600'}`}>
+                            {visibleCount}/{totalCount}
+                          </span>
+                          <button 
+                            onClick={() => toggleVisibilityBulk(sectionItemIds, isAllHidden)}
+                            className="text-[10.5px] font-medium text-blue-600 font-inter leading-[15.75px] tracking-[0px] text-center hover:underline cursor-pointer"
+                          >
+                            {isAllHidden ? 'Show all' : 'Hide all'}
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[11px] font-bold rounded-full">{section.count}</span>
-                        <button className="text-[10.5px] font-medium text-blue-600 font-inter leading-[15.75px] tracking-[0px] text-center hover:underline">Hide all</button>
+                      <div className="flex-1">
+                        {section.items.map((item) => (
+                          <KPIToggleItem 
+                            key={item.id} 
+                            id={item.id}
+                            icon={item.icon} 
+                            label={item.label} 
+                            sub={item.sub} 
+                            isEnabled={visibility[item.id] ?? true}
+                            onToggle={toggleVisibility}
+                          />
+                        ))}
                       </div>
                     </div>
-                    <div className="flex-1">
-                      {section.items.map((item) => (
-                        <KPIToggleItem 
-                          key={item.id} 
-                          id={item.id}
-                          icon={item.icon} 
-                          label={item.label} 
-                          sub={item.sub} 
-                          isEnabled={visibility[item.id] ?? true}
-                          onToggle={toggleVisibility}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -93,8 +119,10 @@ export default function CustomizeDrawer({ isOpen, onClose }: CustomizeDrawerProp
         {/* Footer Actions - Matched to Screenshot */}
         <div className="h-[56px] border-t border-slate-100 bg-white flex items-center justify-between pt-[12px] pr-[18.17px] pb-[12px] pl-[17.95px] shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span className="text-[11px] font-normal text-slate-500 font-inter leading-[16.5px] tracking-[0px]">All sections visible</span>
+            <div className={`w-2 h-2 rounded-full ${allVisible ? 'bg-green-500' : allHidden ? 'bg-slate-300' : 'bg-amber-500'}`} />
+            <span className="text-[11px] font-normal text-slate-500 font-inter leading-[16.5px] tracking-[0px]">
+              {allVisible ? 'All sections visible' : allHidden ? 'All sections hidden' : 'Some sections hidden'}
+            </span>
           </div>
           
           <button 

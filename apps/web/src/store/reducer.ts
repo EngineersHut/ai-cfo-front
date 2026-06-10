@@ -9,6 +9,7 @@ import notificationReducer from './slices/notification';
 import reportReducer from './slices/report';
 import operationalReducer from './slices/operational';
 import growthReducer from './slices/growth';
+import budgetReducer from './slices/budget';
 
 // ==============================|| COMBINE REDUCER ||============================== //
 
@@ -21,6 +22,7 @@ const reducer = combineReducers({
   report: reportReducer,
   operational: operationalReducer,
   growth: growthReducer,
+  budget: budgetReducer,
 });
 
 export default reducer;

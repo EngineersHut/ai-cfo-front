@@ -14,16 +14,10 @@ import { healthData } from '@/data/dashboardData';
 import { useDispatch, useSelector } from '@/store';
 import { fetchOperationalData } from '@/store/slices/operational';
 import { useEffect } from 'react';
-import { IndustryEnum, OPERATIONAL_KPI_CONFIGS, OPERATIONAL_HEADER_CONFIGS, OPERATIONAL_CORE_CONFIGS } from '@/config/industryConfig';
+import { IndustryEnum, OPERATIONAL_KPI_CONFIGS, OPERATIONAL_HEADER_CONFIGS, OPERATIONAL_CORE_CONFIGS, OPERATIONAL_SECTION_CONFIGS, OPERATIONAL_COST_CONFIGS, OPERATIONAL_UTILIZATION_CONFIGS, OPERATIONAL_PERFORMANCE_CONFIGS } from '@/config/industryConfig';
 import * as LucideIcons from 'lucide-react';
 
-const IconMap: any = {
-    Zap: Zap,
-    Users: Users,
-    Clock: Clock,
-    BarChart3: BarChart3,
-    Activity: Activity
-};
+
 
 // Custom Gauge Components
 const RADIAN = Math.PI / 180;
@@ -83,6 +77,7 @@ export default function OperationalOverview() {
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
+    console.log("DEBUG operational data:", data);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
     const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
@@ -118,11 +113,18 @@ export default function OperationalOverview() {
 
     const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
     const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const activeSections = OPERATIONAL_SECTION_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_SECTION_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];
         if (IconComp) return <IconComp size={18} />;
         return <LucideIcons.Activity size={18} />;
+    };
+
+    const getSectionIcon = (iconName: string) => {
+        const IconComp = (LucideIcons as any)[iconName];
+        if (IconComp) return <IconComp size={16} />;
+        return <LucideIcons.Activity size={16} />;
     };
 
     const getKpiValue = (key: string, format: string) => {
@@ -133,13 +135,32 @@ export default function OperationalOverview() {
             return '0';
         }
 
-        const num = Number(val);
-        if (isNaN(num)) return String(val);
+        let cleanVal = val;
+        if (typeof val === 'object' && val !== null) {
+            if (val.value !== undefined) {
+                cleanVal = val.value;
+            }
+        }
+
+        const num = Number(cleanVal);
+        if (isNaN(num)) return String(cleanVal);
 
         if (format === 'percent') {
+            // If it's a ratio <= 1 and not 0, multiply by 100
+            if (num > 0 && num <= 1) {
+                return `${(num * 100).toFixed(1)}%`;
+            }
             return `${num.toFixed(1)}%`;
         }
         return num.toLocaleString();
+    };
+
+    const getKpiTrend = (key: string, defaultTrend: string) => {
+        const val = data?.summaryCards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend;
+        }
+        return defaultTrend;
     };
 
     const getIsDown = (key: string) => {
@@ -147,11 +168,19 @@ export default function OperationalOverview() {
         return false;
     };
 
+    const getKpiIsDown = (key: string, defaultIsDown: boolean) => {
+        const val = data?.summaryCards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend.includes('-');
+        }
+        return defaultIsDown;
+    };
+
     const currentCoreConfigs = OPERATIONAL_CORE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_CORE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
 
     const coreOperations = currentCoreConfigs.map((cfg) => {
         const rawItem = data?.coreOperations?.[cfg.key];
-        
+
         let valueStr = '0';
         if (rawItem?.value !== undefined && rawItem?.value !== null) {
             if (cfg.format === 'percent') {
@@ -192,128 +221,150 @@ export default function OperationalOverview() {
         score,
         status,
         metrics: [
-            { label: 'Fleet Efficiency', value: data?.operationalHealth?.fleetEfficiency !== undefined ? `${data.operationalHealth.fleetEfficiency}%` : '0%' },
-            { label: 'Delivery Success Rate', value: data?.operationalHealth?.deliverySuccessRate !== undefined ? `${data.operationalHealth.deliverySuccessRate}%` : '0%' },
-            { label: 'Cost Efficiency', value: data?.operationalHealth?.costEfficiency !== undefined ? `${data.operationalHealth.costEfficiency}%` : '0%' }
+            { label: activeSections.healthMetric1Label, value: data?.operationalHealth?.fleetEfficiency !== undefined ? `${data.operationalHealth.fleetEfficiency}%` : '0%' },
+            { label: activeSections.healthMetric2Label, value: data?.operationalHealth?.deliverySuccessRate !== undefined ? `${data.operationalHealth.deliverySuccessRate}%` : '0%' },
+            { label: activeSections.healthMetric3Label, value: data?.operationalHealth?.costEfficiency !== undefined ? `${data.operationalHealth.costEfficiency}%` : '0%' }
         ]
     };
 
-    const costEfficiency = [
-        {
-            metric: 'Total Deliveries / Trips',
-            value: data?.costEfficiency?.totalDeliveriesTrips?.value !== undefined ? `${data.costEfficiency.totalDeliveriesTrips.value}` : '0',
-            sub: 'Completed today',
-            trend: data?.costEfficiency?.totalDeliveriesTrips?.vsPrior !== undefined ? `${data.costEfficiency.totalDeliveriesTrips.vsPrior >= 0 ? '+' : ''}${data.costEfficiency.totalDeliveriesTrips.vsPrior}%` : '0%',
-            isUp: (data?.costEfficiency?.totalDeliveriesTrips?.vsPrior ?? 0) >= 0,
-            distribution: data?.costEfficiency?.totalDeliveriesTrips?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Deliveries per Vehicle',
-            value: data?.costEfficiency?.deliveriesPerVehicle?.value !== undefined ? `${data.costEfficiency.deliveriesPerVehicle.value}` : '0',
-            sub: 'Daily average',
-            trend: data?.costEfficiency?.deliveriesPerVehicle?.vsPrior !== undefined ? `${data.costEfficiency.deliveriesPerVehicle.vsPrior >= 0 ? '+' : ''}${data.costEfficiency.deliveriesPerVehicle.vsPrior}%` : '0%',
-            isUp: (data?.costEfficiency?.deliveriesPerVehicle?.vsPrior ?? 0) >= 0,
-            distribution: data?.costEfficiency?.deliveriesPerVehicle?.distribution ?? 65,
-            color: '#f59e0b'
-        },
-        {
-            metric: 'On-Time Delivery %',
-            value: data?.costEfficiency?.onTimeDeliveryPercent?.value !== undefined ? `${data.costEfficiency.onTimeDeliveryPercent.value}%` : '0%',
-            sub: 'Target: ≥ 90%',
-            trend: data?.costEfficiency?.onTimeDeliveryPercent?.vsPrior !== undefined ? `${data.costEfficiency.onTimeDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.costEfficiency.onTimeDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.costEfficiency?.onTimeDeliveryPercent?.vsPrior ?? 0) >= 0,
-            distribution: data?.costEfficiency?.onTimeDeliveryPercent?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Failed Delivery %',
-            value: data?.costEfficiency?.failedDeliveryPercent?.value !== undefined ? `${data.costEfficiency.failedDeliveryPercent.value}%` : '0%',
-            sub: 'Threshold: < 2%',
-            trend: data?.costEfficiency?.failedDeliveryPercent?.vsPrior !== undefined ? `${data.costEfficiency.failedDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.costEfficiency.failedDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.costEfficiency?.failedDeliveryPercent?.vsPrior ?? 0) < 0,
-            distribution: data?.costEfficiency?.failedDeliveryPercent?.distribution ?? 80,
-            color: '#ef4444'
-        }
-    ];
+    const formatCurrency = (val: any) => {
+        if (val === undefined || val === null) return '$0';
+        if (typeof val === 'string' && val.startsWith('$')) return val;
+        const num = Number(val);
+        if (isNaN(num)) return String(val);
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(num);
+    };
 
-    const fleetDriverUtilization = [
-        {
-            metric: 'Total Deliveries / Trips',
-            value: data?.fleetDriverUtilization?.totalDeliveriesTrips?.value !== undefined ? `${data.fleetDriverUtilization.totalDeliveriesTrips.value}` : '0',
-            sub: 'Completed today',
-            trend: data?.fleetDriverUtilization?.totalDeliveriesTrips?.vsPrior !== undefined ? `${data.fleetDriverUtilization.totalDeliveriesTrips.vsPrior >= 0 ? '+' : ''}${data.fleetDriverUtilization.totalDeliveriesTrips.vsPrior}%` : '0%',
-            isUp: (data?.fleetDriverUtilization?.totalDeliveriesTrips?.vsPrior ?? 0) >= 0,
-            distribution: data?.fleetDriverUtilization?.totalDeliveriesTrips?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Deliveries per Vehicle',
-            value: data?.fleetDriverUtilization?.deliveriesPerVehicle?.value !== undefined ? `${data.fleetDriverUtilization.deliveriesPerVehicle.value}` : '0',
-            sub: 'Daily average',
-            trend: data?.fleetDriverUtilization?.deliveriesPerVehicle?.vsPrior !== undefined ? `${data.fleetDriverUtilization.deliveriesPerVehicle.vsPrior >= 0 ? '+' : ''}${data.fleetDriverUtilization.deliveriesPerVehicle.vsPrior}%` : '0%',
-            isUp: (data?.fleetDriverUtilization?.deliveriesPerVehicle?.vsPrior ?? 0) >= 0,
-            distribution: data?.fleetDriverUtilization?.deliveriesPerVehicle?.distribution ?? 65,
-            color: '#f59e0b'
-        },
-        {
-            metric: 'On-Time Delivery %',
-            value: data?.fleetDriverUtilization?.onTimeDeliveryPercent?.value !== undefined ? `${data.fleetDriverUtilization.onTimeDeliveryPercent.value}%` : '0%',
-            sub: 'Target: ≥ 90%',
-            trend: data?.fleetDriverUtilization?.onTimeDeliveryPercent?.vsPrior !== undefined ? `${data.fleetDriverUtilization.onTimeDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.fleetDriverUtilization.onTimeDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.fleetDriverUtilization?.onTimeDeliveryPercent?.vsPrior ?? 0) >= 0,
-            distribution: data?.fleetDriverUtilization?.onTimeDeliveryPercent?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Failed Delivery %',
-            value: data?.fleetDriverUtilization?.failedDeliveryPercent?.value !== undefined ? `${data.fleetDriverUtilization.failedDeliveryPercent.value}%` : '0%',
-            sub: 'Threshold: < 2%',
-            trend: data?.fleetDriverUtilization?.failedDeliveryPercent?.vsPrior !== undefined ? `${data.fleetDriverUtilization.failedDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.fleetDriverUtilization.failedDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.fleetDriverUtilization?.failedDeliveryPercent?.vsPrior ?? 0) < 0,
-            distribution: data?.fleetDriverUtilization?.failedDeliveryPercent?.distribution ?? 80,
-            color: '#ef4444'
-        }
-    ];
+    const activeCostConfigs = OPERATIONAL_COST_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_COST_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const costEfficiency = activeCostConfigs.map((cfg) => {
+        const rawItem = data?.costEfficiency?.[cfg.key];
 
-    const driverPerformance = [
-        {
-            metric: 'Total Deliveries / Trips',
-            value: data?.driverPerformance?.totalDeliveriesTrips?.value !== undefined ? `${data.driverPerformance.totalDeliveriesTrips.value}` : '0',
-            sub: 'Completed today',
-            trend: data?.driverPerformance?.totalDeliveriesTrips?.vsPrior !== undefined ? `${data.driverPerformance.totalDeliveriesTrips.vsPrior >= 0 ? '+' : ''}${data.driverPerformance.totalDeliveriesTrips.vsPrior}%` : '0%',
-            isUp: (data?.driverPerformance?.totalDeliveriesTrips?.vsPrior ?? 0) >= 0,
-            distribution: data?.driverPerformance?.totalDeliveriesTrips?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Deliveries per Vehicle',
-            value: data?.driverPerformance?.deliveriesPerVehicle?.value !== undefined ? `${data.driverPerformance.deliveriesPerVehicle.value}` : '0',
-            sub: 'Daily average',
-            trend: data?.driverPerformance?.deliveriesPerVehicle?.vsPrior !== undefined ? `${data.driverPerformance.deliveriesPerVehicle.vsPrior >= 0 ? '+' : ''}${data.driverPerformance.deliveriesPerVehicle.vsPrior}%` : '0%',
-            isUp: (data?.driverPerformance?.deliveriesPerVehicle?.vsPrior ?? 0) >= 0,
-            distribution: data?.driverPerformance?.deliveriesPerVehicle?.distribution ?? 65,
-            color: '#f59e0b'
-        },
-        {
-            metric: 'On-Time Delivery %',
-            value: data?.driverPerformance?.onTimeDeliveryPercent?.value !== undefined ? `${data.driverPerformance.onTimeDeliveryPercent.value}%` : '0%',
-            sub: 'Target: ≥ 90%',
-            trend: data?.driverPerformance?.onTimeDeliveryPercent?.vsPrior !== undefined ? `${data.driverPerformance.onTimeDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.driverPerformance.onTimeDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.driverPerformance?.onTimeDeliveryPercent?.vsPrior ?? 0) >= 0,
-            distribution: data?.driverPerformance?.onTimeDeliveryPercent?.distribution ?? 100,
-            color: '#6366f1'
-        },
-        {
-            metric: 'Failed Delivery %',
-            value: data?.driverPerformance?.failedDeliveryPercent?.value !== undefined ? `${data.driverPerformance.failedDeliveryPercent.value}%` : '0%',
-            sub: 'Threshold: < 2%',
-            trend: data?.driverPerformance?.failedDeliveryPercent?.vsPrior !== undefined ? `${data.driverPerformance.failedDeliveryPercent.vsPrior >= 0 ? '+' : ''}${data.driverPerformance.failedDeliveryPercent.vsPrior}%` : '0%',
-            isUp: (data?.driverPerformance?.failedDeliveryPercent?.vsPrior ?? 0) < 0,
-            distribution: data?.driverPerformance?.failedDeliveryPercent?.distribution ?? 80,
-            color: '#ef4444'
+        let valueStr = '0';
+        if (rawItem?.value !== undefined && rawItem?.value !== null) {
+            if (cfg.format === 'percent') {
+                valueStr = `${rawItem.value}%`;
+            } else if (cfg.format === 'currency') {
+                valueStr = formatCurrency(rawItem.value);
+            } else {
+                valueStr = String(rawItem.value);
+            }
+        } else {
+            if (cfg.format === 'percent') {
+                valueStr = '0%';
+            } else if (cfg.format === 'currency') {
+                valueStr = '$0';
+            }
         }
-    ];
+
+        let trendStr = '0%';
+        let isUp = true;
+        if (rawItem?.vsPrior !== undefined && rawItem?.vsPrior !== null) {
+            const vsPrior = Number(rawItem.vsPrior);
+            trendStr = `${vsPrior >= 0 ? '+' : ''}${vsPrior}%`;
+            isUp = cfg.isDownPositive ? vsPrior <= 0 : vsPrior >= 0;
+        }
+
+        const distributionVal = rawItem?.distribution ?? 0;
+
+        return {
+            metric: cfg.metric,
+            value: valueStr,
+            sub: cfg.sub,
+            trend: trendStr,
+            isUp,
+            distribution: distributionVal,
+            color: cfg.color
+        };
+    });
+
+    const activeUtilizationConfigs = OPERATIONAL_UTILIZATION_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_UTILIZATION_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const fleetDriverUtilization = activeUtilizationConfigs.map((cfg) => {
+        const rawItem = data?.fleetDriverUtilization?.[cfg.key];
+
+        let valueStr = '0';
+        if (rawItem?.value !== undefined && rawItem?.value !== null) {
+            if (cfg.format === 'percent') {
+                valueStr = `${rawItem.value}%`;
+            } else if (cfg.format === 'currency') {
+                valueStr = formatCurrency(rawItem.value);
+            } else {
+                valueStr = String(rawItem.value);
+            }
+        } else {
+            if (cfg.format === 'percent') {
+                valueStr = '0%';
+            } else if (cfg.format === 'currency') {
+                valueStr = '$0';
+            }
+        }
+
+        let trendStr = '0%';
+        let isUp = true;
+        if (rawItem?.vsPrior !== undefined && rawItem?.vsPrior !== null) {
+            const vsPrior = Number(rawItem.vsPrior);
+            trendStr = `${vsPrior >= 0 ? '+' : ''}${vsPrior}%`;
+            isUp = cfg.isDownPositive ? vsPrior <= 0 : vsPrior >= 0;
+        }
+
+        const distributionVal = rawItem?.distribution ?? 0;
+
+        return {
+            metric: cfg.metric,
+            value: valueStr,
+            sub: cfg.sub,
+            trend: trendStr,
+            isUp,
+            distribution: distributionVal,
+            color: cfg.color
+        };
+    });
+
+    const activePerformanceConfigs = OPERATIONAL_PERFORMANCE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_PERFORMANCE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const driverPerformance = activePerformanceConfigs.map((cfg) => {
+        const rawItem = data?.driverPerformance?.[cfg.key];
+
+        let valueStr = '0';
+        if (rawItem?.value !== undefined && rawItem?.value !== null) {
+            if (cfg.format === 'percent') {
+                valueStr = `${rawItem.value}%`;
+            } else if (cfg.format === 'currency') {
+                valueStr = formatCurrency(rawItem.value);
+            } else {
+                valueStr = String(rawItem.value);
+            }
+        } else {
+            if (cfg.format === 'percent') {
+                valueStr = '0%';
+            } else if (cfg.format === 'currency') {
+                valueStr = '$0';
+            }
+        }
+
+        let trendStr = '0%';
+        let isUp = true;
+        if (rawItem?.vsPrior !== undefined && rawItem?.vsPrior !== null) {
+            const vsPrior = Number(rawItem.vsPrior);
+            trendStr = `${vsPrior >= 0 ? '+' : ''}${vsPrior}%`;
+            isUp = cfg.isDownPositive ? vsPrior <= 0 : vsPrior >= 0;
+        }
+
+        const distributionVal = rawItem?.distribution ?? 0;
+
+        return {
+            metric: cfg.metric,
+            value: valueStr,
+            sub: cfg.sub,
+            trend: trendStr,
+            isUp,
+            distribution: distributionVal,
+            color: cfg.color
+        };
+    });
 
     const gaugeGradients = [
         {
@@ -372,8 +423,8 @@ export default function OperationalOverview() {
                             key={i}
                             label={metric.label}
                             value={getKpiValue(metric.key, metric.format)}
-                            trend={metric.trend}
-                            isDown={getIsDown(metric.key)}
+                            trend={getKpiTrend(metric.key, metric.trend)}
+                            isDown={getKpiIsDown(metric.key, getIsDown(metric.key))}
                             icon={getIcon(metric.icon)}
                             sub={metric.sub}
                             noTrendIcon={metric.noTrendIcon}
@@ -486,22 +537,22 @@ export default function OperationalOverview() {
                 </div>
             </div>
             <DetailedMetricsCard
-                title="Cost Efficiency"
-                icon={<Truck size={16} />}
+                title={activeSections.costEfficiencyTitle}
+                icon={getSectionIcon(activeSections.costEfficiencyIcon)}
                 isLive="2 above benchmark"
                 data={costEfficiency}
                 className="lg:col-span-2"
             />
             <DetailedMetricsCard
-                title="Fleet & Driver Utilization"
-                icon={<Truck size={16} />}
+                title={activeSections.utilizationTitle}
+                icon={getSectionIcon(activeSections.utilizationIcon)}
                 isLive=""
                 data={fleetDriverUtilization}
                 className="lg:col-span-2"
             />
             <DetailedMetricsCard
-                title="Driver Performance"
-                icon={<Truck size={16} />}
+                title={activeSections.performanceTitle}
+                icon={getSectionIcon(activeSections.performanceIcon)}
                 isLive="2 above benchmark"
                 data={driverPerformance}
                 className="lg:col-span-2"

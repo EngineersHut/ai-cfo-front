@@ -120,6 +120,7 @@ instance.interceptors.request.use((config) => {
   }
   return config;
 });
+
 export const getData = async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
   const response = await instance.get<T>(url, {
     ...config,

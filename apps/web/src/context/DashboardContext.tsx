@@ -5,12 +5,14 @@ import { dispatch, useSelector } from '@/store';
 import { 
   fetchDashboardConfig, 
   toggleDashboardVisibility, 
+  toggleDashboardVisibilityBulk,
   resetDashboardConfig 
 } from '@/store/slices/dashboard';
 
 interface DashboardContextType {
   visibility: Record<string, boolean>;
   toggleVisibility: (id: string) => void;
+  toggleVisibilityBulk: (ids: string[], visible: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -28,12 +30,16 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     dispatch(toggleDashboardVisibility(id, visibility));
   };
 
+  const toggleVisibilityBulk = (ids: string[], visible: boolean) => {
+    dispatch(toggleDashboardVisibilityBulk(ids, visible, visibility));
+  };
+
   const resetToDefaults = () => {
     dispatch(resetDashboardConfig());
   };
 
   return (
-    <DashboardContext.Provider value={{ visibility, toggleVisibility, resetToDefaults }}>
+    <DashboardContext.Provider value={{ visibility, toggleVisibility, toggleVisibilityBulk, resetToDefaults }}>
       {children}
     </DashboardContext.Provider>
   );

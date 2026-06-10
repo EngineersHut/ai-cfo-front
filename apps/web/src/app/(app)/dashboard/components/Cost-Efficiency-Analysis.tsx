@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useSelector } from '@/store';
 import { useDashboardSettings } from '@/context/DashboardContext';
+import { detailedCostData } from '@/data/dashboardData';
 
 const IconMap: any = {
     ShieldCheck: ShieldCheck,
@@ -20,9 +21,124 @@ const IconMap: any = {
 };
 
 export default function CostEfficiencyAnalysis() {
-    const { costEfficiency } = useSelector((state) => state.dashboard);
-    const { summary, breakdown, unitEconomics, insights } = costEfficiency;
+    const { costEfficiency: rawCost, cfoInsights } = useSelector((state) => state.dashboard);
     const { visibility } = useDashboardSettings();
+ 
+    // Dynamic formatter that safely extracts nested object values
+    const formatVal = (val: any, format: 'currency' | 'percent' | 'number') => {
+        if (val === undefined || val === null) return '';
+        
+        let cleanVal = val;
+        if (typeof val === 'object' && val !== null) {
+            if (val.value !== undefined) {
+                cleanVal = val.value;
+            } else {
+                return '';
+            }
+        }
+
+        const num = Number(cleanVal);
+        if (isNaN(num)) return String(cleanVal);
+        if (format === 'currency') {
+            if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+        if (format === 'percent') {
+            if (num > 0 && num <= 1) {
+                return `${(num * 100).toFixed(1)}%`;
+            }
+            return `${num.toFixed(1)}%`;
+        }
+        return new Intl.NumberFormat('en-US').format(num);
+    };
+
+    const getTrend = (val: any, fallback: string) => {
+        if (val === undefined || val === null) return fallback;
+        if (typeof val === 'object' && val.trend !== undefined) {
+            return val.trend;
+        }
+        return fallback;
+    };
+
+    const getIsUp = (val: any, fallback: boolean) => {
+        if (val === undefined || val === null) return fallback;
+        if (typeof val === 'object' && val.trend !== undefined) {
+            return !val.trend.includes('-');
+        }
+        return fallback;
+    };
+ 
+    const summary = [
+        { 
+            id: 'totalExpenses', 
+            label: 'Total Expenses', 
+            value: rawCost?.totalExpenses !== undefined ? formatVal(rawCost.totalExpenses, 'currency') : detailedCostData.summary[0].value, 
+            trend: getTrend(rawCost?.totalExpenses, detailedCostData.summary[0].trend), 
+            isUp: getIsUp(rawCost?.totalExpenses, detailedCostData.summary[0].isUp) 
+        },
+        { 
+            id: 'costRevenue', 
+            label: 'Cost of Revenue', 
+            value: rawCost?.costOfRevenue !== undefined ? formatVal(rawCost.costOfRevenue, 'percent') : detailedCostData.summary[1].value, 
+            trend: getTrend(rawCost?.costOfRevenue, detailedCostData.summary[1].trend), 
+            isUp: getIsUp(rawCost?.costOfRevenue, detailedCostData.summary[1].isUp) 
+        },
+        { 
+            id: 'costClient', 
+            label: 'Cost per Client', 
+            value: rawCost?.costPerClient !== undefined ? formatVal(rawCost.costPerClient, 'currency') : detailedCostData.summary[2].value, 
+            trend: getTrend(rawCost?.costPerClient, detailedCostData.summary[2].trend), 
+            isUp: getIsUp(rawCost?.costPerClient, detailedCostData.summary[2].isUp) 
+        },
+        { 
+            id: 'opExpRatio', 
+            label: 'Operating Expense Ratio', 
+            value: rawCost?.operatingExpenseRatio !== undefined ? formatVal(rawCost.operatingExpenseRatio, 'percent') : detailedCostData.summary[3].value, 
+            trend: getTrend(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].trend), 
+            isUp: getIsUp(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].isUp) 
+        }
+    ];
+ 
+    const breakdown = detailedCostData.breakdown.map((item, idx) => {
+        let val = item.value;
+        let trend = item.trend;
+        if (item.metric === 'Total Expenses' && rawCost?.totalExpenses !== undefined) {
+            val = formatVal(rawCost.totalExpenses, 'currency');
+            trend = getTrend(rawCost.totalExpenses, item.trend);
+        } else if (item.metric === 'Cost % of Revenue' && rawCost?.costOfRevenue !== undefined) {
+            val = formatVal(rawCost.costOfRevenue, 'percent');
+            trend = getTrend(rawCost.costOfRevenue, item.trend);
+        } else if (item.metric === 'Fixed Cost' && rawCost?.fixedCost !== undefined) {
+            val = formatVal(rawCost.fixedCost, 'currency');
+            trend = getTrend(rawCost.fixedCost, item.trend);
+        } else if (item.metric === 'Variable Cost' && rawCost?.variableCost !== undefined) {
+            val = formatVal(rawCost.variableCost, 'currency');
+            trend = getTrend(rawCost.variableCost, item.trend);
+        }
+        return { ...item, value: val, trend };
+    });
+ 
+    const unitEconomics = detailedCostData.unitEconomics.map((item, idx) => {
+        let val = item.value;
+        let trend = item.trend;
+        if (item.metric === 'Cost per Client' && rawCost?.costPerClient !== undefined) {
+            val = formatVal(rawCost.costPerClient, 'currency');
+            trend = getTrend(rawCost.costPerClient, item.trend);
+        } else if (item.metric === 'Cost per Employee' && rawCost?.costPerEmployee !== undefined) {
+            val = formatVal(rawCost.costPerEmployee, 'currency');
+            trend = getTrend(rawCost.costPerEmployee, item.trend);
+        } else if (item.metric === 'Operating Expense Ratio' && rawCost?.operatingExpenseRatio !== undefined) {
+            val = formatVal(rawCost.operatingExpenseRatio, 'percent');
+            trend = getTrend(rawCost.operatingExpenseRatio, item.trend);
+        }
+        return { ...item, value: val, trend };
+    });
+ 
+    const insights = detailedCostData.insights;
 
     return (
         <div className="w-full bg-white rounded-[16px] border border-slate-100 shadow-sm p-[16px]">
@@ -184,31 +300,56 @@ export default function CostEfficiencyAnalysis() {
                         </div>
 
                         <div className="space-y-3">
-                            {insights.map((insight) => {
-                                const Icon = IconMap[insight.icon] || Info;
-                                return (
-                                    <div key={insight.id} className="w-full  p-[12px] gap-[10px] rounded-[12px] border bg-blue-50/40 border-blue-100/50 flex flex-col">
-                                        <div className="flex items-center gap-3 ">
-                                            <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
-                                                <Icon size={14} />
+                            {cfoInsights && cfoInsights.length > 0 ? (
+                                cfoInsights.map((insight, idx) => {
+                                    const colors = [
+                                        { bg: 'bg-blue-50/40 border-blue-100/50', iconBg: 'bg-blue-100 text-blue-600', bullet: 'bg-blue-500' },
+                                        { bg: 'bg-emerald-50/40 border-emerald-100/50', iconBg: 'bg-emerald-100 text-emerald-600', bullet: 'bg-emerald-500' },
+                                        { bg: 'bg-amber-50/40 border-amber-100/50', iconBg: 'bg-amber-100 text-amber-600', bullet: 'bg-amber-500' },
+                                        { bg: 'bg-purple-50/40 border-purple-100/50', iconBg: 'bg-purple-100 text-purple-600', bullet: 'bg-purple-500' }
+                                    ];
+                                    const style = colors[idx % colors.length];
+                                    return (
+                                        <div key={idx} className={`w-full p-[12px] gap-[10px] rounded-[12px] border ${style.bg} flex flex-col`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-1.5 rounded-md ${style.iconBg}`}>
+                                                    <ShieldCheck size={14} />
+                                                </div>
+                                                <h4 className="text-[12.5px] font-semibold text-slate-800 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
                                             </div>
-                                            <h4 className="text-[12.5px] font-semibold text-blue-900 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
+                                            <p className="text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px] pl-[34px]">
+                                                {insight.description}
+                                            </p>
                                         </div>
-                                        <ul className="space-y-2">
-                                            {insight.points.map((point: string, j: number) => {
-                                                const isWarning = point.includes('above') || point.includes('increased');
-                                                const bulletColor = isWarning ? 'bg-amber-500' : 'bg-emerald-500';
-                                                return (
-                                                    <li key={j} className="flex gap-3 text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px]">
-                                                        <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${bulletColor}`} />
-                                                        {point}
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })
+                            ) : (
+                                insights.map((insight) => {
+                                    const Icon = IconMap[insight.icon] || Info;
+                                    return (
+                                        <div key={insight.id} className="w-full  p-[12px] gap-[10px] rounded-[12px] border bg-blue-50/40 border-blue-100/50 flex flex-col">
+                                            <div className="flex items-center gap-3 ">
+                                                <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
+                                                    <Icon size={14} />
+                                                </div>
+                                                <h4 className="text-[12.5px] font-semibold text-blue-900 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
+                                            </div>
+                                            <ul className="space-y-2">
+                                                {insight.points.map((point: string, j: number) => {
+                                                    const isWarning = point.includes('above') || point.includes('increased');
+                                                    const bulletColor = isWarning ? 'bg-amber-500' : 'bg-emerald-500';
+                                                    return (
+                                                        <li key={j} className="flex gap-3 text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px]">
+                                                            <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${bulletColor}`} />
+                                                            {point}
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
 
                         {/* Analyse CTA */}
