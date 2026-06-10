@@ -35,16 +35,11 @@ export class OperationalOverviewService {
     company: any,
     queryDto: GetOperationalOverviewDto,
   ) {
-    const { period } = queryDto;
     const companyId = company._id.toString();
-
-    const typeQuery = {
-      companyId,
-      periodType: period.toLowerCase(),
-    };
+    const { month, year } = queryDto;
 
     if (company.industry === IndustryEnum.FLEET_MANAGEMENT) {
-      return this.getFleetOperationalOverview(companyId, typeQuery);
+      return this.getFleetOperationalOverview(companyId, month, year);
     }
 
     return {
@@ -53,16 +48,22 @@ export class OperationalOverviewService {
   }
 
   // || ---------------------- Get Fleet Operational Overview Data function ---------------------|| //
-  private async getFleetOperationalOverview(companyId: string, typeQuery: any) {
+  private async getFleetOperationalOverview(companyId: string, month?: number, year?: number) {
+    const query: any = { companyId };
+    if (year && month) {
+      query.year = year;
+      query.month = month;
+    }
+
     const [dashboardData, fleetData] = await Promise.all([
       this.dashboardModel
-        .find(typeQuery)
-        .sort({ periodStartDate: -1 })
+        .find(query)
+        .sort({ year: -1, month: -1 })
         .limit(2)
         .exec(),
       this.fleetModel
-        .find(typeQuery)
-        .sort({ periodStartDate: -1 })
+        .find(query)
+        .sort({ year: -1, month: -1 })
         .limit(2)
         .exec(),
     ]);
@@ -83,7 +84,11 @@ export class OperationalOverviewService {
       totalVehicles: previousFleet.totalVehicles || 0,
     };
 
-    const driverEfficiencyOverall = currentFleet.onTimePercent || 0; // Using on-time percent as a proxy for driver efficiency
+    const driverEfficiencyOverall =
+      currentFleet.driverEfficiencyOverall !== undefined &&
+      currentFleet.driverEfficiencyOverall !== null
+        ? currentFleet.driverEfficiencyOverall
+        : currentFleet.onTimePercent || 0;
 
     const deliveriesPerVehicle =
       fleetSummary.totalVehicles > 0
@@ -195,8 +200,26 @@ export class OperationalOverviewService {
       },
     };
 
-    const activeVehicleDistribution = fleetSummary.totalVehicles > 0 ? parseFloat((((currentFleet.activeVehicles || 0) / fleetSummary.totalVehicles) * 100).toFixed(2)) : 0;
-    const inactiveVehicleDistribution = fleetSummary.totalVehicles > 0 ? parseFloat((((currentFleet.inactiveVehicles || 0) / fleetSummary.totalVehicles) * 100).toFixed(2)) : 0;
+    const activeVehicleDistribution =
+      fleetSummary.totalVehicles > 0
+        ? parseFloat(
+            (
+              ((currentFleet.activeVehicles || 0) /
+                fleetSummary.totalVehicles) *
+              100
+            ).toFixed(2),
+          )
+        : 0;
+    const inactiveVehicleDistribution =
+      fleetSummary.totalVehicles > 0
+        ? parseFloat(
+            (
+              ((currentFleet.inactiveVehicles || 0) /
+                fleetSummary.totalVehicles) *
+              100
+            ).toFixed(2),
+          )
+        : 0;
 
     const fleetDriverUtilizationBlock = {
       totalVehicles: {
@@ -233,19 +256,50 @@ export class OperationalOverviewService {
       },
     };
 
+    const getTrend = (curr: number, prev: number) => {
+      if (prev === 0 && curr > 0) return "+100%";
+      if (prev === 0 && curr === 0) return "Stable";
+      const diff = curr - prev;
+      const pct = (diff / prev) * 100;
+      if (Math.abs(pct) < 0.1) return "Stable";
+      return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
+    };
+
     return {
       summaryCards: {
-        totalDeliveriesTrips: fleetSummary.totalDeliveriesTrips,
-        deliveriesPerVehicle: deliveriesPerVehicle,
-        fleetUtilizationPercent: utilization,
-        driverEfficiency: driverEfficiencyOverall,
+        totalDeliveriesTrips: {
+          value: fleetSummary.totalDeliveriesTrips,
+          trend: getTrend(
+            fleetSummary.totalDeliveriesTrips,
+            previousFleetSummary.totalDeliveriesTrips,
+          ),
+        },
+        deliveriesPerVehicle: {
+          value: deliveriesPerVehicle,
+          trend: getTrend(deliveriesPerVehicle, previousDeliveriesPerVehicle),
+        },
+        fleetUtilizationPercent: {
+          value: utilization,
+          trend: getTrend(utilization, previousFleet.fleetUtilizationPercent || 0),
+        },
+        driverEfficiency: {
+          value: driverEfficiencyOverall,
+          trend: getTrend(
+            driverEfficiencyOverall,
+            previousFleet.driverEfficiencyOverall || 0,
+          ),
+        },
       },
       coreOperations: driverPerformanceBlock, // Using the same data for core operations
       operationalHealth: {
         healthScore: healthScore,
         fleetEfficiency: utilization,
         deliverySuccessRate: onTimePercent,
-        costEfficiency: 100, // Placeholder until benchmark is added
+        costEfficiency:
+          currentFleet.costEfficiency !== undefined &&
+          currentFleet.costEfficiency !== null
+            ? currentFleet.costEfficiency
+            : 100,
       },
       costEfficiency: costEfficiencyBlock,
       fleetDriverUtilization: fleetDriverUtilizationBlock,

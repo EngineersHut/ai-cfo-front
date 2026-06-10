@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum DashboardPeriodEnum {
   MONTHLY = 'monthly',
@@ -8,10 +9,20 @@ export enum DashboardPeriodEnum {
 }
 
 export class GetDashboardDto {
-
-
-  @ApiProperty({ enum: DashboardPeriodEnum })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ enum: DashboardPeriodEnum })
+  @IsOptional()
   @IsEnum(DashboardPeriodEnum)
-  period!: DashboardPeriodEnum;
+  period?: DashboardPeriodEnum;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  month?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  year?: number;
 }

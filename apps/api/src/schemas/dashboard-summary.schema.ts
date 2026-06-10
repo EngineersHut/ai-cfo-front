@@ -4,13 +4,35 @@ import { BaseDocument } from './base.schema';
 
 export type DashboardSummaryDocument = HydratedDocument<DashboardSummary>;
 
+@Schema({ _id: false })
+export class ExpenseCategory {
+  @Prop({ required: true })
+  name!: string;
+
+  @Prop({ required: true })
+  value!: number;
+
+  @Prop({ required: true })
+  percentage!: number;
+
+  @Prop({ type: String, default: "Completed" })
+  tags?: string;
+
+  @Prop({ type: String, default: "" })
+  note?: string;
+}
+const ExpenseCategorySchema = SchemaFactory.createForClass(ExpenseCategory);
+
 @Schema({ timestamps: true })
 export class DashboardSummary extends BaseDocument {
   @Prop({ required: true, type: String, ref: 'Company', index: true })
   companyId!: string;
 
-  @Prop({ required: true, enum: ['overall', 'weekly', 'monthly', 'quarterly', 'yearly'], default: 'overall', index: true })
-  periodType!: string;
+  @Prop({ type: Number, default: null, index: true })
+  month?: number | null;
+
+  @Prop({ type: Number, default: null, index: true })
+  year?: number | null;
 
   @Prop({ type: Date, default: null })
   periodStartDate?: Date | null;
@@ -32,6 +54,9 @@ export class DashboardSummary extends BaseDocument {
 
   @Prop({ type: Number, default: null })
   totalExpenses!: number | null;
+
+  @Prop({ type: [ExpenseCategorySchema], default: [] })
+  expenseBreakdown!: ExpenseCategory[];
 
   @Prop({ type: Number, default: null })
   cashBalance!: number | null;
@@ -56,6 +81,15 @@ export class DashboardSummary extends BaseDocument {
 
   @Prop({ type: Number, default: null })
   financialHealthScore!: number | null;
+
+  @Prop({ type: Number, default: null })
+  auditCompliance?: number | null;
+
+  @Prop({ type: Number, default: null })
+  growthPercent?: number | null;
+
+  @Prop({ type: Number, default: null })
+  equityHealth?: number | null;
 }
 
 export const DashboardSummarySchema = SchemaFactory.createForClass(DashboardSummary);

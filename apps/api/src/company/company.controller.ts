@@ -87,6 +87,15 @@ export class CompanyController {
     return this.companyService.softDelete(id, req.user._id || req.user.id);
   }
 
+  // || ---------------------- Hard Delete Company API ---------------------|| //
+  @Delete(":id/permanent")
+  @ApiOperation({
+    summary: "Permanently delete a company and all its data",
+  })
+  removePermanent(@Param("id") id: string, @Request() req: any) {
+    return this.companyService.hardDelete(id, req.user._id || req.user.id);
+  }
+
   // || ---------------------- Set Primary Company API ---------------------|| //
   @Patch(":id/primary")
   @ApiOperation({

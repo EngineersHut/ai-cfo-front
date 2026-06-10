@@ -9,6 +9,7 @@ import { FleetAnalytics, FleetAnalyticsSchema } from '../schemas/fleet-analytics
 import { GrowthAnalytics, GrowthAnalyticsSchema } from '../schemas/growth-analytics.schema';
 import { Transaction, TransactionSchema } from '../schemas/transaction.schema';
 import { Company, CompanySchema } from '../schemas/company.schema';
+import { BudgetPlanning, BudgetPlanningSchema } from '../schemas/budget-planning.schema';
 import { CompanyModule } from '../company/company.module';
 import { ReportSyncService } from './report-sync.service';
 import { ReportMapperService } from './mappers/report.mapper';
@@ -23,7 +24,8 @@ import { AiModule } from '../ai/ai.module';
       { name: DashboardSummary.name, schema: DashboardSummarySchema },
       { name: FleetAnalytics.name, schema: FleetAnalyticsSchema },
       { name: GrowthAnalytics.name, schema: GrowthAnalyticsSchema },
-      { name: Transaction.name, schema: TransactionSchema }
+      { name: Transaction.name, schema: TransactionSchema },
+      { name: BudgetPlanning.name, schema: BudgetPlanningSchema }
     ])
   ],
   controllers: [ReportController],

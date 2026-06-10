@@ -104,6 +104,13 @@ export class Report extends BaseDocument {
       costPerKm: number;
     };
   };
+
+  @Prop({ type: [Object], default: [] })
+  aiInsights?: Array<{
+    type?: string;
+    title: string;
+    description: string;
+  }>;
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);

@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum OperationalPeriodEnum {
   MONTHLY = 'monthly',
@@ -8,10 +9,20 @@ export enum OperationalPeriodEnum {
 }
 
 export class GetOperationalOverviewDto {
-
-
-  @ApiProperty({ enum: OperationalPeriodEnum })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ enum: OperationalPeriodEnum })
+  @IsOptional()
   @IsEnum(OperationalPeriodEnum)
-  period!: OperationalPeriodEnum;
+  period?: OperationalPeriodEnum;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  month?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  year?: number;
 }

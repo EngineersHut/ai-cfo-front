@@ -35,16 +35,11 @@ export class DashboardService {
 
   // || ---------------------- Get Dashboard Data function ---------------------|| //
   async getDashboard(company: any, queryDto: GetDashboardDto) {
-    const { period } = queryDto;
     const companyId = company._id.toString();
-
-    const typeQuery = {
-      companyId,
-      periodType: period.toLowerCase(),
-    };
+    const { month, year } = queryDto;
 
     if (company.industry === IndustryEnum.FLEET_MANAGEMENT) {
-      return this.getFleetDashboard(companyId, typeQuery);
+      return this.getFleetDashboard(companyId, month, year);
     }
 
     return {
@@ -53,17 +48,49 @@ export class DashboardService {
   }
 
   // || ---------------------- Get Fleet Dashboard Data function ---------------------|| //
-  private async getFleetDashboard(companyId: string, typeQuery: any) {
+  private async getFleetDashboard(
+    companyId: string,
+    month?: number,
+    year?: number,
+  ) {
+    // 1. Query for the single selected month / latest month
+    const currentQuery: any = { companyId };
+    if (year && month) {
+      currentQuery.year = year;
+      currentQuery.month = month;
+    }
+
+    // 2. Query for the trend (up to 12 months, ending at selected month/year)
+    const trendQuery: any = { companyId };
+    if (year && month) {
+      trendQuery.$or = [
+        { year: { $lt: year } },
+        { year: year, month: { $lte: month } },
+      ];
+    }
+
     // Inject Growth model locally for this function since we need client count
     const [dashboardData, fleetData, growthData] = await Promise.all([
-      this.dashboardModel.find(typeQuery).sort({ periodStartDate: -1 }).limit(12).exec(),
-      this.fleetModel.find(typeQuery).sort({ periodStartDate: -1 }).limit(1).exec(),
-      this.growthModel.find(typeQuery).sort({ periodStartDate: -1 }).limit(2).exec(),
+      this.dashboardModel
+        .find(trendQuery)
+        .sort({ year: -1, month: -1 })
+        .limit(12)
+        .exec(),
+      this.fleetModel
+        .find(trendQuery)
+        .sort({ year: -1, month: -1 })
+        .limit(2)
+        .exec(),
+      this.growthModel
+        .find(trendQuery)
+        .sort({ year: -1, month: -1 })
+        .limit(2)
+        .exec(),
     ]);
 
-    const currentDashboard = dashboardData[0] || {} as any;
-    const previousDashboard = dashboardData[1] || {} as any;
-    
+    const currentDashboard = dashboardData[0] || ({} as any);
+    const previousDashboard = dashboardData[1] || ({} as any);
+
     const summary = {
       revenue: currentDashboard.revenue || 0,
       grossProfit: currentDashboard.grossProfit || 0,
@@ -74,8 +101,8 @@ export class DashboardService {
       financialHealthScore: currentDashboard.financialHealthScore || 0,
     };
 
-    const currentFleet = fleetData[0] || {} as any;
-    
+    const currentFleet = fleetData[0] || ({} as any);
+
     const fleetSummary = {
       totalDeliveries: currentFleet.totalDeliveries || 0,
       fleetUtilization: currentFleet.fleetUtilizationPercent || 0,
@@ -91,67 +118,401 @@ export class DashboardService {
     const clientCount = currentGrowth.clientCount || 0;
 
     // Derived Calculations
-    const cashRunway = summary.totalExpenses > 0 ? parseFloat((summary.cashBalance / summary.totalExpenses).toFixed(2)) : 0;
-    
-    let growthPercent = 0;
-    if (previousDashboard.revenue && previousDashboard.revenue > 0) {
-      growthPercent = parseFloat((((summary.revenue - previousDashboard.revenue) / previousDashboard.revenue) * 100).toFixed(2));
-    } else if (summary.revenue > 0) {
-      growthPercent = 100; // 100% growth if no previous revenue
-    }
+    const cashRunway =
+      summary.totalExpenses > 0
+        ? parseFloat((summary.cashBalance / summary.totalExpenses).toFixed(2))
+        : 0;
+
+    const growthPercent =
+      currentDashboard.growthPercent !== undefined &&
+      currentDashboard.growthPercent !== null
+        ? currentDashboard.growthPercent
+        : 0;
 
     const costOfRevenue = summary.revenue - summary.grossProfit;
-    const costPerClient = clientCount > 0 ? parseFloat((summary.totalExpenses / clientCount).toFixed(2)) : 0;
-    
-    const equityHealth = summary.revenue > summary.totalExpenses ? 85 : 40;
-    const auditCompliance = 100; // Keeping 100 as default compliance for now unless we track audits
+    const costOfRevenuePercent =
+      summary.revenue > 0
+        ? parseFloat(((costOfRevenue / summary.revenue) * 100).toFixed(2))
+        : 0;
+    const costPerClient =
+      clientCount > 0
+        ? parseFloat((summary.totalExpenses / clientCount).toFixed(2))
+        : 0;
 
-    const driverEfficiencyOverall = 0; // Deprecated, keeping as 0 to not break frontend structure
+    const equityHealth =
+      currentDashboard.equityHealth !== undefined &&
+      currentDashboard.equityHealth !== null
+        ? currentDashboard.equityHealth
+        : summary.revenue > summary.totalExpenses
+          ? 85
+          : 40;
+    const auditCompliance =
+      currentDashboard.auditCompliance !== undefined &&
+      currentDashboard.auditCompliance !== null
+        ? currentDashboard.auditCompliance
+        : 100;
+
+    const driverEfficiencyOverall =
+      currentFleet.driverEfficiencyOverall !== undefined &&
+      currentFleet.driverEfficiencyOverall !== null
+        ? currentFleet.driverEfficiencyOverall
+        : 0;
+
+    const financialHealthScore =
+      currentDashboard.financialHealthScore !== undefined &&
+      currentDashboard.financialHealthScore !== null &&
+      currentDashboard.financialHealthScore > 0
+        ? currentDashboard.financialHealthScore
+        : (() => {
+            let score = 0;
+            if (summary.revenue > 0) {
+              const margin = summary.grossProfit / summary.revenue;
+              if (margin > 0.4) score += 40;
+              else if (margin > 0.2) score += 30;
+              else if (margin > 0) score += 20;
+
+              const expenseRatio = summary.totalExpenses / summary.revenue;
+              if (expenseRatio < 0.6) score += 30;
+              else if (expenseRatio < 0.9) score += 20;
+              else if (expenseRatio < 1.0) score += 10;
+            } else {
+              if (summary.cashBalance > 0) score += 30;
+            }
+
+            if (summary.cashBalance > 0) {
+              score += 20;
+            }
+            if (auditCompliance >= 90) {
+              score += 10;
+            }
+            return score > 0 ? score : 75;
+          })();
+
+    const employeeCount = currentGrowth.employeeCount || 0;
+    const costPerEmployee =
+      employeeCount > 0
+        ? parseFloat((summary.totalExpenses / employeeCount).toFixed(2))
+        : 0;
+
+    const prevRevenue = previousDashboard.revenue || 0;
+    const prevGrossProfit = previousDashboard.grossProfit || 0;
+    const prevCostOfRevenue = prevRevenue - prevGrossProfit;
+    const prevCostOfRevenuePercent =
+      prevRevenue > 0
+        ? parseFloat(((prevCostOfRevenue / prevRevenue) * 100).toFixed(2))
+        : 0;
+
+    const previousFleet = fleetData[1] || ({} as any);
+    const prevTotalDeliveries = previousFleet.totalDeliveries || 0;
+    const prevTotalVehicles = previousFleet.totalVehicles || 0;
+    const prevDeliveriesPerVehicle =
+      prevTotalVehicles > 0
+        ? parseFloat((prevTotalDeliveries / prevTotalVehicles).toFixed(2))
+        : 0;
+    const prevFleetUtilization = previousFleet.fleetUtilizationPercent || 0;
+    const prevDriverEfficiency = previousFleet.driverEfficiencyOverall || 0;
+
+    const prevTotalExpenses = previousDashboard.totalExpenses || 0;
+    const prevCashRunway =
+      prevTotalExpenses > 0
+        ? parseFloat(
+            ((previousDashboard.cashBalance || 0) / prevTotalExpenses).toFixed(
+              2,
+            ),
+          )
+        : 0;
+    const prevGrowthPercent = previousDashboard.growthPercent || 0;
+    const prevEbitda = previousDashboard.ebitda || 0;
+    const prevOperatingCashFlow = previousDashboard.netCashFlow || 0;
+
+    const previousGrowth = growthData[1] || ({} as any);
+    const prevClientCount = previousGrowth.clientCount || 0;
+    const prevCostPerClient =
+      prevClientCount > 0
+        ? parseFloat(
+            ((previousDashboard.totalExpenses || 0) / prevClientCount).toFixed(
+              2,
+            ),
+          )
+        : 0;
+
+    const prevEmployeeCount = previousGrowth.employeeCount || 0;
+    const prevCostPerEmployee =
+      prevEmployeeCount > 0
+        ? parseFloat(
+            (
+              (previousDashboard.totalExpenses || 0) / prevEmployeeCount
+            ).toFixed(2),
+          )
+        : 0;
+
+    const prevOperatingExpenseRatio =
+      prevRevenue > 0
+        ? parseFloat(
+            ((previousDashboard.totalExpenses || 0) / prevRevenue).toFixed(2),
+          )
+        : 0;
+    const prevVariableCost = prevCostOfRevenue > 0 ? prevCostOfRevenue : 0;
+    const prevFixedCost =
+      (previousDashboard.totalExpenses || 0) - prevVariableCost > 0
+        ? (previousDashboard.totalExpenses || 0) - prevVariableCost
+        : 0;
+
+    const getTrend = (curr: number, prev: number) => {
+      if (prev === 0 && curr > 0) return "+100%";
+      if (prev === 0 && curr === 0) return "Stable";
+      const diff = curr - prev;
+      const pct = (diff / prev) * 100;
+      if (Math.abs(pct) < 0.1) return "Stable";
+      return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
+    };
+
+    const variableCost = costOfRevenue > 0 ? costOfRevenue : 0;
+    const fixedCost =
+      summary.totalExpenses - variableCost > 0
+        ? summary.totalExpenses - variableCost
+        : 0;
+
+    const rawInsights = currentGrowth.insights || [];
+
+    const resolvedMonth =
+      currentDashboard.month || month || new Date().getMonth() + 1;
+    const resolvedYear =
+      currentDashboard.year || year || new Date().getFullYear();
+
+    const collection = this.dashboardModel.db.collection(
+      `company_${companyId}`,
+    );
+    const activeReports = await collection
+      .find({
+        collectionType: "report",
+        deletedAt: null,
+        month: resolvedMonth,
+        year: resolvedYear,
+      })
+      .toArray();
+
+    const aiInsightsList = activeReports.flatMap((report: any) => {
+      const insights = report.aiInsights || [];
+      if (insights.length === 0) {
+        return [
+          {
+            title:
+              report.reportName || report.reportType || "Uploaded Document",
+            description: "Report data has been successfully processed.",
+          },
+        ];
+      }
+      return insights.map((ins: any) => ({
+        title:
+          ins.title ||
+          report.reportName ||
+          report.reportType ||
+          "Uploaded Document",
+        description: ins.description,
+      }));
+    });
+
+    const cfoInsights = rawInsights.map((ins: any) => ({
+      title: ins.title,
+      description: ins.description,
+    }));
+
+    const growthTrendValues = dashboardData
+      .map((d: any) => d.growthPercent || 0)
+      .filter((g: number) => g > 0);
+    const avgGrowth =
+      growthTrendValues.length > 0
+        ? growthTrendValues.reduce((sum: number, val: number) => sum + val, 0) /
+          growthTrendValues.length
+        : 0;
+    const targetValue =
+      avgGrowth > 0 ? parseFloat((avgGrowth * 1.25).toFixed(1)) : 5.0;
+
+    const percentageAchieved =
+      targetValue > 0 ? Math.round((growthPercent / targetValue) * 100) : 0;
+
+    const forecastVsReality = {
+      percentageAchieved: Math.min(percentageAchieved, 100),
+      currentValue: growthPercent,
+      targetValue: targetValue,
+    };
 
     return {
       summaryCards: {
-        totalDeliveries: fleetSummary.totalDeliveries,
-        deliveriesPerVehicle:
-          fleetSummary.totalVehicles > 0
-            ? parseFloat(
-                (
-                  fleetSummary.totalDeliveries / fleetSummary.totalVehicles
-                ).toFixed(2),
-              )
-            : 0,
-        fleetUtilization: fleetSummary.fleetUtilization,
-        driverEfficiency: driverEfficiencyOverall,
-        cashRunway: cashRunway,
-        growthPercent: growthPercent,
-        ebitda: summary.ebitda,
-        operatingCashFlow: summary.operatingCashFlow,
+        totalDeliveries: {
+          value: fleetSummary.totalDeliveries,
+          trend: getTrend(fleetSummary.totalDeliveries, prevTotalDeliveries),
+        },
+        deliveriesPerVehicle: {
+          value:
+            fleetSummary.totalVehicles > 0
+              ? parseFloat(
+                  (
+                    fleetSummary.totalDeliveries / fleetSummary.totalVehicles
+                  ).toFixed(2),
+                )
+              : 0,
+          trend: getTrend(
+            fleetSummary.totalVehicles > 0
+              ? fleetSummary.totalDeliveries / fleetSummary.totalVehicles
+              : 0,
+            prevDeliveriesPerVehicle,
+          ),
+        },
+        fleetUtilization: {
+          value: fleetSummary.fleetUtilization,
+          trend: getTrend(fleetSummary.fleetUtilization, prevFleetUtilization),
+        },
+        driverEfficiency: {
+          value: driverEfficiencyOverall,
+          trend: getTrend(driverEfficiencyOverall, prevDriverEfficiency),
+        },
+        cashRunway: {
+          value: cashRunway,
+          trend: getTrend(cashRunway, prevCashRunway),
+        },
+        growthPercent: {
+          value: growthPercent,
+          trend: getTrend(growthPercent, prevGrowthPercent),
+        },
+        ebitda: {
+          value: summary.ebitda,
+          trend: getTrend(summary.ebitda, prevEbitda),
+        },
+        operatingCashFlow: {
+          value: summary.operatingCashFlow,
+          trend: getTrend(summary.operatingCashFlow, prevOperatingCashFlow),
+        },
       },
-      revenueTrend: dashboardData.reverse().map((curr) => ({
-        date: curr.periodStartDate || new Date(),
-        revenue: curr.revenue || 0,
-      })),
+      revenueTrend: dashboardData.reverse().map((curr) => {
+        const dateObj =
+          curr.year && curr.month
+            ? new Date(curr.year, curr.month - 1, 1)
+            : new Date();
+        return {
+          month: dateObj.toLocaleString("default", { month: "short" }),
+          date: dateObj,
+          revenue: curr.revenue || 0,
+          profit: curr.netProfit || 0,
+        };
+      }),
       healthMeter: {
-        score: summary.financialHealthScore || 0,
+        score: financialHealthScore,
         equityHealth: equityHealth,
         auditCompliance: auditCompliance,
       },
       costEfficiency: {
-        totalExpenses: summary.totalExpenses,
-        costOfRevenue: costOfRevenue > 0 ? costOfRevenue : 0,
-        costPerClient: costPerClient,
-        operatingExpenseRatio:
-          summary.revenue > 0
-            ? parseFloat((summary.totalExpenses / summary.revenue).toFixed(2))
-            : 0,
+        totalExpenses: {
+          value: summary.totalExpenses,
+          trend: getTrend(summary.totalExpenses, prevTotalExpenses),
+        },
+        costOfRevenue: {
+          value: costOfRevenuePercent > 0 ? costOfRevenuePercent : 0,
+          trend: getTrend(costOfRevenuePercent, prevCostOfRevenuePercent),
+        },
+        costPerClient: {
+          value: costPerClient,
+          trend: getTrend(costPerClient, prevCostPerClient),
+        },
+        operatingExpenseRatio: {
+          value:
+            summary.revenue > 0
+              ? parseFloat((summary.totalExpenses / summary.revenue).toFixed(2))
+              : 0,
+          trend: getTrend(
+            summary.revenue > 0 ? summary.totalExpenses / summary.revenue : 0,
+            prevOperatingExpenseRatio,
+          ),
+        },
+        fixedCost: {
+          value: fixedCost,
+          trend: getTrend(fixedCost, prevFixedCost),
+        },
+        variableCost: {
+          value: variableCost,
+          trend: getTrend(variableCost, prevVariableCost),
+        },
+        costPerEmployee: {
+          value: costPerEmployee,
+          trend: getTrend(costPerEmployee, prevCostPerEmployee),
+        },
       },
-      fleetAnalytics: {
-        totalVehicles: fleetSummary.totalVehicles,
-        activeVehicles: fleetSummary.activeVehicles,
-        inactiveVehicles: fleetSummary.inactiveVehicles,
-        totalTrips: fleetSummary.totalTrips,
-        completedTrips: fleetSummary.completedTrips,
-        cancelledTrips: fleetSummary.cancelledTrips,
-      },
+      aiInsights: aiInsightsList,
+      cfoInsights: cfoInsights,
+      forecastVsReality: forecastVsReality,
     };
+  }
+
+  // || ---------------------- Export Cost Efficiency CSV ---------------------|| //
+  async exportCostEfficiencyCsv(
+    company: any,
+    queryDto: GetDashboardDto,
+  ): Promise<string> {
+    const dashboardData = await this.getDashboard(company, queryDto);
+
+    // We only need the cost efficiency data, but let's safely fall back
+    const costEfficiency = (dashboardData as any).costEfficiency;
+    if (!costEfficiency) {
+      throw new Error(
+        "Cost Efficiency data is not available for this industry yet.",
+      );
+    }
+
+    const {
+      totalExpenses,
+      costOfRevenue,
+      costPerClient,
+      operatingExpenseRatio,
+      fixedCost,
+      variableCost,
+      costPerEmployee,
+    } = costEfficiency;
+
+    // Format Values
+    const formatCurrency = (val: any) =>
+      val !== undefined && val !== null ? `$${val.toLocaleString()}` : "N/A";
+    const formatPercent = (val: any) =>
+      val !== undefined && val !== null ? `${val}%` : "N/A";
+    const formatTrend = (trend: any) => (trend ? trend : "N/A");
+
+    const formatIndustry = (industryStr: string) => {
+      if (!industryStr) return "N/A";
+      return industryStr
+        .replace(/[-_]/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    };
+
+    // Define CSV Structure with nice headers
+    let csv = `\n`;
+    csv += `"**************************************************"\n`;
+    csv += `"              AI-CFO DASHBOARD                  "\n`;
+    csv += `"           COST & EFFICIENCY REPORT               "\n`;
+    csv += `"**************************************************"\n`;
+    csv += `\n`;
+    csv += `Workspace:,${company.name || "N/A"}\n`;
+    csv += `Industry:,${formatIndustry(company.industry)}\n`;
+    csv += `Generated On:,${new Date().toLocaleString()}\n`;
+    csv += `\n`; // Empty line
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`; // Empty line
+
+    // Main Table Headers
+    csv += `Metric,Value,Trend (vs Prior)\n`;
+
+    // Append rows
+    csv += `Total Expenses,"${formatCurrency(totalExpenses?.value)}","${formatTrend(totalExpenses?.trend)}"\n`;
+    csv += `Cost % of Revenue,"${formatPercent(costOfRevenue?.value)}","${formatTrend(costOfRevenue?.trend)}"\n`;
+    csv += `Fixed Cost,"${formatCurrency(fixedCost?.value)}","${formatTrend(fixedCost?.trend)}"\n`;
+    csv += `Variable Cost,"${formatCurrency(variableCost?.value)}","${formatTrend(variableCost?.trend)}"\n`;
+    csv += `Cost per Client,"${formatCurrency(costPerClient?.value)}","${formatTrend(costPerClient?.trend)}"\n`;
+    csv += `Cost per Employee,"${formatCurrency(costPerEmployee?.value)}","${formatTrend(costPerEmployee?.trend)}"\n`;
+    csv += `Operating Expense Ratio,"${formatPercent(operatingExpenseRatio?.value)}","${formatTrend(operatingExpenseRatio?.trend)}"\n`;
+
+    return csv;
   }
 }
