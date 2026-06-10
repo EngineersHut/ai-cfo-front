@@ -9,8 +9,11 @@ export class FleetAnalytics extends BaseDocument {
   @Prop({ required: true, type: String, ref: 'Company', index: true })
   companyId!: string;
 
-  @Prop({ required: true, enum: ['overall', 'weekly', 'monthly', 'quarterly', 'yearly'], default: 'overall', index: true })
-  periodType!: string;
+  @Prop({ type: Number, default: null, index: true })
+  month?: number | null;
+
+  @Prop({ type: Number, default: null, index: true })
+  year?: number | null;
 
   @Prop({ type: Date, default: null })
   periodStartDate?: Date | null;
@@ -59,6 +62,12 @@ export class FleetAnalytics extends BaseDocument {
 
   @Prop({ type: Number, default: null })
   onTimePercent!: number | null;
+
+  @Prop({ type: Number, default: null })
+  driverEfficiencyOverall?: number | null;
+
+  @Prop({ type: Number, default: null })
+  costEfficiency?: number | null;
 }
 
 export const FleetAnalyticsSchema = SchemaFactory.createForClass(FleetAnalytics);
