@@ -15,7 +15,20 @@ interface AIInsightItem {
 
 export default function AIInsights({ insights }: { insights?: AIInsightItem[] }) {
   const { aiInsights: dashboardInsights } = useSelector((state) => state.dashboard);
-  const activeInsights = insights || dashboardInsights || [];
+  const rawInsights = insights || dashboardInsights || [];
+
+  const activeInsights = rawInsights.map((item, index) => {
+    const colors = [
+      { color: '#2563eb', bgColor: '#eff6ff', textColor: '#1d4ed8' },
+      { color: '#f59e0b', bgColor: '#fffbeb', textColor: '#b45309' },
+      { color: '#10b981', bgColor: '#ecfdf5', textColor: '#047857' }
+    ];
+    const colorSet = colors[index % colors.length];
+    return {
+      ...colorSet,
+      ...item
+    };
+  });
 
   return (
     <div className="w-full h-auto md:h-[174px] bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden pb-4 md:pb-0">

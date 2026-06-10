@@ -11,6 +11,7 @@ import { CompanyStateProps } from './company';
 import { ReportStateProps, ReportTypeEnum, Report } from './report';
 import { OperationalStateProps } from './operational';
 import { GrowthStateProps } from './growth';
+import { BudgetStateProps } from './budget';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
@@ -83,6 +84,7 @@ export interface DefaultRootStateProps {
   report: ReportStateProps;
   operational: OperationalStateProps;
   growth: GrowthStateProps;
+  budget: BudgetStateProps;
 }
 
 export interface ColorProps {

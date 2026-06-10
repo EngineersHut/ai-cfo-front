@@ -58,19 +58,19 @@ export const mapFromApiKeys = (data: any) => {
 
 interface DashboardState {
   timeframe: string;
-  revenueData: typeof revenueData;
+  revenueData: any[];
   healthData: typeof healthData;
   healthScore: number;
   auditCompliance: number;
   equityHealth: number;
-  aiInsights: typeof aiInsightsData;
+  aiInsights: any[];
   cfoInsights: { title: string; description: string }[];
   forecastVsReality: {
     percentageAchieved: number;
     currentValue: number;
     targetValue: number;
   };
-  costEfficiency: typeof detailedCostData;
+  costEfficiency: any;
   kpiStats: {
     totalTrips: { value: string; trend: string; sub: string };
     delPerVeh: { value: string; unit: string; trend: string; sub: string };
@@ -141,213 +141,15 @@ const slice = createSlice({
       const apiData = action.payload;
       if (!apiData) return;
 
-      const summary = apiData.summaryCards || {};
-      const health = apiData.healthMeter || {};
-      const cost = apiData.costEfficiency || {};
-
-      state.rawSummary = summary;
-
-      // Helper function to format values beautifully
-      const formatVal = (val: any, format: 'currency' | 'percent' | 'number') => {
-        if (val === undefined || val === null) return '';
-        const num = Number(val);
-        if (isNaN(num)) return String(val);
-        if (format === 'currency') {
-          if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
-          return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0
-          }).format(num);
-        }
-        if (format === 'percent') {
-          // If it's a ratio <= 1 and not 0, multiply by 100
-          if (num > 0 && num <= 1) {
-            return `${(num * 100).toFixed(1)}%`;
-          }
-          return `${num.toFixed(1)}%`;
-        }
-        return new Intl.NumberFormat('en-US').format(num);
-      };
-
-      // Helpers to support both flat values and nested { value, trend } objects
-      const getVal = (obj: any) => {
-        if (obj === undefined || obj === null) return undefined;
-        if (typeof obj === 'object' && obj.value !== undefined) return obj.value;
-        return obj;
-      };
-
-      const getTrend = (obj: any) => {
-        if (obj === undefined || obj === null) return undefined;
-        if (typeof obj === 'object' && obj.trend !== undefined) return obj.trend;
-        return undefined;
-      };
-
-      const valTotalTrips = getVal(summary.totalDeliveries);
-      const trendTotalTrips = getTrend(summary.totalDeliveries) || (summary.growthPercent !== undefined ? `${getVal(summary.growthPercent) >= 0 ? '+' : ''}${getVal(summary.growthPercent)}%` : undefined);
-
-      const valDelPerVeh = getVal(summary.deliveriesPerVehicle);
-      const trendDelPerVeh = getTrend(summary.deliveriesPerVehicle);
-
-      const valFleetUtil = getVal(summary.fleetUtilization);
-      const trendFleetUtil = getTrend(summary.fleetUtilization);
-
-      const valDriverEff = getVal(summary.driverEfficiency);
-      const trendDriverEff = getTrend(summary.driverEfficiency);
-
-      const valCashRunway = getVal(summary.cashRunway);
-      const trendCashRunway = getTrend(summary.cashRunway);
-
-      const valGrowth = getVal(summary.growthPercent);
-      const trendGrowth = getTrend(summary.growthPercent);
-
-      const valEbitda = getVal(summary.ebitda);
-      const trendEbitda = getTrend(summary.ebitda);
-
-      const valCashflow = getVal(summary.operatingCashFlow);
-      const trendCashflow = getTrend(summary.operatingCashFlow);
-
-      // 1. Update KPI stats
-      state.kpiStats = {
-        totalTrips: {
-          value: valTotalTrips !== undefined ? String(valTotalTrips) : state.kpiStats.totalTrips.value,
-          trend: trendTotalTrips !== undefined ? trendTotalTrips : state.kpiStats.totalTrips.trend,
-          sub: state.kpiStats.totalTrips.sub
-        },
-        delPerVeh: {
-          value: valDelPerVeh !== undefined ? String(valDelPerVeh) : state.kpiStats.delPerVeh.value,
-          unit: state.kpiStats.delPerVeh.unit,
-          trend: trendDelPerVeh !== undefined ? trendDelPerVeh : state.kpiStats.delPerVeh.trend,
-          sub: state.kpiStats.delPerVeh.sub
-        },
-        fleetUtil: {
-          value: valFleetUtil !== undefined ? `${valFleetUtil}%` : state.kpiStats.fleetUtil.value,
-          trend: trendFleetUtil !== undefined ? trendFleetUtil : state.kpiStats.fleetUtil.trend,
-          isDown: state.kpiStats.fleetUtil.isDown,
-          sub: state.kpiStats.fleetUtil.sub
-        },
-        driverEff: {
-          value: valDriverEff !== undefined ? `${valDriverEff}%` : state.kpiStats.driverEff.value,
-          trend: trendDriverEff !== undefined ? trendDriverEff : state.kpiStats.driverEff.trend,
-          sub: state.kpiStats.driverEff.sub
-        },
-        cashRunway: {
-          value: valCashRunway !== undefined ? `${valCashRunway} months` : state.kpiStats.cashRunway.value,
-          trend: trendCashRunway !== undefined ? trendCashRunway : state.kpiStats.cashRunway.trend,
-          sub: state.kpiStats.cashRunway.sub
-        },
-        growth: {
-          value: valGrowth !== undefined ? `${valGrowth}%` : state.kpiStats.growth.value,
-          trend: trendGrowth !== undefined ? trendGrowth : state.kpiStats.growth.trend,
-          sub: state.kpiStats.growth.sub
-        },
-        ebitda: {
-          value: valEbitda !== undefined ? `$${valEbitda.toLocaleString()}` : state.kpiStats.ebitda.value,
-          trend: trendEbitda !== undefined ? trendEbitda : state.kpiStats.ebitda.trend,
-          isDown: state.kpiStats.ebitda.isDown,
-          sub: state.kpiStats.ebitda.sub
-        },
-        cashflow: {
-          value: valCashflow !== undefined ? `$${valCashflow.toLocaleString()}` : state.kpiStats.cashflow.value,
-          unit: state.kpiStats.cashflow.unit,
-          trend: trendCashflow !== undefined ? trendCashflow : state.kpiStats.cashflow.trend,
-          sub: state.kpiStats.cashflow.sub
-        }
-      };
-
-      // 2. Update Revenue Trend
-      if (Array.isArray(apiData.revenueTrend) && apiData.revenueTrend.length > 0) {
-        state.revenueData = apiData.revenueTrend.map((item: any) => {
-          let name = item.name;
-          if (!name && item.date) {
-            try {
-              const d = new Date(item.date);
-              name = d.toLocaleDateString('en-US', { month: 'short' });
-            } catch (e) {
-              name = item.date;
-            }
-          }
-          return {
-            name: name || 'Month',
-            revenue: item.revenue || 0,
-            profit: item.profit || item.netProfit || (item.revenue * 0.4)
-          };
-        });
-      }
-
-      // 3. Update Health Score
-      if (health.score !== undefined) {
-        state.healthScore = health.score;
-      }
-      if (health.auditCompliance !== undefined) {
-        state.auditCompliance = health.auditCompliance;
-      }
-      if (health.equityHealth !== undefined) {
-        state.equityHealth = health.equityHealth;
-      }
-
-      // 4. Update Cost & Efficiency summary cards
-      state.costEfficiency = {
-        ...state.costEfficiency,
-        summary: [
-          { id: 'totalExpenses', label: 'Total Expenses', value: cost.totalExpenses !== undefined ? formatVal(cost.totalExpenses, 'currency') : state.costEfficiency.summary[0].value, trend: state.costEfficiency.summary[0].trend, isUp: state.costEfficiency.summary[0].isUp },
-          { id: 'costRevenue', label: 'Cost of Revenue', value: cost.costOfRevenue !== undefined ? formatVal(cost.costOfRevenue, 'percent') : state.costEfficiency.summary[1].value, trend: state.costEfficiency.summary[1].trend, isUp: state.costEfficiency.summary[1].isUp },
-          { id: 'costClient', label: 'Cost per Client', value: cost.costPerClient !== undefined ? formatVal(cost.costPerClient, 'currency') : state.costEfficiency.summary[2].value, trend: state.costEfficiency.summary[2].trend, isUp: state.costEfficiency.summary[2].isUp },
-          { id: 'opExpRatio', label: 'Operating Expense Ratio', value: cost.operatingExpenseRatio !== undefined ? formatVal(cost.operatingExpenseRatio, 'percent') : state.costEfficiency.summary[3].value, trend: state.costEfficiency.summary[3].trend, isUp: state.costEfficiency.summary[3].isUp }
-        ],
-        breakdown: state.costEfficiency.breakdown.map((item: any) => {
-          if (item.metric === 'Total Expenses' && cost.totalExpenses !== undefined) {
-            return { ...item, value: formatVal(cost.totalExpenses, 'currency') };
-          }
-          if (item.metric === 'Cost % of Revenue' && cost.costOfRevenue !== undefined) {
-            return { ...item, value: formatVal(cost.costOfRevenue, 'percent') };
-          }
-          if (item.metric === 'Fixed Cost' && cost.fixedCost !== undefined) {
-            return { ...item, value: formatVal(cost.fixedCost, 'currency') };
-          }
-          if (item.metric === 'Variable Cost' && cost.variableCost !== undefined) {
-            return { ...item, value: formatVal(cost.variableCost, 'currency') };
-          }
-          return item;
-        }),
-        unitEconomics: state.costEfficiency.unitEconomics.map((item: any) => {
-          if (item.metric === 'Cost per Client' && cost.costPerClient !== undefined) {
-            return { ...item, value: formatVal(cost.costPerClient, 'currency') };
-          }
-          if (item.metric === 'Cost per Employee' && cost.costPerEmployee !== undefined) {
-            return { ...item, value: formatVal(cost.costPerEmployee, 'currency') };
-          }
-          if (item.metric === 'Operating Expense Ratio' && cost.operatingExpenseRatio !== undefined) {
-            return { ...item, value: formatVal(cost.operatingExpenseRatio, 'percent') };
-          }
-          return item;
-        })
-      };
-
-      // 5. Update CFO / AI Insights
-      if (Array.isArray(apiData.cfoInsights) && apiData.cfoInsights.length > 0) {
-        state.cfoInsights = apiData.cfoInsights;
-      }
-      if (Array.isArray(apiData.aiInsights) && apiData.aiInsights.length > 0) {
-        state.aiInsights = apiData.aiInsights.map((insight: any, index: number) => {
-          const colors = [
-            { color: '#2563eb', bgColor: '#eff6ff', textColor: '#1d4ed8' },
-            { color: '#f59e0b', bgColor: '#fffbeb', textColor: '#b45309' },
-            { color: '#10b981', bgColor: '#ecfdf5', textColor: '#047857' }
-          ];
-          const colorSet = colors[index % colors.length];
-          return {
-            id: insight.id || index + 1,
-            title: insight.title || 'Insight',
-            percentage: insight.percentage || '',
-            description: insight.description,
-            ...colorSet
-          };
-        });
-      }
-      if (apiData.forecastVsReality) {
-        state.forecastVsReality = apiData.forecastVsReality;
-      }
+      state.rawSummary = apiData.summaryCards || {};
+      state.revenueData = apiData.revenueTrend || [];
+      state.healthScore = apiData.healthMeter?.score ?? 84;
+      state.auditCompliance = apiData.healthMeter?.auditCompliance ?? 98;
+      state.equityHealth = apiData.healthMeter?.equityHealth ?? 84;
+      state.costEfficiency = apiData.costEfficiency || {};
+      state.cfoInsights = apiData.cfoInsights || [];
+      state.forecastVsReality = apiData.forecastVsReality || {};
+      state.aiInsights = apiData.aiInsights || [];
     }
   }
 });

@@ -159,19 +159,40 @@ export default function GrowthOverview() {
             if (format === 'percent') return '0%';
             return '0';
         }
-        const num = Number(val);
-        if (isNaN(num)) return String(val);
+
+        let cleanVal = val;
+        if (typeof val === 'object' && val !== null) {
+            if (val.value !== undefined) {
+                cleanVal = val.value;
+            }
+        }
+
+        const num = Number(cleanVal);
+        if (isNaN(num)) return String(cleanVal);
 
         if (format === 'currency') {
-            return `$${num.toLocaleString()}`;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
         }
         if (format === 'percent') {
+            // If it's a ratio <= 1 and not 0, multiply by 100
+            if (num > 0 && num <= 1) {
+                return `${(num * 100).toFixed(1)}%`;
+            }
             return `${num.toFixed(1)}%`;
         }
         return num.toLocaleString();
     };
 
     const getTrendValue = (key: string) => {
+        const val = data?.cards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend;
+        }
         if (key === 'monthlyGrowthPercent') return '+12.5%';
         if (key === 'quarterlyGrowthPercent') return '+1.5%';
         if (key === 'yearlyGrowthPercent') return '-1.2%';
@@ -179,6 +200,10 @@ export default function GrowthOverview() {
     };
 
     const getIsDown = (key: string) => {
+        const val = data?.cards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend.includes('-');
+        }
         if (key === 'yearlyGrowthPercent') return true;
         return false;
     };

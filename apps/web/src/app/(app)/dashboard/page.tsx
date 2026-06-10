@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
 
@@ -106,6 +106,25 @@ export default function ReportPage() {
 
   const dispatch = useDispatch();
   const { kpiStats, rawSummary, revenueData: reduxRevenueData, healthScore, auditCompliance, equityHealth, cfoInsights, forecastVsReality } = useSelector((state) => state.dashboard);
+
+  const chartData = useMemo(() => {
+    return (reduxRevenueData || []).map((item: any) => {
+      let name = item.name;
+      if (!name && item.date) {
+        try {
+          const d = new Date(item.date);
+          name = d.toLocaleDateString('en-US', { month: 'short' });
+        } catch (e) {
+          name = item.date;
+        }
+      }
+      return {
+        name: name || 'Month',
+        revenue: item.revenue || 0,
+        profit: item.profit || item.netProfit || (item.revenue * 0.4)
+      };
+    });
+  }, [reduxRevenueData]);
 
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
   const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
@@ -407,7 +426,7 @@ export default function ReportPage() {
               <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
                 <div className="flex-1 w-full relative p-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={reduxRevenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />

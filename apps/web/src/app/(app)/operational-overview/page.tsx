@@ -77,6 +77,7 @@ export default function OperationalOverview() {
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
+    console.log("DEBUG operational data:", data);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
     const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
@@ -134,18 +135,45 @@ export default function OperationalOverview() {
             return '0';
         }
 
-        const num = Number(val);
-        if (isNaN(num)) return String(val);
+        let cleanVal = val;
+        if (typeof val === 'object' && val !== null) {
+            if (val.value !== undefined) {
+                cleanVal = val.value;
+            }
+        }
+
+        const num = Number(cleanVal);
+        if (isNaN(num)) return String(cleanVal);
 
         if (format === 'percent') {
+            // If it's a ratio <= 1 and not 0, multiply by 100
+            if (num > 0 && num <= 1) {
+                return `${(num * 100).toFixed(1)}%`;
+            }
             return `${num.toFixed(1)}%`;
         }
         return num.toLocaleString();
     };
 
+    const getKpiTrend = (key: string, defaultTrend: string) => {
+        const val = data?.summaryCards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend;
+        }
+        return defaultTrend;
+    };
+
     const getIsDown = (key: string) => {
         if (key === 'activeTickets' || key === 'resolutionTime' || key === 'reviewTurnaround' || key === 'settlementTime') return true;
         return false;
+    };
+
+    const getKpiIsDown = (key: string, defaultIsDown: boolean) => {
+        const val = data?.summaryCards?.[key];
+        if (val && typeof val === 'object' && val.trend !== undefined) {
+            return val.trend.includes('-');
+        }
+        return defaultIsDown;
     };
 
     const currentCoreConfigs = OPERATIONAL_CORE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_CORE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
@@ -395,8 +423,8 @@ export default function OperationalOverview() {
                             key={i}
                             label={metric.label}
                             value={getKpiValue(metric.key, metric.format)}
-                            trend={metric.trend}
-                            isDown={getIsDown(metric.key)}
+                            trend={getKpiTrend(metric.key, metric.trend)}
+                            isDown={getKpiIsDown(metric.key, getIsDown(metric.key))}
                             icon={getIcon(metric.icon)}
                             sub={metric.sub}
                             noTrendIcon={metric.noTrendIcon}

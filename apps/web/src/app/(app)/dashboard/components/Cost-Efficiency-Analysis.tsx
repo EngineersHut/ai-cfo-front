@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useSelector } from '@/store';
 import { useDashboardSettings } from '@/context/DashboardContext';
+import { detailedCostData } from '@/data/dashboardData';
 
 const IconMap: any = {
     ShieldCheck: ShieldCheck,
@@ -20,9 +21,124 @@ const IconMap: any = {
 };
 
 export default function CostEfficiencyAnalysis() {
-    const { costEfficiency, cfoInsights } = useSelector((state) => state.dashboard);
-    const { summary, breakdown, unitEconomics, insights } = costEfficiency;
+    const { costEfficiency: rawCost, cfoInsights } = useSelector((state) => state.dashboard);
     const { visibility } = useDashboardSettings();
+ 
+    // Dynamic formatter that safely extracts nested object values
+    const formatVal = (val: any, format: 'currency' | 'percent' | 'number') => {
+        if (val === undefined || val === null) return '';
+        
+        let cleanVal = val;
+        if (typeof val === 'object' && val !== null) {
+            if (val.value !== undefined) {
+                cleanVal = val.value;
+            } else {
+                return '';
+            }
+        }
+
+        const num = Number(cleanVal);
+        if (isNaN(num)) return String(cleanVal);
+        if (format === 'currency') {
+            if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+        if (format === 'percent') {
+            if (num > 0 && num <= 1) {
+                return `${(num * 100).toFixed(1)}%`;
+            }
+            return `${num.toFixed(1)}%`;
+        }
+        return new Intl.NumberFormat('en-US').format(num);
+    };
+
+    const getTrend = (val: any, fallback: string) => {
+        if (val === undefined || val === null) return fallback;
+        if (typeof val === 'object' && val.trend !== undefined) {
+            return val.trend;
+        }
+        return fallback;
+    };
+
+    const getIsUp = (val: any, fallback: boolean) => {
+        if (val === undefined || val === null) return fallback;
+        if (typeof val === 'object' && val.trend !== undefined) {
+            return !val.trend.includes('-');
+        }
+        return fallback;
+    };
+ 
+    const summary = [
+        { 
+            id: 'totalExpenses', 
+            label: 'Total Expenses', 
+            value: rawCost?.totalExpenses !== undefined ? formatVal(rawCost.totalExpenses, 'currency') : detailedCostData.summary[0].value, 
+            trend: getTrend(rawCost?.totalExpenses, detailedCostData.summary[0].trend), 
+            isUp: getIsUp(rawCost?.totalExpenses, detailedCostData.summary[0].isUp) 
+        },
+        { 
+            id: 'costRevenue', 
+            label: 'Cost of Revenue', 
+            value: rawCost?.costOfRevenue !== undefined ? formatVal(rawCost.costOfRevenue, 'percent') : detailedCostData.summary[1].value, 
+            trend: getTrend(rawCost?.costOfRevenue, detailedCostData.summary[1].trend), 
+            isUp: getIsUp(rawCost?.costOfRevenue, detailedCostData.summary[1].isUp) 
+        },
+        { 
+            id: 'costClient', 
+            label: 'Cost per Client', 
+            value: rawCost?.costPerClient !== undefined ? formatVal(rawCost.costPerClient, 'currency') : detailedCostData.summary[2].value, 
+            trend: getTrend(rawCost?.costPerClient, detailedCostData.summary[2].trend), 
+            isUp: getIsUp(rawCost?.costPerClient, detailedCostData.summary[2].isUp) 
+        },
+        { 
+            id: 'opExpRatio', 
+            label: 'Operating Expense Ratio', 
+            value: rawCost?.operatingExpenseRatio !== undefined ? formatVal(rawCost.operatingExpenseRatio, 'percent') : detailedCostData.summary[3].value, 
+            trend: getTrend(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].trend), 
+            isUp: getIsUp(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].isUp) 
+        }
+    ];
+ 
+    const breakdown = detailedCostData.breakdown.map((item, idx) => {
+        let val = item.value;
+        let trend = item.trend;
+        if (item.metric === 'Total Expenses' && rawCost?.totalExpenses !== undefined) {
+            val = formatVal(rawCost.totalExpenses, 'currency');
+            trend = getTrend(rawCost.totalExpenses, item.trend);
+        } else if (item.metric === 'Cost % of Revenue' && rawCost?.costOfRevenue !== undefined) {
+            val = formatVal(rawCost.costOfRevenue, 'percent');
+            trend = getTrend(rawCost.costOfRevenue, item.trend);
+        } else if (item.metric === 'Fixed Cost' && rawCost?.fixedCost !== undefined) {
+            val = formatVal(rawCost.fixedCost, 'currency');
+            trend = getTrend(rawCost.fixedCost, item.trend);
+        } else if (item.metric === 'Variable Cost' && rawCost?.variableCost !== undefined) {
+            val = formatVal(rawCost.variableCost, 'currency');
+            trend = getTrend(rawCost.variableCost, item.trend);
+        }
+        return { ...item, value: val, trend };
+    });
+ 
+    const unitEconomics = detailedCostData.unitEconomics.map((item, idx) => {
+        let val = item.value;
+        let trend = item.trend;
+        if (item.metric === 'Cost per Client' && rawCost?.costPerClient !== undefined) {
+            val = formatVal(rawCost.costPerClient, 'currency');
+            trend = getTrend(rawCost.costPerClient, item.trend);
+        } else if (item.metric === 'Cost per Employee' && rawCost?.costPerEmployee !== undefined) {
+            val = formatVal(rawCost.costPerEmployee, 'currency');
+            trend = getTrend(rawCost.costPerEmployee, item.trend);
+        } else if (item.metric === 'Operating Expense Ratio' && rawCost?.operatingExpenseRatio !== undefined) {
+            val = formatVal(rawCost.operatingExpenseRatio, 'percent');
+            trend = getTrend(rawCost.operatingExpenseRatio, item.trend);
+        }
+        return { ...item, value: val, trend };
+    });
+ 
+    const insights = detailedCostData.insights;
 
     return (
         <div className="w-full bg-white rounded-[16px] border border-slate-100 shadow-sm p-[16px]">
