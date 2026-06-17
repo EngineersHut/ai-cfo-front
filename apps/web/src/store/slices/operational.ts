@@ -37,11 +37,15 @@ export const {
   getOperationalDataSuccess
 } = slice.actions;
 
-export const fetchOperationalData = (companyId: string, period: string) => {
+export const fetchOperationalData = (companyId: string, period: string, month?: number, year?: number) => {
   return async () => {
     dispatch(slice.actions.getOperationalLoading(true));
     try {
-      const response = await getData(`/api/operational-overview?period=${period.toLowerCase()}`);
+      let url = `/api/operational-overview?period=${period.toLowerCase()}`;
+      if (month !== undefined && year !== undefined) {
+        url += `&month=${month}&year=${year}`;
+      }
+      const response = await getData(url);
       const data = response?.data || response;
       if (data) {
         dispatch(slice.actions.getOperationalDataSuccess(data));
