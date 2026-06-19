@@ -75,6 +75,16 @@ export interface NotificationStateProps {
   actionError: any;
 }
 
+export interface UserRoleStateProps {
+  error: any;
+  allUserRole: any[];
+  loading: boolean;
+  deleteActionError: any;
+  createError: any;
+  count: number;
+  actionLoading: boolean;
+}
+
 export interface DefaultRootStateProps {
   auth: AuthStateProps;
   user: UserStateProps;
@@ -85,6 +95,7 @@ export interface DefaultRootStateProps {
   operational: OperationalStateProps;
   growth: GrowthStateProps;
   budget: BudgetStateProps;
+  userRole: UserRoleStateProps;
 }
 
 export interface ColorProps {
