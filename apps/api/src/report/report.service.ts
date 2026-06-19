@@ -98,7 +98,7 @@ export class ReportService {
       mimeType: file.mimetype,
       fileExtension: file.originalname.split(".").pop()?.toLowerCase() || "",
       fileSize: file.size,
-      uploadStatus: ReportStatusEnum.PROCESSING,
+      uploadStatus: ReportStatusEnum.ANALYZED,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null
@@ -109,8 +109,10 @@ export class ReportService {
 
     
     // Sync the merged data (from DTO and Excel) to the Dashboard, Growth, and Operational tables
-    // The sync service now fetches ALL reports and aggregates them by period.
-    await this.reportSyncService.syncToDashboards(company._id.toString());
+    // Run this in the background to avoid blocking the upload response or causing 500 errors on timeout.
+    this.reportSyncService.syncToDashboards(company._id.toString()).catch(err => {
+      console.error("Background sync to dashboards failed:", err);
+    });
 
     return reportData;
   }

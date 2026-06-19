@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Activity, Truck, Pin, Zap, Users, Clock, BarChart3 } from 'lucide-react';
+import { Activity, Truck, Pin, Zap, Users, Clock, BarChart3, ChevronDown } from 'lucide-react';
 import {
     ResponsiveContainer,
     Cell,
@@ -72,8 +72,28 @@ const renderOuterLabel = (props: any) => {
     );
 };
 
+const MONTHS = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+];
+
+const YEARS = [2024, 2025, 2026];
+
 export default function OperationalOverview() {
-    const [timeframe, setTimeframeState] = useState('Monthly');
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
@@ -107,9 +127,9 @@ export default function OperationalOverview() {
 
     useEffect(() => {
         if (currentCompanyId) {
-            dispatch(fetchOperationalData(currentCompanyId, timeframe));
+            dispatch(fetchOperationalData(currentCompanyId, 'monthly', selectedMonth, selectedYear));
         }
-    }, [currentCompanyId, timeframe, dispatch]);
+    }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
     const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
     const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
@@ -399,19 +419,42 @@ export default function OperationalOverview() {
                     <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
-                <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
-                    {['Monthly', 'Quarterly', 'Yearly'].map((option) => (
-                        <button
-                            key={option}
-                            onClick={() => setTimeframeState(option)}
-                            className={`w-[86px] h-[36px] flex items-center justify-center py-[4px] px-[16px] text-[12px] font-semibold rounded-[8px] transition-all duration-200 ${timeframe === option
-                                ? 'bg-[#2563eb] text-white shadow-md border border-[#2563eb]'
-                                : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            {option}
-                        </button>
-                    ))}
+                <div className="flex items-center gap-3 shrink-0">
+                  {/* Month Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                    >
+                      {MONTHS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={14} className="stroke-[2.5]" />
+                    </div>
+                  </div>
+
+                  {/* Year Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(Number(e.target.value))}
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                    >
+                      {YEARS.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={14} className="stroke-[2.5]" />
+                    </div>
+                  </div>
                 </div>
             </div>
 

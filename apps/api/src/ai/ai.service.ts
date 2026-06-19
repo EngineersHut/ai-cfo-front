@@ -25,7 +25,7 @@ export class AiService {
   ): Promise<string> {
     try {
       const response = await this.anthropic.messages.create({
-        model: "claude-sonnet-4-0",
+        model: "claude-sonnet-4-6",
         max_tokens: 4000,
         system: systemMessage,
         messages: [

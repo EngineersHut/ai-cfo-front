@@ -37,11 +37,15 @@ export const {
   getGrowthDataSuccess
 } = slice.actions;
 
-export const fetchGrowthData = (companyId: string, period: string) => {
+export const fetchGrowthData = (companyId: string, period: string, month?: number, year?: number) => {
   return async () => {
     dispatch(getGrowthLoading(true));
     try {
-      const response = await getData(`/api/growth-overview?period=${period.toLowerCase()}`);
+      let url = `/api/growth-overview?period=${period.toLowerCase()}`;
+      if (month !== undefined && year !== undefined) {
+        url += `&month=${month}&year=${year}`;
+      }
+      const response = await getData(url);
       const data = response?.data || response;
       if (data) {
         dispatch(getGrowthDataSuccess(data));
