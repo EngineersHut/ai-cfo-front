@@ -8,6 +8,7 @@
     "start:prod": "pnpm node dist/apps/api/main"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.102.0",
     "@google/generative-ai": "^0.24.1",
     "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/common": "^11.0.0",

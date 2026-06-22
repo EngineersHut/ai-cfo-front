@@ -12,6 +12,7 @@ import { ReportModule } from '../report/report.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { OperationalOverviewModule } from '../operational-overview/operational-overview.module';
 import { GrowthOverviewModule } from '../growth-overview/growth-overview.module';
+import { BudgetPlanningModule } from '../budget-planning/budget-planning.module';
 
 let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
 
@@ -41,6 +42,7 @@ let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
     DashboardModule,
     OperationalOverviewModule,
     GrowthOverviewModule,
+    BudgetPlanningModule,
   ],
   controllers: [AppController],
   providers: [AppService],

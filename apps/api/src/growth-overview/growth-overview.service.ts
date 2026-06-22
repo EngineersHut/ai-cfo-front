@@ -25,21 +25,25 @@ export class GrowthOverviewService {
 
   // || ---------------------- Get Growth Overview Data function ---------------------|| //
   async getGrowthOverview(company: any, queryDto: GetGrowthOverviewDto) {
-    const { period } = queryDto;
     const companyId = company._id.toString();
+    const { month, year } = queryDto;
 
-    const typeQuery = {
-      companyId,
-      periodType: period.toLowerCase(),
-    };
+    const trendQuery: any = { companyId };
+    if (year && month) {
+      trendQuery.$or = [
+        { year: { $lt: year } },
+        { year: year, month: { $lte: month } },
+      ];
+    }
 
     const growthDataList = await this.growthModel
-      .find(typeQuery)
-      .sort({ periodStartDate: -1 })
+      .find(trendQuery)
+      .sort({ year: -1, month: -1 })
       .limit(12)
       .exec();
 
-    const currentGrowth = growthDataList[0] || {} as any;
+    const currentGrowth = growthDataList[0] || ({} as any);
+    const previousGrowth = growthDataList[1] || ({} as any);
 
     const summary = {
       monthlyGrowthPercent: currentGrowth.monthlyGrowthPercent || 0,
@@ -57,13 +61,33 @@ export class GrowthOverviewService {
 
     let combinedTrend: any[] = [];
     if (currentGrowth.growthTrend && currentGrowth.growthTrend.length > 0) {
-        combinedTrend = currentGrowth.growthTrend;
+      combinedTrend = currentGrowth.growthTrend.map((t: any) => ({
+        month: t.month || "Month",
+        client: t.clientGrowthPercent || 0,
+        monthly: t.monthlyGrowthPercent || 0,
+        revenue: t.revenueGrowthPercent || 0,
+        target: 8,
+      }));
     } else {
-        // Build trend from historical records
-        combinedTrend = growthDataList.reverse().map((curr: any) => ({
-            month: curr.periodStartDate ? curr.periodStartDate.toLocaleString("default", { month: "short" }) : "Month",
-            value: curr.monthlyGrowthPercent || 0
-        }));
+      // Build trend from historical records
+      combinedTrend = growthDataList.reverse().map((curr: any) => {
+        let monthLabel = "Month";
+        if (curr.month) {
+          const date = new Date(
+            curr.year || new Date().getFullYear(),
+            curr.month - 1,
+            1,
+          );
+          monthLabel = date.toLocaleString("default", { month: "short" });
+        }
+        return {
+          month: monthLabel,
+          client: curr.clientGrowthPercent || 0,
+          monthly: curr.monthlyGrowthPercent || 0,
+          revenue: curr.revenueGrowthScore || 0, // Using score as fallback if revenueGrowthPercent not direct
+          target: 8,
+        };
+      });
     }
 
     let combinedInsights: any[] = currentGrowth.insights || [];
@@ -71,15 +95,76 @@ export class GrowthOverviewService {
     const round2 = (val: number | null | undefined) =>
       val != null ? parseFloat(Number(val).toFixed(2)) : 0;
 
+    const prevSummary = {
+      monthlyGrowthPercent: previousGrowth.monthlyGrowthPercent || 0,
+      quarterlyGrowthPercent: previousGrowth.quarterlyGrowthPercent || 0,
+      yearlyGrowthPercent: previousGrowth.yearlyGrowthPercent || 0,
+      revenuePerClient: previousGrowth.revenuePerClient || 0,
+      revenuePerEmployee: previousGrowth.revenuePerEmployee || 0,
+      employeeGrowthPercent: previousGrowth.employeeGrowthPercent || 0,
+      clientGrowthPercent: previousGrowth.clientGrowthPercent || 0,
+    };
+
+    const getTrend = (curr: number, prev: number) => {
+      if (prev === 0 && curr > 0) return "+100%";
+      if (prev === 0 && curr === 0) return "Stable";
+      const diff = curr - prev;
+      const pct = (diff / prev) * 100;
+      if (Math.abs(pct) < 0.1) return "Stable";
+      return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
+    };
+
     return {
       cards: {
-        monthlyGrowthPercent: round2(summary.monthlyGrowthPercent),
-        quarterlyGrowthPercent: round2(summary.quarterlyGrowthPercent),
-        yearlyGrowthPercent: round2(summary.yearlyGrowthPercent),
-        revenuePerClient: round2(summary.revenuePerClient),
-        revenuePerEmployee: round2(summary.revenuePerEmployee),
-        employeeGrowthPercent: round2(summary.employeeGrowthPercent),
-        clientGrowthPercent: round2(summary.clientGrowthPercent),
+        monthlyGrowthPercent: {
+          value: round2(summary.monthlyGrowthPercent),
+          trend: getTrend(
+            summary.monthlyGrowthPercent,
+            prevSummary.monthlyGrowthPercent,
+          ),
+        },
+        quarterlyGrowthPercent: {
+          value: round2(summary.quarterlyGrowthPercent),
+          trend: getTrend(
+            summary.quarterlyGrowthPercent,
+            prevSummary.quarterlyGrowthPercent,
+          ),
+        },
+        yearlyGrowthPercent: {
+          value: round2(summary.yearlyGrowthPercent),
+          trend: getTrend(
+            summary.yearlyGrowthPercent,
+            prevSummary.yearlyGrowthPercent,
+          ),
+        },
+        revenuePerClient: {
+          value: round2(summary.revenuePerClient),
+          trend: getTrend(
+            summary.revenuePerClient,
+            prevSummary.revenuePerClient,
+          ),
+        },
+        revenuePerEmployee: {
+          value: round2(summary.revenuePerEmployee),
+          trend: getTrend(
+            summary.revenuePerEmployee,
+            prevSummary.revenuePerEmployee,
+          ),
+        },
+        employeeGrowthPercent: {
+          value: round2(summary.employeeGrowthPercent),
+          trend: getTrend(
+            summary.employeeGrowthPercent,
+            prevSummary.employeeGrowthPercent,
+          ),
+        },
+        clientGrowthPercent: {
+          value: round2(summary.clientGrowthPercent),
+          trend: getTrend(
+            summary.clientGrowthPercent,
+            prevSummary.clientGrowthPercent,
+          ),
+        },
       },
       growthHealth: {
         growthHealthScore: round2(summary.growthHealthScore),
