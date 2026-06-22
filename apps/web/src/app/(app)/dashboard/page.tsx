@@ -190,7 +190,7 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (currentCompanyId) {
-      dispatch(fetchDashboardData(currentCompanyId, 'monthly', selectedMonth, selectedYear));
+      dispatch(fetchDashboardData(currentCompanyId, selectedMonth, selectedYear));
     }
   }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
@@ -647,10 +647,10 @@ export default function ReportPage() {
             <div className="relative z-10">
               <div className="flex items-center justify-between text-[11px] font-medium text-white/70">
                 <span>Market Penetration Goal</span>
-                <span>{forecastVsReality?.percentageAchieved ?? 40}% achieved</span>
+                <span>{forecastVsReality?.percentageAchieved ?? 0}% achieved</span>
               </div>
               <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${forecastVsReality?.percentageAchieved ?? 40}%` }} />
+                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${forecastVsReality?.percentageAchieved ?? 0}%` }} />
               </div>
             </div>
 
@@ -658,7 +658,7 @@ export default function ReportPage() {
               <div>
                 <p className="text-[12px] text-white/60 font-normal font-inter uppercase leading-[16px] tracking-[0%] align-middle mb-1">Current Progress</p>
                 <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">
-                  Achieved {forecastVsReality?.currentValue ?? 2}% of {forecastVsReality?.targetValue ?? 5}% target
+                  Achieved {forecastVsReality?.currentValue ?? 0}% of {forecastVsReality?.targetValue ?? 0}% target
                 </h4>
               </div>
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">

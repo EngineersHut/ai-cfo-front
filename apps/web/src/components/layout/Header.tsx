@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  ChevronDown,
   Sun,
   Settings,
   Bell,
@@ -10,11 +9,11 @@ import {
   Download,
   Plus,
   Menu,
-  Check,
-  Building2
+  Building2,
+  ChevronDown,
+  Check
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { workspaceOptions, WorkspaceOption } from '@/components/common/Option';
 import { dispatch, useSelector } from '@/store';
 import { getAllCompanies } from '@/store/slices/company';
 import NotificationModal from './NotificationModal';
@@ -40,18 +39,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
   const dynamicOptions = React.useMemo(() => {
     if (!companies || companies.length === 0) {
-      return workspaceOptions.map((opt, idx) => {
-        const mockIndustries = [
-          'technology_and_saas',
-          'architecture_and_design',
-          'financial_services',
-          'fleet_management'
-        ];
-        return {
-          ...opt,
-          industry: mockIndustries[idx % mockIndustries.length]
-        };
-      });
+      return [];
     }
     return companies.map((c: any) => ({
       id: c._id,
@@ -75,28 +63,19 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
           localStorage.setItem('selectedCompanyType', found.industry);
         }
       } else {
-        // If we are using mock options and there is a saved company ID in localStorage,
-        // do not overwrite it with a mock ID. We are probably just waiting for the real companies to load.
-        if ((!companies || companies.length === 0) && savedCompanyId) {
-          const matchedMock = dynamicOptions.find(opt => opt.id === savedCompanyId);
-          setSelectedWorkspace(matchedMock || dynamicOptions[0]);
-          return;
-        }
-
         const defaultOpt = dynamicOptions[0];
         setSelectedWorkspace(defaultOpt);
         if (defaultOpt) {
-          const isInitialLoadLoading = (!companies || companies.length === 0);
-          if (!savedCompanyId || (!isInitialLoadLoading && !found)) {
-            localStorage.setItem('selectedCompany', defaultOpt.id);
-            if (defaultOpt.industry) {
-              localStorage.setItem('selectedCompanyType', defaultOpt.industry);
-            }
+          localStorage.setItem('selectedCompany', defaultOpt.id);
+          if (defaultOpt.industry) {
+            localStorage.setItem('selectedCompanyType', defaultOpt.industry);
           }
         }
       }
+    } else {
+      setSelectedWorkspace(null);
     }
-  }, [dynamicOptions, companies]);
+  }, [dynamicOptions]);
 
   // Determine page title based on current path
   const getPageTitle = () => {
@@ -136,68 +115,73 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
           <Menu size={20} />
         </button>
 
-        <div className="flex items-center gap-1 md:gap-3 relative" ref={dropdownRef}>
-          <div
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-2 cursor-pointer group"
-          >
-            <div className="text-slate-400 group-hover:text-blue-500 transition-colors shrink-0">
-              {selectedWorkspace?.icon || <Building2 size={16} />}
-            </div>
-            <span className="text-[14px] md:text-[15px] font-normal text-[#1e293b] font-inter truncate max-w-[100px] md:max-w-none">
-              {selectedWorkspace?.label || 'Loading...'}
-            </span>
-            <ChevronDown
-              size={14}
-              className={`text-slate-400 transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
-            />
-          </div>
-
-          {/* Dropdown Menu */}
-          {isOpen && (
-            <div className="absolute top-full left-0 mt-3 w-[240px] bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] z-50 overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
-              <div className="px-4 py-2 border-b border-slate-50 mb-1">
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Workspaces</p>
+        {companies && companies.length > 0 && (
+          <div className="flex items-center gap-1 md:gap-3 relative" ref={dropdownRef}>
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center gap-2 cursor-pointer group"
+            >
+              <div className="text-slate-400 group-hover:text-blue-500 transition-colors shrink-0">
+                {selectedWorkspace?.icon || <Building2 size={16} />}
               </div>
-              <div className="max-h-[300px] overflow-y-auto">
-                {dynamicOptions.map((option) => (
-                  <div
-                    key={option.id}
-                    onClick={() => {
-                      setSelectedWorkspace(option);
-                      localStorage.setItem('selectedCompany', option.id);
-                      if (option.industry) {
-                        localStorage.setItem('selectedCompanyType', option.industry);
-                      }
-                      setIsOpen(false);
-                    }}
-                    className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
-                      }`}
-                  >
-                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${selectedWorkspace?.id === option.id
-                      ? 'bg-white border-blue-200 text-blue-600 shadow-sm'
-                      : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600'
-                      }`}>
-                      {option.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-[14px] truncate ${selectedWorkspace?.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
+              <span className="text-[14px] md:text-[15px] font-normal text-[#1e293b] font-inter truncate max-w-[100px] md:max-w-none">
+                {selectedWorkspace?.label || 'Loading...'}
+              </span>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+              />
+            </div>
+
+            {/* Dropdown Menu */}
+            {isOpen && (
+              <div className="absolute top-full left-0 mt-3 w-[240px] bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] z-50 overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
+                <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Workspaces</p>
+                </div>
+                <div className="max-h-[300px] overflow-y-auto">
+                  {dynamicOptions.map((option) => (
+                    <div
+                      key={option.id}
+                      onClick={() => {
+                        setSelectedWorkspace(option);
+                        localStorage.setItem('selectedCompany', option.id);
+                        if (option.industry) {
+                          localStorage.setItem('selectedCompanyType', option.industry);
+                        }
+                        setIsOpen(false);
+                      }}
+                      className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
+                        }`}
+                    >
+                      <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${selectedWorkspace?.id === option.id
+                        ? 'bg-white border-blue-200 text-blue-600 shadow-sm'
+                        : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:text-slate-600'
                         }`}>
-                        {option.label}
-                      </p>
-                      <p className="text-[11px] text-slate-400 truncate">{option.description}</p>
+                        {option.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[14px] truncate ${selectedWorkspace?.id === option.id ? 'font-semibold text-blue-600' : 'font-normal text-slate-700'
+                          }`}>
+                          {option.label}
+                        </p>
+                        <p className="text-[11px] text-slate-400 truncate">{option.description}</p>
+                      </div>
+                      {selectedWorkspace?.id === option.id && (
+                        <Check size={16} className="text-blue-600" />
+                      )}
                     </div>
-                    {selectedWorkspace?.id === option.id && (
-                      <Check size={16} className="text-blue-600" />
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="h-4 md:h-6 w-px bg-slate-200 mx-1 md:mx-2" />
-          <span className="text-[14px] md:text-[15px] font-normal text-slate-500 font-inter hidden sm:inline">
+            <div className="h-4 md:h-6 w-px bg-slate-200 mx-1 md:mx-2" />
+          </div>
+        )}
+
+        <div className="flex items-center gap-1 md:gap-3 relative">
+          <span className="text-[16px] font-medium text-slate-800 font-inter">
             {getPageTitle()}
           </span>
         </div>
@@ -232,7 +216,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter hidden md:inline">Export</span>
           </button>
 
-          <button 
+          <button
             onClick={() => router.push('/reports?add=true')}
             className="h-[36px] w-auto px-3 md:w-[125px] flex items-center justify-center gap-[6px] bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 shadow-md shadow-blue-100 transition-all active:scale-95 whitespace-nowrap"
           >

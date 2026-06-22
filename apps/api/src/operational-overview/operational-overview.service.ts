@@ -35,6 +35,9 @@ export class OperationalOverviewService {
     company: any,
     queryDto: GetOperationalOverviewDto,
   ) {
+    if (!company) {
+      return this.getEmptyOverview();
+    }
     const companyId = company._id.toString();
     const { month, year } = queryDto;
 
@@ -47,8 +50,53 @@ export class OperationalOverviewService {
     };
   }
 
+  private getEmptyOverview() {
+    return {
+      summaryCards: {
+        totalDeliveriesTrips: { value: 0, trend: "Stable" },
+        deliveriesPerVehicle: { value: 0, trend: "Stable" },
+        fleetUtilizationPercent: { value: 0, trend: "Stable" },
+        driverEfficiency: { value: 0, trend: "Stable" },
+      },
+      coreOperations: {
+        totalDeliveriesTrips: { value: 0, vsPrior: 0, distribution: 0 },
+        deliveriesPerVehicle: { value: 0, vsPrior: 0, distribution: 0 },
+        onTimeDeliveryPercent: { value: 0, vsPrior: 0, distribution: 0 },
+        failedDeliveryPercent: { value: 0, vsPrior: 0, distribution: 0 },
+      },
+      operationalHealth: {
+        healthScore: 0,
+        fleetEfficiency: 0,
+        deliverySuccessRate: 0,
+        costEfficiency: 0,
+      },
+      costEfficiency: {
+        fuelCost: { value: 0, vsPrior: 0, distribution: 0 },
+        maintenanceCost: { value: 0, vsPrior: 0, distribution: 0 },
+        costPerTrip: { value: 0, vsPrior: 0, distribution: 0 },
+        costPerKm: { value: 0, vsPrior: 0, distribution: 0 },
+      },
+      fleetDriverUtilization: {
+        totalVehicles: { value: 0, vsPrior: 0, distribution: 0 },
+        activeVehicles: { value: 0, vsPrior: 0, distribution: 0 },
+        inactiveVehicles: { value: 0, vsPrior: 0, distribution: 0 },
+        fleetUtilizationPercent: { value: 0, vsPrior: 0, distribution: 0 },
+      },
+      driverPerformance: {
+        totalDeliveriesTrips: { value: 0, vsPrior: 0, distribution: 0 },
+        deliveriesPerVehicle: { value: 0, vsPrior: 0, distribution: 0 },
+        onTimeDeliveryPercent: { value: 0, vsPrior: 0, distribution: 0 },
+        failedDeliveryPercent: { value: 0, vsPrior: 0, distribution: 0 },
+      },
+    };
+  }
+
   // || ---------------------- Get Fleet Operational Overview Data function ---------------------|| //
-  private async getFleetOperationalOverview(companyId: string, month?: number, year?: number) {
+  private async getFleetOperationalOverview(
+    companyId: string,
+    month?: number,
+    year?: number,
+  ) {
     const query: any = { companyId };
     if (year && month) {
       query.year = year;
@@ -61,11 +109,7 @@ export class OperationalOverviewService {
         .sort({ year: -1, month: -1 })
         .limit(2)
         .exec(),
-      this.fleetModel
-        .find(query)
-        .sort({ year: -1, month: -1 })
-        .limit(2)
-        .exec(),
+      this.fleetModel.find(query).sort({ year: -1, month: -1 }).limit(2).exec(),
     ]);
 
     const currentFleet = fleetData[0] || ({} as any);
@@ -280,7 +324,10 @@ export class OperationalOverviewService {
         },
         fleetUtilizationPercent: {
           value: utilization,
-          trend: getTrend(utilization, previousFleet.fleetUtilizationPercent || 0),
+          trend: getTrend(
+            utilization,
+            previousFleet.fleetUtilizationPercent || 0,
+          ),
         },
         driverEfficiency: {
           value: driverEfficiencyOverall,

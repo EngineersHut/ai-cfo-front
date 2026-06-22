@@ -6,10 +6,7 @@ import { budgetSummaryData, budgetPlanningData } from '@/data/budgetData';
 
 const initialState: DefaultRootStateProps['budget'] = {
   timeframe: 'Quarterly',
-  data: {
-    summaryData: budgetSummaryData,
-    planningData: budgetPlanningData
-  },
+  data: null,
   loading: false,
   actionLoading: false,
   error: null
@@ -53,11 +50,23 @@ export const {
   updatePlanningItemSuccess
 } = slice.actions;
 
-export const fetchBudgetData = ( period: any) => {
+export const fetchBudgetData = (month?: number, year?: number, period?: string) => {
   return async () => {
     dispatch(slice.actions.getBudgetLoading(true));
     try {
-      const response = await getData(`/api/budget-planning?period=${period.toLowerCase()}`);
+      let url = '/api/budget-planning';
+      const params: string[] = [];
+      if (month !== undefined && year !== undefined) {
+        params.push(`month=${month}`);
+        params.push(`year=${year}`);
+      }
+      if (period) {
+        params.push(`period=${period.toLowerCase()}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
+      }
+      const response = await getData(url);
       const data = response?.data || response;
       if (data) {
         dispatch(slice.actions.getBudgetDataSuccess(data));

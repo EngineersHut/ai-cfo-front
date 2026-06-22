@@ -8,7 +8,8 @@ import {
     ArrowDownRight,
     DollarSign,
     SquarePen,
-    Plus
+    Plus,
+    ChevronDown
 } from 'lucide-react';
 
 import KPICard from '@/components/common/KPICard';
@@ -20,11 +21,34 @@ import { IndustryEnum, BUDGET_KPI_CONFIGS, BUDGET_HEADER_CONFIGS, BUDGET_TABLE_C
 import * as LucideIcons from 'lucide-react';
 import { fetchBudgetData, setTimeframe } from '@/store/slices/budget';
 
+const MONTHS = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+];
+
+const YEARS = [2024, 2025, 2026];
+
 export default function BudgetVsActual() {
     const dispatch = useDispatch();
-    const { data, timeframe } = useSelector((state: any) => state.budget);
+    const { data } = useSelector((state: any) => state.budget);
 
     const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+    const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+    
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
 
     useEffect(() => {
         const savedType = localStorage.getItem('selectedCompanyType');
@@ -34,8 +58,26 @@ export default function BudgetVsActual() {
     }, []);
 
     useEffect(() => {
-        dispatch(fetchBudgetData(timeframe));
-    }, [timeframe, dispatch]);
+        const savedCompanyId = localStorage.getItem('selectedCompany');
+        if (savedCompanyId) {
+            setCurrentCompanyId(savedCompanyId);
+        }
+
+        const interval = setInterval(() => {
+            const saved = localStorage.getItem('selectedCompany');
+            if (saved !== currentCompanyId) {
+                setCurrentCompanyId(saved);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [currentCompanyId]);
+
+    useEffect(() => {
+        if (currentCompanyId) {
+            dispatch(fetchBudgetData(selectedMonth, selectedYear));
+        }
+    }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
     const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] || BUDGET_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
     const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] || BUDGET_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
@@ -62,11 +104,7 @@ export default function BudgetVsActual() {
     const getKpiValue = (key: string, format: string) => {
         const cards = data?.summaryCards;
         if (!cards) {
-            if (key === 'budgetRevenue') return '$128,400';
-            if (key === 'actualRevenue') return '$115,000';
-            if (key === 'revenueVariance') return '-10.4%';
-            if (key === 'overBudgetItems') return '$1,200';
-            return '$0';
+            return 'N/A';
         }
 
         if (key === 'budgetRevenue') {
@@ -88,7 +126,6 @@ export default function BudgetVsActual() {
     const getIsDown = (key: string) => {
         const cards = data?.summaryCards;
         if (!cards) {
-            if (key === 'revenueVariance') return true;
             return false;
         }
         if (key === 'revenueVariance') {
@@ -99,7 +136,7 @@ export default function BudgetVsActual() {
 
     const getKpiSub = (key: string, defaultSub: string) => {
         const cards = data?.summaryCards;
-        if (!cards) return defaultSub;
+        if (!cards) return '';
 
         if (key === 'revenueVariance') {
             const absolute = cards.revenueVariance?.absolute ?? 0;
@@ -113,7 +150,7 @@ export default function BudgetVsActual() {
 
     const getKpiTrend = (key: string, defaultTrend: string) => {
         const cards = data?.summaryCards;
-        if (!cards) return defaultTrend;
+        if (!cards) return '';
 
         if (key === 'revenueVariance') {
             return cards.revenueVariance?.isFavorable ? 'Favorable' : 'Unfavorable';
@@ -125,7 +162,15 @@ export default function BudgetVsActual() {
     };
 
     const activeSummaryData = React.useMemo(() => {
-        if (!data?.summaryTable) return defaultBudgetSummaryData;
+        if (!data?.summaryTable) {
+            return [
+                { metric: 'Revenue', budget: 0, actual: 0, variance: 0, notes: 'No data' },
+                { metric: 'Direct Costs', budget: 0, actual: 0, variance: 0, notes: 'No data' },
+                { metric: 'Operating Expenses', budget: 0, actual: 0, variance: 0, notes: 'No data' },
+                { metric: 'Gross Profit', budget: 0, actual: 0, variance: 0, notes: 'No data', isAutoComputed: true },
+                { metric: 'Net Margin', budget: 0, actual: 0, variance: 0, notes: 'No data', isAutoComputed: true, isPercentage: true }
+            ];
+        }
 
         return [
             {
@@ -292,19 +337,42 @@ export default function BudgetVsActual() {
                     <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
-                <div className="w-[265px] h-[48px] flex items-center justify-between p-[5px] bg-white border border-slate-100 rounded-[8px] shadow-sm shrink-0">
-                    {['Monthly', 'Quarterly', 'Yearly'].map((option) => (
-                        <button
-                            key={option}
-                            onClick={() => dispatch(setTimeframe(option))}
-                            className={`w-[86px] h-[36px] flex items-center justify-center py-[4px] px-[16px] text-[12px] font-semibold rounded-[8px] transition-all duration-200 ${timeframe === option
-                                ? 'bg-[#2563eb] text-white shadow-md border border-[#2563eb]'
-                                : 'text-slate-400 hover:text-slate-600'
-                                }`}
+                <div className="flex items-center gap-3 shrink-0">
+                    {/* Month Dropdown */}
+                    <div className="relative">
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                            className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
                         >
-                            {option}
-                        </button>
-                    ))}
+                            {MONTHS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <ChevronDown size={14} className="stroke-[2.5]" />
+                        </div>
+                    </div>
+
+                    {/* Year Dropdown */}
+                    <div className="relative">
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(Number(e.target.value))}
+                            className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                        >
+                            {YEARS.map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <ChevronDown size={14} className="stroke-[2.5]" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -422,7 +490,13 @@ export default function BudgetVsActual() {
                             </tr>
                         </thead>
                         <tbody>
-                            {(() => {
+                            {categoriesWithCalculatedPercentages.length === 0 ? (
+                                <tr>
+                                    <td colSpan={3} className="px-6 py-12 text-center text-[12.5px] text-slate-400 italic font-inter">
+                                        No budget planning data available
+                                    </td>
+                                </tr>
+                            ) : (() => {
                                 let runningCounter = 0;
                                 return categoriesWithCalculatedPercentages.map((cat: any, catIndex: number) => {
                                     return (

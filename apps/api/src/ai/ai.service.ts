@@ -71,9 +71,14 @@ EXPECTED JSON SCHEMA:
   "summary": {
     "revenue": 0, // Total revenue for the period
     "cogs": 0, // Cost of Goods Sold
+    "grossProfit": 0, // Gross profit
     "totalExpenses": 0, // Total operating expenses
+    "netProfit": 0, // Net profit for the period
+    "ebitda": 0, // EBITDA for the period
     "netCashFlow": 0, // Net income or net cash flow
-    "cashBalance": 0 // Ending cash balance if available
+    "cashBalance": 0, // Ending cash balance if available
+    "netProfitMarginPercent": 0, // Net profit margin percentage
+    "grossMarginPercent": 0 // Gross margin percentage
   },
   "fleet": { // Extract only if industry is FLEET_MANAGEMENT or fleet data is present
     "totalVehicles": 0,

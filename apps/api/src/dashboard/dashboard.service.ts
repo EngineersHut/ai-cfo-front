@@ -35,6 +35,9 @@ export class DashboardService {
 
   // || ---------------------- Get Dashboard Data function ---------------------|| //
   async getDashboard(company: any, queryDto: GetDashboardDto) {
+    if (!company) {
+      return this.getEmptyDashboard();
+    }
     const companyId = company._id.toString();
     const { month, year } = queryDto;
 
@@ -44,6 +47,35 @@ export class DashboardService {
 
     return {
       message: `Dashboard for industry ${company.industry} is not implemented yet.`,
+    };
+  }
+
+  private getEmptyDashboard() {
+    return {
+      summaryCards: {
+        totalDeliveries: { value: 0, trend: "Stable" },
+        deliveriesPerVehicle: { value: 0, trend: "Stable" },
+        fleetUtilization: { value: 0, trend: "Stable" },
+        driverEfficiency: { value: 0, trend: "Stable" },
+        cashRunway: { value: 0, trend: "Stable" },
+        growthPercent: { value: 0, trend: "Stable" },
+        ebitda: { value: 0, trend: "Stable" },
+        operatingCashFlow: { value: 0, trend: "Stable" },
+      },
+      revenueTrend: [],
+      healthMeter: { score: 0, equityHealth: 0, auditCompliance: 0 },
+      costEfficiency: {
+        totalExpenses: { value: 0, trend: "Stable" },
+        costOfRevenue: { value: 0, trend: "Stable" },
+        costPerClient: { value: 0, trend: "Stable" },
+        operatingExpenseRatio: { value: 0, trend: "Stable" },
+        fixedCost: { value: 0, trend: "Stable" },
+        variableCost: { value: 0, trend: "Stable" },
+        costPerEmployee: { value: 0, trend: "Stable" },
+      },
+      aiInsights: [],
+      cfoInsights: [],
+      forecastVsReality: { percentageAchieved: 0, currentValue: 0, targetValue: 0 },
     };
   }
 
@@ -88,8 +120,14 @@ export class DashboardService {
         .exec(),
     ]);
 
-    const currentDashboard = dashboardData[0] || ({} as any);
-    const previousDashboard = dashboardData[1] || ({} as any);
+    const targetYear = year || (dashboardData[0]?.year as number) || new Date().getFullYear();
+    const targetMonth = month || (dashboardData[0]?.month as number) || (new Date().getMonth() + 1);
+
+    const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
+    const prevYear = targetMonth === 1 ? targetYear - 1 : targetYear;
+
+    const currentDashboard = dashboardData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
+    const previousDashboard = dashboardData.find(d => d.year === prevYear && d.month === prevMonth) || ({} as any);
 
     const summary = {
       revenue: currentDashboard.revenue || 0,
@@ -101,7 +139,7 @@ export class DashboardService {
       financialHealthScore: currentDashboard.financialHealthScore || 0,
     };
 
-    const currentFleet = fleetData[0] || ({} as any);
+    const currentFleet = fleetData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
 
     const fleetSummary = {
       totalDeliveries: currentFleet.totalDeliveries || 0,
@@ -114,7 +152,7 @@ export class DashboardService {
       cancelledTrips: currentFleet.cancelledTrips || 0,
     };
 
-    const currentGrowth = growthData[0] || {};
+    const currentGrowth = growthData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
     const clientCount = currentGrowth.clientCount || 0;
 
     // Derived Calculations
@@ -449,6 +487,9 @@ export class DashboardService {
     company: any,
     queryDto: GetDashboardDto,
   ): Promise<string> {
+    if (!company) {
+      return "Metric,Value,Trend (vs Prior)\n";
+    }
     const dashboardData = await this.getDashboard(company, queryDto);
 
     // We only need the cost efficiency data, but let's safely fall back
