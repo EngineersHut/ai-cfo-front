@@ -323,13 +323,13 @@ export default function SettingsPage() {
                             </button>
                         </div>
                         <div className="mx-4 h-px bg-slate-100" />
-                        <div className="p-4 space-y-3 max-h-[320px] overflow-y-auto">
+                        <div className="p-4 space-y-3">
                             {companyData?.map((company: any) => {
                                 const initials = company.name
                                     ? company.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
                                     : 'CO';
                                 return (
-                                    <div key={company._id} className="min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
+                                    <div key={company._id} className={`min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative ${activeMenu === `company-${company._id}` ? 'z-[50]' : 'z-0'}`}>
                                         <div className="flex items-center gap-5">
                                             <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md shrink-0">
                                                 {initials}
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                                                     <MoreVertical size={20} />
                                                 </button>
                                                 {activeMenu === `company-${company._id}` && (
-                                                    <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                                    <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-[100] animate-in fade-in slide-in-from-top-1">
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedCompany(company);

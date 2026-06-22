@@ -187,7 +187,7 @@ export default function AuthModal({
   const hasActiveError = !!(errors || actionError || Object.keys(validationErrors).length > 0);
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} height={mode === 'register' ? "580px" : "500px"} width="398px">
+    <Modal isOpen={isOpen} onClose={handleClose} height={mode === 'register' ? "580px" : "400px"} width="398px">
       <div className={`px-8 pb-4 font-inter ${hasActiveError ? `overflow-y-auto scrollbar-thin ${mode === 'register' ? 'max-h-[510px]' : 'max-h-[430px]'}` : ''}`}>
         {/* Header */}
         <div className="text-center mb-5">
@@ -337,7 +337,7 @@ export default function AuthModal({
             )}
           </button>
 
-          {mode === 'login' && (
+          {/* {mode === 'login' && (
             <>
               <div className="relative py-2 flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center px-2"><div className="w-full border-t border-slate-100"></div></div>
@@ -349,7 +349,7 @@ export default function AuthModal({
                 <button className="flex items-center justify-center w-[106px] h-[36px] border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-colors shadow-sm py-[4px] px-[10px]"><svg width="18" height="18" viewBox="0 0 24 24" fill="black"><path d="M17.05 20.28c-.96 0-2.04-.68-3.32-.68-1.27 0-2.31.66-3.18.66-1.56 0-4.01-2.47-4.01-6.27 0-3.9 2.51-5.96 4.93-5.96 1.25 0 2.3.8 3.03.8.72 0 1.99-.86 3.4-.86 1.77 0 3.12.91 3.86 2.04-3.56 1.48-2.98 5.99.38 7.35-.74 1.74-1.92 3.52-3.64 3.52zM15.35 6.64c-.75.89-2.02 1.55-3.07 1.46-.14-1.18.45-2.44 1.22-3.32.78-.9 2.09-1.51 3.02-1.4.15 1.17-.43 2.37-1.17 3.26z" /></svg></button>
               </div>
             </>
-          )}
+          )} */}
 
           <div className="text-center pt-2">
             <p className="font-inter font-normal text-[12px] leading-[16px] text-slate-500 text-center">

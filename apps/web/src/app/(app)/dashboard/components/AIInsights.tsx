@@ -41,31 +41,39 @@ export default function AIInsights({ insights }: { insights?: AIInsightItem[] })
       </div>
 
       {/* Insights Grid */}
-      <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
-        {activeInsights.map((item) => (
-          <div key={item.id} className="flex gap-2 group">
-            {/* Left Indicator Bar */}
-            <div
-              className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
-              style={{ backgroundColor: item.color }}
-            />
+      <div className="p-[16px] flex items-center justify-center min-h-[100px] w-full">
+        {activeInsights.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
+            {activeInsights.map((item) => (
+              <div key={item.id} className="flex gap-2 group">
+                {/* Left Indicator Bar */}
+                <div
+                  className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
+                  style={{ backgroundColor: item.color }}
+                />
 
-            <div className="space-y-1">
-              {/* Category Badge */}
-              <div
-                className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
-                style={{ backgroundColor: item.bgColor, color: item.textColor }}
-              >
-                {item.title} <span className="ml-1 opacity-70">{item.percentage}</span>
+                <div className="space-y-1">
+                  {/* Category Badge */}
+                  <div
+                    className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
+                    style={{ backgroundColor: item.bgColor, color: item.textColor }}
+                  >
+                    {item.title} <span className="ml-1 opacity-70">{item.percentage}</span>
+                  </div>
+
+                  {/* Insight Text */}
+                  <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-
-              {/* Insight Text */}
-              <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
-                {item.description}
-              </p>
-            </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="flex items-center justify-center text-slate-400 text-[13px] font-inter py-4">
+            No AI Insights available yet. Upload documents to get started.
+          </div>
+        )}
       </div>
     </div>
   );

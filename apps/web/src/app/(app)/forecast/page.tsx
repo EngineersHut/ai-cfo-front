@@ -32,12 +32,14 @@ import {
   Cell
 } from 'recharts';
 import KPICard from '@/components/common/KPICard';
+import { useDispatch, useSelector } from '@/store';
+import { fetchDashboardData } from '@/store/slices/dashboard';
 import {
   forecastChartData,
   scenarioData,
   ForecastChartItem
 } from '@/data/forecastData';
-import { revenueData } from '@/data/reportsData';
+import { revenueData as defaultRevenueData } from '@/data/reportsData';
 import { healthData } from '@/data/dashboardData';
 import {
   IndustryEnum,
@@ -113,6 +115,46 @@ const outerHealthData = [
 ];
 
 export default function ForecastPage() {
+  const dispatch = useDispatch();
+  const { 
+    rawSummary, 
+    revenueData: reduxRevenueData, 
+    healthScore, 
+    auditCompliance, 
+    equityHealth, 
+    aiInsights: dashboardInsights, 
+    forecastVsReality,
+    costEfficiency
+  } = useSelector((state: any) => state.dashboard);
+
+  const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  const [selectedMonth] = useState(currentMonth);
+  const [selectedYear] = useState(currentYear);
+
+  useEffect(() => {
+    const savedCompanyId = localStorage.getItem('selectedCompany');
+    if (savedCompanyId) {
+      setCurrentCompanyId(savedCompanyId);
+    }
+
+    const interval = setInterval(() => {
+      const saved = localStorage.getItem('selectedCompany');
+      if (saved !== currentCompanyId) {
+        setCurrentCompanyId(saved);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentCompanyId]);
+
+  useEffect(() => {
+    if (currentCompanyId) {
+      dispatch(fetchDashboardData(currentCompanyId, selectedMonth, selectedYear));
+    }
+  }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
+
   const [timeframe, setTimeframe] = useState<'Monthly' | 'Quarterly' | 'Yearly'>('Monthly');
 
   // Interactive Simulator States
@@ -124,7 +166,7 @@ export default function ForecastPage() {
   const [expenseTimeframe, setExpenseTimeframe] = React.useState<'Weekly' | 'Monthly'>('Monthly');
 
   // Simulated data state
-  const [simulatedData, setSimulatedData] = useState<ForecastChartItem[]>(forecastChartData);
+  const [simulatedData, setSimulatedData] = useState<ForecastChartItem[]>([]);
 
   const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
 
@@ -144,18 +186,19 @@ export default function ForecastPage() {
     return () => clearInterval(interval);
   }, [companyType]);
 
+  useEffect(() => {
+    if (rawSummary) {
+      if (rawSummary.growthPercent !== undefined) {
+        setGrowthRate(rawSummary.growthPercent);
+      }
+      if (rawSummary.revenue > 0) {
+        setMargin((rawSummary.grossProfit / rawSummary.revenue) * 100);
+      }
+    }
+  }, [rawSummary]);
+
   const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] || FORECAST_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
   const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] || FORECAST_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-  const activeExpenseData = FORECAST_EXPENSE_CONFIGS[companyType as IndustryEnum] || FORECAST_EXPENSE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-  const activeCostDetails = FORECAST_COST_DETAILS_CONFIGS[companyType as IndustryEnum] || FORECAST_COST_DETAILS_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-  const activeAIInsights = FORECAST_AI_INSIGHTS_CONFIGS[companyType as IndustryEnum] || FORECAST_AI_INSIGHTS_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-
-  useEffect(() => {
-    const marginKpi = currentKPIs.find(k => k.key === 'opMargin');
-    if (marginKpi && marginKpi.defaultValue !== undefined) {
-      setMargin(marginKpi.defaultValue);
-    }
-  }, [companyType, currentKPIs]);
 
   const getIcon = (iconName: string) => {
     const IconComp = (LucideIcons as any)[iconName];
@@ -163,43 +206,47 @@ export default function ForecastPage() {
     return <LucideIcons.Activity size={16} className="text-blue-500" />;
   };
 
-  // Sync simulator controls when clicking a preset scenario card
-
-
   useEffect(() => {
-    let cashAccumulator = 1248000; // Starting cash reserve (matching Card 4)
+    const startingCash = rawSummary?.cashBalance || 0;
+    const baseRevenue = rawSummary?.revenue || 0;
+    const baseExpenses = rawSummary?.totalExpenses || 0;
 
-    const updated = forecastChartData.map((item, index) => {
-      // Calculate multipliers based on user inputs compared to Baseline (growthRate=15%, margin=28.4%, expenseBuffer=0%)
+    if (baseRevenue === 0 && baseExpenses === 0) {
+      setSimulatedData([]);
+      return;
+    }
+
+    let cashAccumulator = startingCash;
+
+    // Generate 12 months projections dynamically
+    const months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+    const currentYear = new Date().getFullYear();
+    const updated = months.map((monthName, index) => {
       const growthMultiplier = 1 + (growthRate - 15) / 100;
       const expenseMultiplier = 1 + (expenseBuffer) / 100;
 
-      // Simulated values
-      const simRevenue = Math.round(item.revenue * growthMultiplier);
-      const simExpenses = Math.round(item.expenses * expenseMultiplier);
+      const monthlyFactor = 1 + (index * 0.05);
+      const simRevenue = Math.round(baseRevenue * monthlyFactor * growthMultiplier);
+      const simExpenses = Math.round(baseExpenses * (1 + index * 0.02) * expenseMultiplier);
 
-      // Calculate cash reserve sequentially
       if (index === 0) {
-        cashAccumulator = 1248000;
+        cashAccumulator = startingCash;
       } else {
         cashAccumulator = Math.max(0, cashAccumulator + (simRevenue - simExpenses));
       }
 
       return {
-        ...item,
+        month: `${monthName} ${currentYear + (index >= 3 ? 1 : 0)}`,
         revenue: simRevenue,
         expenses: simExpenses,
         cashReserve: cashAccumulator,
-        // Keep baseline boundaries for comparison
-        optimisticRevenue: Math.round(item.revenue * 1.25),
-        conservativeRevenue: Math.round(item.revenue * 0.85)
+        optimisticRevenue: Math.round(simRevenue * 1.25),
+        conservativeRevenue: Math.round(simRevenue * 0.85)
       };
     });
 
     setSimulatedData(updated);
-  }, [growthRate, margin, expenseBuffer]);
-
-
+  }, [growthRate, margin, expenseBuffer, rawSummary]);
 
   // Format financial currency label
   const formatCurrency = (value: number) => {
@@ -209,6 +256,70 @@ export default function ForecastPage() {
       maximumFractionDigits: 0
     }).format(value);
   };
+
+  const dynamicExpenseData = React.useMemo(() => {
+    const fixed = costEfficiency?.fixedCost?.value || 0;
+    const variable = costEfficiency?.variableCost?.value || 0;
+    const total = fixed + variable;
+    if (total === 0) return [];
+    
+    return [
+      { name: 'Fixed Costs', value: Math.round((fixed / total) * 100), color: '#6366f1' },
+      { name: 'Variable Costs', value: Math.round((variable / total) * 100), color: '#f59e0b' }
+    ];
+  }, [costEfficiency]);
+
+  const dynamicCostDetails = React.useMemo(() => {
+    if (!costEfficiency || Object.keys(costEfficiency).length === 0) return [];
+    
+    return [
+      {
+        name: 'Fixed Costs',
+        value: costEfficiency.fixedCost?.value ? formatCurrency(costEfficiency.fixedCost.value) : 'N/A',
+        trend: costEfficiency.fixedCost?.trend || 'Stable',
+        progress: 50,
+        color: '#6366f1',
+        dotColor: '#6366f1'
+      },
+      {
+        name: 'Variable Costs',
+        value: costEfficiency.variableCost?.value ? formatCurrency(costEfficiency.variableCost.value) : 'N/A',
+        trend: costEfficiency.variableCost?.trend || 'Stable',
+        progress: 70,
+        color: '#f59e0b',
+        dotColor: '#f59e0b'
+      },
+      {
+        name: 'Total Expenses',
+        value: costEfficiency.totalExpenses?.value ? formatCurrency(costEfficiency.totalExpenses.value) : 'N/A',
+        trend: costEfficiency.totalExpenses?.trend || 'Stable',
+        progress: 100,
+        color: '#10b981',
+        dotColor: '#10b981'
+      }
+    ];
+  }, [costEfficiency]);
+
+  const activeInsights = React.useMemo(() => {
+    if (!dashboardInsights || dashboardInsights.length === 0) return [];
+    
+    const colors = [
+      { color: '#2563eb', bgColor: '#dbeafe', textColor: '#2563eb' },
+      { color: '#ef4444', bgColor: '#fee2e2', textColor: '#ef4444' },
+      { color: '#10b981', bgColor: '#dcfce7', textColor: '#10b981' }
+    ];
+    
+    return dashboardInsights.slice(0, 3).map((insight: any, idx: number) => {
+      const colorStyle = colors[idx % colors.length];
+      return {
+        id: String(idx),
+        title: insight.title || 'INSIGHT',
+        percentage: insight.percentage || '',
+        description: insight.description || '',
+        ...colorStyle
+      };
+    });
+  }, [dashboardInsights]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -243,13 +354,13 @@ export default function ForecastPage() {
         {currentKPIs.map((metric, i) => {
           let valueStr = '';
           if (metric.key === 'opMargin') {
-            valueStr = `${margin.toFixed(1)}%`;
+            valueStr = rawSummary?.revenue > 0 ? `${margin.toFixed(1)}%` : 'N/A';
           } else if (metric.key === 'burnRate') {
-            valueStr = '$32,800';
+            valueStr = rawSummary?.totalExpenses ? formatCurrency(rawSummary.totalExpenses) : 'N/A';
           } else if (metric.key === 'runway') {
-            valueStr = '$95,600';
+            valueStr = rawSummary?.cashRunway ? `${rawSummary.cashRunway} months` : 'N/A';
           } else if (metric.key === 'cashInBank') {
-            valueStr = formatCurrency(simulatedData[0]?.cashReserve || 1248000);
+            valueStr = rawSummary?.cashBalance ? formatCurrency(rawSummary.cashBalance) : 'N/A';
           }
 
           return (
@@ -259,10 +370,10 @@ export default function ForecastPage() {
               label={metric.label}
               value={valueStr}
               unit={metric.unit}
-              trend={metric.trend}
+              trend={rawSummary ? metric.trend : ''}
               isDown={metric.isDown}
-              progress={metric.key === 'opMargin' ? margin : undefined}
-              sub={metric.sub}
+              progress={metric.key === 'opMargin' && rawSummary?.revenue > 0 ? margin : undefined}
+              sub={rawSummary ? metric.sub : ''}
             />
           );
         })}
@@ -309,64 +420,72 @@ export default function ForecastPage() {
           {/* Chart Body - 412px */}
           <div className="h-[412px] flex-1 w-full relative py-[12px] px-[16px] flex flex-col gap-[12px]">
             <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
-              <div className="flex-1 w-full relative p-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.1} />
-                        <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={10} />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: '#94a3b8' }}
-                      tickFormatter={(value) => `${value / 100}k`}
-                    />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                      itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#8b5cf6"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorRevenue)"
-                      activeDot={{ r: 6, fill: "#fff", stroke: "#8b5cf6", strokeWidth: 3 }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="profit"
-                      stroke="#fbbf24"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorProfit)"
-                      activeDot={{ r: 6, fill: "#fff", stroke: "#fbbf24", strokeWidth: 3 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div className="flex-1 w-full relative p-2 flex items-center justify-center">
+                {reduxRevenueData && reduxRevenueData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={reduxRevenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.1} />
+                          <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={10} />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#94a3b8' }}
+                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                      />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                        itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#8b5cf6"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorRevenue)"
+                        activeDot={{ r: 6, fill: "#fff", stroke: "#8b5cf6", strokeWidth: 3 }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="profit"
+                        stroke="#fbbf24"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorProfit)"
+                        activeDot={{ r: 6, fill: "#fff", stroke: "#fbbf24", strokeWidth: 3 }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-slate-400 text-[13px] font-inter">
+                    No historical revenue data available
+                  </div>
+                )}
               </div>
 
               {/* Chart Legend - Styled inside the inner box */}
-              <div className="flex items-center justify-center gap-8 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
-                  <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Revenue</span>
+              {reduxRevenueData && reduxRevenueData.length > 0 && (
+                <div className="flex items-center justify-center gap-8 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
+                    <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Revenue</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#fbbf24]" />
+                    <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Net Profit</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#fbbf24]" />
-                  <span className="text-[14px] font-normal text-slate-500 font-inter leading-[132%] capitalize tracking-[0%]">Net Profit</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -442,27 +561,29 @@ export default function ForecastPage() {
                   </ResponsiveContainer>
 
                   {/* Independent Needle Layer */}
-                  <NeedleLayer value={84} cx={130} cy={140} iR={30} oR={85} />
+                  <NeedleLayer value={healthScore || 0} cx={130} cy={140} iR={30} oR={85} />
                 </div>
               </div>
 
               <div className="text-center mt-[-10px] mb-2">
                 <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">EXCELLENT</span>
-                  <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">84</span>
+                  <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">
+                    {healthScore >= 80 ? 'EXCELLENT' : healthScore >= 60 ? 'GOOD' : healthScore >= 40 ? 'FAIR' : 'POOR'}
+                  </span>
+                  <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">{healthScore || 0}</span>
                 </div>
               </div>
 
               {/* Health Metrics Details */}
               <div className="px-5 space-y-3 border-t border-slate-50 pt-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance (40%)</span>
-                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">98%</span>
+                  <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Audit Compliance</span>
+                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{auditCompliance ? `${auditCompliance}%` : 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">Equity Health</span>
-                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">84%</span>
+                  <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{equityHealth ? `${equityHealth}%` : 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -479,17 +600,19 @@ export default function ForecastPage() {
             <div className="relative z-10">
               <div className="flex items-center justify-between text-[11px] font-medium text-white/70">
                 <span>Market Penetration Goal</span>
-                <span>40% achieved</span>
+                <span>{forecastVsReality?.percentageAchieved ?? 0}% achieved</span>
               </div>
               <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full w-[40%]" />
+                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${forecastVsReality?.percentageAchieved ?? 0}%` }} />
               </div>
             </div>
 
             <div className="flex items-center justify-between  relative z-10">
               <div>
                 <p className="text-[12px] text-white/60 font-normal font-inter uppercase leading-[16px] tracking-[0%] align-middle mb-1">Current Progress</p>
-                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">Achieved 2% of 5% target</h4>
+                <h4 className="text-[20px] font-medium text-white font-inter leading-[28px] tracking-[0%] align-middle">
+                  Achieved {forecastVsReality?.currentValue ?? 0}% of {forecastVsReality?.targetValue ?? 0}% target
+                </h4>
               </div>
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
                 <ArrowRight size={18} />
@@ -532,43 +655,53 @@ export default function ForecastPage() {
             </div>
           </div>
           <div className="p-6 flex flex-col items-center justify-center h-[340px]">
-            <div className="relative w-full h-full flex items-center justify-center">
-              <ResponsiveContainer width="100%" height={240}>
-                <RePieChart>
-                  <Pie
-                    data={activeExpenseData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={85}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {activeExpenseData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </RePieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
-                <span className="text-[12px] text-slate-400 font-medium font-inter">Total</span>
-                <span className="text-[24px] font-bold text-slate-800 font-inter leading-none">$320.50</span>
-              </div>
-            </div>
-
-            {/* Custom Legend */}
-            <div className="grid grid-cols-2 gap-x-2 gap-y-3  w-full ">
-              {activeExpenseData.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-[13px] font-medium text-[#0a092e] font-inter leading-[20px] tracking-[0%]">
-                    {item.name} ({item.value}%)
+            {dynamicExpenseData.length > 0 ? (
+              <div className="relative w-full h-full flex items-center justify-center">
+                <ResponsiveContainer width="100%" height={240}>
+                  <RePieChart>
+                    <Pie
+                      data={dynamicExpenseData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={85}
+                      paddingAngle={5}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {dynamicExpenseData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RePieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
+                  <span className="text-[12px] text-slate-400 font-medium font-inter">Total</span>
+                  <span className="text-[20px] font-bold text-slate-800 font-inter leading-none">
+                    {formatCurrency(costEfficiency?.totalExpenses?.value || 0)}
                   </span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center text-slate-400 text-[13px] font-inter h-[240px]">
+                No expense breakdown data available
+              </div>
+            )}
+
+            {/* Custom Legend */}
+            {dynamicExpenseData.length > 0 && (
+              <div className="grid grid-cols-2 gap-x-2 gap-y-3  w-full ">
+                {dynamicExpenseData.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-[13px] font-medium text-[#0a092e] font-inter leading-[20px] tracking-[0%]">
+                      {item.name} ({item.value}%)
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -583,33 +716,41 @@ export default function ForecastPage() {
             </div>
           </div>
 
-          <div className="p-6 flex flex-col justify-between flex-grow space-y-6">
-            {activeCostDetails.map((item: any, idx: number) => (
-              <div key={idx} className="space-y-2 pb-4 last:pb-0 border-b last:border-0 border-slate-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.dotColor }} />
-                    <span className="text-[14px] font-normal text-[#0a092e] font-inter">{item.name}</span>
+          <div className="p-6 flex flex-col justify-center flex-grow space-y-6">
+            {dynamicCostDetails.length > 0 ? (
+              dynamicCostDetails.map((item: any, idx: number) => (
+                <div key={idx} className="space-y-2 pb-4 last:pb-0 border-b last:border-0 border-slate-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.dotColor }} />
+                      <span className="text-[14px] font-normal text-[#0a092e] font-inter">{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[14px] font-bold text-slate-800 font-inter">{item.value}</span>
+                      {item.trend && item.trend !== 'Stable' && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[4px] bg-[#f0fdf4] border border-[#dcfce7] text-[#22c55e] text-[11px] font-semibold font-inter">
+                          <ArrowUpRight size={10} className="stroke-[3px]" />
+                          {item.trend}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[14px] font-bold text-slate-800 font-inter">{item.value}</span>
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[4px] bg-[#f0fdf4] border border-[#dcfce7] text-[#22c55e] text-[11px] font-semibold font-inter">
-                      <ArrowUpRight size={10} className="stroke-[3px]" />
-                      {item.trend}
-                    </span>
+                  <div className="w-full h-[10px] bg-[#eff6ff] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${item.progress}%`,
+                        backgroundColor: item.color
+                      }}
+                    />
                   </div>
                 </div>
-                <div className="w-full h-[10px] bg-[#eff6ff] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${item.progress}%`,
-                      backgroundColor: item.color
-                    }}
-                  />
-                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center text-slate-400 text-[13px] font-inter h-[200px]">
+                No cost details available
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -623,31 +764,39 @@ export default function ForecastPage() {
         </div>
 
         {/* Insights Grid */}
-        <div className="p-[16px] grid grid-cols-1 md:grid-cols-3 gap-10">
-          {activeAIInsights.map((item) => (
-            <div key={item.id} className="flex gap-2 group">
-              {/* Left Indicator Bar */}
-              <div
-                className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
-                style={{ backgroundColor: item.color }}
-              />
+        <div className="p-[16px] flex items-center justify-center min-h-[100px] w-full">
+          {activeInsights.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
+              {activeInsights.map((item: any) => (
+                <div key={item.id} className="flex gap-2 group">
+                  {/* Left Indicator Bar */}
+                  <div
+                    className="w-1 rounded-full shrink-0 h-full min-h-[60px]"
+                    style={{ backgroundColor: item.color }}
+                  />
 
-              <div className="space-y-1">
-                {/* Category Badge */}
-                <div
-                  className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
-                  style={{ backgroundColor: item.bgColor, color: item.textColor }}
-                >
-                  {item.title} <span className="ml-1 opacity-70">{item.percentage}</span>
+                  <div className="space-y-1">
+                    {/* Category Badge */}
+                    <div
+                      className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%] align-middle"
+                      style={{ backgroundColor: item.bgColor, color: item.textColor }}
+                    >
+                      {item.title} {item.percentage && <span className="ml-1 opacity-70">{item.percentage}</span>}
+                    </div>
+
+                    {/* Insight Text */}
+                    <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
-
-                {/* Insight Text */}
-                <p className="text-[14px] text-slate-600 font-inter font-normal leading-[20px] tracking-[0%] align-middle">
-                  {item.description}
-                </p>
-              </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="flex items-center justify-center text-slate-400 text-[13px] font-inter py-4">
+              No AI Insights available yet. Upload documents to get started.
+            </div>
+          )}
         </div>
       </div>
 

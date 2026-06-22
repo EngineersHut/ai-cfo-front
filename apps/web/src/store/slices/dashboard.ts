@@ -87,28 +87,28 @@ interface DashboardState {
 
 const initialState: DashboardState = {
   timeframe: 'Monthly',
-  revenueData: revenueData,
+  revenueData: [],
   healthData: healthData,
-  healthScore: 84,
-  auditCompliance: 98,
-  equityHealth: 84,
-  aiInsights: aiInsightsData,
+  healthScore: 0,
+  auditCompliance: 0,
+  equityHealth: 0,
+  aiInsights: [],
   cfoInsights: [],
   forecastVsReality: {
-    percentageAchieved: 40,
-    currentValue: 2,
-    targetValue: 5
+    percentageAchieved: 0,
+    currentValue: 0,
+    targetValue: 0
   },
-  costEfficiency: detailedCostData,
+  costEfficiency: {},
   kpiStats: {
-    totalTrips: { value: "70", trend: "+12.5%", sub: "Healthy Liquidity Profile" },
-    delPerVeh: { value: "200", unit: "/ Day", trend: "+1.5%", sub: "Per vehicle daily average" },
-    fleetUtil: { value: "95%", trend: "-1.2%", isDown: true, sub: "Near-optimal fleet coverage" },
-    driverEff: { value: "80%", trend: "Stable", sub: "Below 85% target review score..." },
-    cashRunway: { value: "12 months", trend: "+12.5%", sub: "Projected survival time" },
-    growth: { value: "18.2%", trend: "+5.4%", sub: "Month-over-month increase" },
-    ebitda: { value: "$45,000", trend: "-1.2%", isDown: true, sub: "Earnings before interest" },
-    cashflow: { value: "$22,000", unit: "/ Month", trend: "+3.2%", sub: "Net cash from operations" }
+    totalTrips: { value: "N/A", trend: "", sub: "" },
+    delPerVeh: { value: "N/A", unit: "", trend: "", sub: "" },
+    fleetUtil: { value: "N/A", trend: "", isDown: false, sub: "" },
+    driverEff: { value: "N/A", trend: "", sub: "" },
+    cashRunway: { value: "N/A", trend: "", sub: "" },
+    growth: { value: "N/A", trend: "", sub: "" },
+    ebitda: { value: "N/A", trend: "", isDown: false, sub: "" },
+    cashflow: { value: "N/A", unit: "", trend: "", sub: "" }
   },
   rawSummary: {},
   visibility: getInitialVisibility()
@@ -229,12 +229,12 @@ export const toggleDashboardVisibilityBulk = (ids: string[], visible: boolean, c
   };
 };
 
-export const fetchDashboardData = (companyId: string, period: string, month?: number, year?: number) => {
+export const fetchDashboardData = (companyId: string, month?: number, year?: number) => {
   return async () => {
     try {
-      let url = `/api/dashboard?period=${period.toLowerCase()}`;
+      let url = '/api/dashboard';
       if (month !== undefined && year !== undefined) {
-        url += `&month=${month}&year=${year}`;
+        url += `?month=${month}&year=${year}`;
       }
       const response = await getData(url);
       const data = response?.data || response;

@@ -76,69 +76,78 @@ export default function CostEfficiencyAnalysis() {
         { 
             id: 'totalExpenses', 
             label: 'Total Expenses', 
-            value: rawCost?.totalExpenses !== undefined ? formatVal(rawCost.totalExpenses, 'currency') : detailedCostData.summary[0].value, 
-            trend: getTrend(rawCost?.totalExpenses, detailedCostData.summary[0].trend), 
-            isUp: getIsUp(rawCost?.totalExpenses, detailedCostData.summary[0].isUp) 
+            value: rawCost?.totalExpenses !== undefined ? formatVal(rawCost.totalExpenses, 'currency') : 'N/A', 
+            trend: rawCost?.totalExpenses !== undefined ? getTrend(rawCost.totalExpenses, 'Stable') : '', 
+            isUp: rawCost?.totalExpenses !== undefined ? getIsUp(rawCost.totalExpenses, false) : false
         },
         { 
             id: 'costRevenue', 
             label: 'Cost of Revenue', 
-            value: rawCost?.costOfRevenue !== undefined ? formatVal(rawCost.costOfRevenue, 'percent') : detailedCostData.summary[1].value, 
-            trend: getTrend(rawCost?.costOfRevenue, detailedCostData.summary[1].trend), 
-            isUp: getIsUp(rawCost?.costOfRevenue, detailedCostData.summary[1].isUp) 
+            value: rawCost?.costOfRevenue !== undefined ? formatVal(rawCost.costOfRevenue, 'percent') : 'N/A', 
+            trend: rawCost?.costOfRevenue !== undefined ? getTrend(rawCost.costOfRevenue, 'Stable') : '', 
+            isUp: rawCost?.costOfRevenue !== undefined ? getIsUp(rawCost.costOfRevenue, false) : false
         },
         { 
             id: 'costClient', 
             label: 'Cost per Client', 
-            value: rawCost?.costPerClient !== undefined ? formatVal(rawCost.costPerClient, 'currency') : detailedCostData.summary[2].value, 
-            trend: getTrend(rawCost?.costPerClient, detailedCostData.summary[2].trend), 
-            isUp: getIsUp(rawCost?.costPerClient, detailedCostData.summary[2].isUp) 
+            value: rawCost?.costPerClient !== undefined ? formatVal(rawCost.costPerClient, 'currency') : 'N/A', 
+            trend: rawCost?.costPerClient !== undefined ? getTrend(rawCost.costPerClient, 'Stable') : '', 
+            isUp: rawCost?.costPerClient !== undefined ? getIsUp(rawCost.costPerClient, false) : false
         },
         { 
             id: 'opExpRatio', 
             label: 'Operating Expense Ratio', 
-            value: rawCost?.operatingExpenseRatio !== undefined ? formatVal(rawCost.operatingExpenseRatio, 'percent') : detailedCostData.summary[3].value, 
-            trend: getTrend(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].trend), 
-            isUp: getIsUp(rawCost?.operatingExpenseRatio, detailedCostData.summary[3].isUp) 
+            value: rawCost?.operatingExpenseRatio !== undefined ? formatVal(rawCost.operatingExpenseRatio, 'percent') : 'N/A', 
+            trend: rawCost?.operatingExpenseRatio !== undefined ? getTrend(rawCost.operatingExpenseRatio, 'Stable') : '', 
+            isUp: rawCost?.operatingExpenseRatio !== undefined ? getIsUp(rawCost.operatingExpenseRatio, false) : false
         }
     ];
  
     const breakdown = detailedCostData.breakdown.map((item, idx) => {
-        let val = item.value;
-        let trend = item.trend;
+        let val = 'N/A';
+        let trend = '';
+        let distribution = 0;
         if (item.metric === 'Total Expenses' && rawCost?.totalExpenses !== undefined) {
             val = formatVal(rawCost.totalExpenses, 'currency');
-            trend = getTrend(rawCost.totalExpenses, item.trend);
+            trend = getTrend(rawCost.totalExpenses, 'Stable');
+            distribution = item.distribution;
         } else if (item.metric === 'Cost % of Revenue' && rawCost?.costOfRevenue !== undefined) {
             val = formatVal(rawCost.costOfRevenue, 'percent');
-            trend = getTrend(rawCost.costOfRevenue, item.trend);
+            trend = getTrend(rawCost.costOfRevenue, 'Stable');
+            distribution = item.distribution;
         } else if (item.metric === 'Fixed Cost' && rawCost?.fixedCost !== undefined) {
             val = formatVal(rawCost.fixedCost, 'currency');
-            trend = getTrend(rawCost.fixedCost, item.trend);
+            trend = getTrend(rawCost.fixedCost, 'Stable');
+            distribution = item.distribution;
         } else if (item.metric === 'Variable Cost' && rawCost?.variableCost !== undefined) {
             val = formatVal(rawCost.variableCost, 'currency');
-            trend = getTrend(rawCost.variableCost, item.trend);
+            trend = getTrend(rawCost.variableCost, 'Stable');
+            distribution = item.distribution;
         }
-        return { ...item, value: val, trend };
+        return { ...item, value: val, trend, distribution };
     });
  
     const unitEconomics = detailedCostData.unitEconomics.map((item, idx) => {
-        let val = item.value;
-        let trend = item.trend;
+        let val = 'N/A';
+        let trend = '';
+        let distribution = 0;
         if (item.metric === 'Cost per Client' && rawCost?.costPerClient !== undefined) {
             val = formatVal(rawCost.costPerClient, 'currency');
-            trend = getTrend(rawCost.costPerClient, item.trend);
+            trend = getTrend(rawCost.costPerClient, 'Stable');
+            distribution = item.distribution;
         } else if (item.metric === 'Cost per Employee' && rawCost?.costPerEmployee !== undefined) {
             val = formatVal(rawCost.costPerEmployee, 'currency');
-            trend = getTrend(rawCost.costPerEmployee, item.trend);
+            trend = getTrend(rawCost.costPerEmployee, 'Stable');
+            distribution = item.distribution;
         } else if (item.metric === 'Operating Expense Ratio' && rawCost?.operatingExpenseRatio !== undefined) {
             val = formatVal(rawCost.operatingExpenseRatio, 'percent');
-            trend = getTrend(rawCost.operatingExpenseRatio, item.trend);
+            trend = getTrend(rawCost.operatingExpenseRatio, 'Stable');
+            distribution = item.distribution;
         }
-        return { ...item, value: val, trend };
+        return { ...item, value: val, trend, distribution };
     });
  
-    const insights = detailedCostData.insights;
+    const insights = [];
 
     return (
         <div className="w-full bg-white rounded-[16px] border border-slate-100 shadow-sm p-[16px]">
@@ -324,31 +333,11 @@ export default function CostEfficiencyAnalysis() {
                                     );
                                 })
                             ) : (
-                                insights.map((insight) => {
-                                    const Icon = IconMap[insight.icon] || Info;
-                                    return (
-                                        <div key={insight.id} className="w-full  p-[12px] gap-[10px] rounded-[12px] border bg-blue-50/40 border-blue-100/50 flex flex-col">
-                                            <div className="flex items-center gap-3 ">
-                                                <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
-                                                    <Icon size={14} />
-                                                </div>
-                                                <h4 className="text-[12.5px] font-semibold text-blue-900 font-inter leading-[18.75px] tracking-[0px]">{insight.title}</h4>
-                                            </div>
-                                            <ul className="space-y-2">
-                                                {insight.points.map((point: string, j: number) => {
-                                                    const isWarning = point.includes('above') || point.includes('increased');
-                                                    const bulletColor = isWarning ? 'bg-amber-500' : 'bg-emerald-500';
-                                                    return (
-                                                        <li key={j} className="flex gap-3 text-[11.5px] font-normal text-slate-600 font-inter leading-[17.25px] tracking-[0px]">
-                                                            <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${bulletColor}`} />
-                                                            {point}
-                                                        </li>
-                                                    );
-                                                })}
-                                            </ul>
-                                        </div>
-                                    );
-                                })
+                                <div className="flex flex-col items-center justify-center p-8 bg-slate-50/30 rounded-[12px] border border-dashed border-slate-200 text-center min-h-[220px]">
+                                    <ShieldCheck className="w-8 h-8 text-slate-300 mb-2" />
+                                    <p className="text-[13px] font-semibold text-slate-700 font-inter">No CFO Insights Yet</p>
+                                    <p className="text-[11px] text-slate-400 font-inter max-w-[200px] mt-1 mx-auto">Insights will appear here once financial data is uploaded.</p>
+                                </div>
                             )}
                         </div>
 
