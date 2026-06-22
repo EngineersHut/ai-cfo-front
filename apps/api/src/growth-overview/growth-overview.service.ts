@@ -25,6 +25,9 @@ export class GrowthOverviewService {
 
   // || ---------------------- Get Growth Overview Data function ---------------------|| //
   async getGrowthOverview(company: any, queryDto: GetGrowthOverviewDto) {
+    if (!company) {
+      return this.getEmptyOverview();
+    }
     const companyId = company._id.toString();
     const { month, year } = queryDto;
 
@@ -174,6 +177,28 @@ export class GrowthOverviewService {
       },
       growthTrend: combinedTrend,
       insights: combinedInsights,
+    };
+  }
+
+  private getEmptyOverview() {
+    return {
+      cards: {
+        monthlyGrowthPercent: { value: 0, trend: "Stable" },
+        quarterlyGrowthPercent: { value: 0, trend: "Stable" },
+        yearlyGrowthPercent: { value: 0, trend: "Stable" },
+        revenuePerClient: { value: 0, trend: "Stable" },
+        revenuePerEmployee: { value: 0, trend: "Stable" },
+        employeeGrowthPercent: { value: 0, trend: "Stable" },
+        clientGrowthPercent: { value: 0, trend: "Stable" },
+      },
+      growthHealth: {
+        growthHealthScore: 0,
+        revenueGrowthScore: 0,
+        clientRetentionScore: 0,
+        scalingEfficiencyScore: 0,
+      },
+      growthTrend: [],
+      insights: [],
     };
   }
 }

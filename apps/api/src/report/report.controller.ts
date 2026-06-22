@@ -26,7 +26,7 @@ import { GetReportsDto } from "./dto/get-reports.dto";
 import { GetReportPeriodFilterDto } from "./dto/get-report-period.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CompanyGuard } from "../auth/guards/company.guard";
-import { CurrentCompany } from "../common/decorators/company.decorator";
+import { CompanyOptional, CurrentCompany } from "../common/decorators/company.decorator";
 import { ReportFileInterceptor } from "../common/helpers/multer-config";
 
 @ApiTags("Reports")
@@ -74,10 +74,14 @@ export class ReportController {
 
   // || ---------------------- Get All Reports API ---------------------|| //
   @Get()
+  @CompanyOptional()
   @ApiOperation({
     summary: "Get all reports with optional filtering and pagination",
   })
   findAll(@Request() req: any, @CurrentCompany() company: any, @Query() queryDto: GetReportsDto) {
+    if (!company) {
+      return { data: [], total: 0 };
+    }
     return this.reportService.findAll(req.user._id || req.user.id, company, queryDto);
   }
 

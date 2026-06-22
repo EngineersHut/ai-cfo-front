@@ -92,9 +92,13 @@ export class ReportMapperService {
     if (llmData.summary) {
       analytics.financial.revenue = getNum(llmData.summary.revenue);
       analytics.financial.expenses = getNum(llmData.summary.totalExpenses || llmData.summary.cogs);
-      analytics.financial.grossProfit = getNum(llmData.summary.revenue) - getNum(llmData.summary.cogs);
+      analytics.financial.grossProfit = getNum(llmData.summary.grossProfit);
+      analytics.financial.netProfit = getNum(llmData.summary.netProfit);
+      analytics.financial.ebitda = getNum(llmData.summary.ebitda);
       analytics.financial.netCashFlow = getNum(llmData.summary.netCashFlow);
       analytics.financial.cashBalance = getNum(llmData.summary.cashBalance);
+      analytics.financial.netProfitMarginPercent = getNum(llmData.summary.netProfitMarginPercent);
+      analytics.financial.grossMarginPercent = getNum(llmData.summary.grossMarginPercent);
     }
 
     if (llmData.fleet) {

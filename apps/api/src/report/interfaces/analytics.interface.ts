@@ -9,6 +9,8 @@ export interface AnalyticsSchema {
     cashBalance: number;
     cashInflow: number;
     cashOutflow: number;
+    netProfitMarginPercent: number;
+    grossMarginPercent: number;
   };
   growth: {
     clientCount: number;
@@ -43,6 +45,8 @@ export function getDefaultAnalytics(): AnalyticsSchema {
       cashBalance: 0,
       cashInflow: 0,
       cashOutflow: 0,
+      netProfitMarginPercent: 0,
+      grossMarginPercent: 0,
     },
     growth: {
       clientCount: 0,

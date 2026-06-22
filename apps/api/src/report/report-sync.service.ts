@@ -55,10 +55,28 @@ export class ReportSyncService {
     await Promise.all([
       this.dashboardModel.deleteMany({
         companyId,
-        periodType: { $exists: true },
+        $or: [
+          { periodType: { $exists: true } },
+          { month: null },
+          { year: null },
+        ],
       }),
-      this.growthModel.deleteMany({ companyId, periodType: { $exists: true } }),
-      this.fleetModel.deleteMany({ companyId, periodType: { $exists: true } }),
+      this.growthModel.deleteMany({
+        companyId,
+        $or: [
+          { periodType: { $exists: true } },
+          { month: null },
+          { year: null },
+        ],
+      }),
+      this.fleetModel.deleteMany({
+        companyId,
+        $or: [
+          { periodType: { $exists: true } },
+          { month: null },
+          { year: null },
+        ],
+      }),
     ]);
 
     const company = await this.companyModel.findById(companyId);
@@ -82,6 +100,35 @@ export class ReportSyncService {
         monthlyReportsMap.set(key, []);
       }
       monthlyReportsMap.get(key)!.push(report);
+    }
+
+    // Find all existing periods in dashboard to identify which ones need to be deleted
+    const existingDashboards = await this.dashboardModel
+      .find({ companyId }, { year: 1, month: 1 })
+      .lean();
+    const existingKeys = new Set(
+      existingDashboards
+        .filter((d) => d.year && d.month)
+        .map((d) => `${d.year}-${d.month}`),
+    );
+
+    // Delete data for periods that no longer have any active reports
+    for (const existingKey of existingKeys) {
+      if (!monthlyReportsMap.has(existingKey)) {
+        const [yearStr, monthStr] = existingKey.split("-");
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10);
+
+        await Promise.all([
+          this.dashboardModel.deleteMany({ companyId, month, year }),
+          this.growthModel.deleteMany({ companyId, month, year }),
+          this.fleetModel.deleteMany({ companyId, month, year }),
+          this.budgetModel.deleteMany({ companyId, month, year }),
+        ]);
+        console.log(
+          `Deleted dashboard data for ${companyId} month ${existingKey} as no reports remain.`,
+        );
+      }
     }
 
     // Process each month using LLM consolidation
@@ -271,14 +318,14 @@ export class ReportSyncService {
       this.dashboardModel.findOneAndUpdate(
         query,
         {
-        $set: {
-          ...dashboardPayload,
-          // Only overwrite if it exists in the new consolidated payload
-          ...(consolidated.dashboardSummary?.expenseBreakdown && {
-            expenseBreakdown: consolidated.dashboardSummary.expenseBreakdown,
-          }),
+          $set: {
+            ...dashboardPayload,
+            // Only overwrite if it exists in the new consolidated payload
+            ...(consolidated.dashboardSummary?.expenseBreakdown && {
+              expenseBreakdown: consolidated.dashboardSummary.expenseBreakdown,
+            }),
+          },
         },
-      },
         { upsert: true, new: true },
       ),
       this.growthModel.findOneAndUpdate(

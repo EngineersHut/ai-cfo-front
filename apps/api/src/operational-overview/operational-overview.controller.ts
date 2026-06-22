@@ -2,7 +2,7 @@ import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CompanyGuard } from '../auth/guards/company.guard';
-import { CurrentCompany } from '../common/decorators/company.decorator';
+import { CompanyOptional, CurrentCompany } from '../common/decorators/company.decorator';
 import { OperationalOverviewService } from './operational-overview.service';
 import { GetOperationalOverviewDto } from './dto/get-operational-overview.dto';
 
@@ -15,6 +15,7 @@ export class OperationalOverviewController {
 
   // || ---------------------- Get Operational Overview API ---------------------|| //
   @Get()
+  @CompanyOptional()
   @ApiOperation({ summary: 'Get Operational Overview Analytics' })
   getOperationalOverview(@CurrentCompany() company: any, @Query() queryDto: GetOperationalOverviewDto) {
     return this.operationalOverviewService.getOperationalOverview(company, queryDto);

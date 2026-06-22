@@ -3,13 +3,13 @@ import { Response } from 'express';
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CompanyGuard } from '../auth/guards/company.guard';
-import { CurrentCompany } from '../common/decorators/company.decorator';
+import { CompanyOptional, CurrentCompany } from '../common/decorators/company.decorator';
 import { DashboardService } from './dashboard.service';
 import { GetDashboardDto } from './dto/get-dashboard.dto';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
-@ApiHeader({ name: 'x-company-id', required: true, description: 'Company ID' })
+@ApiHeader({ name: 'x-company-id', required: false, description: 'Company ID' })
 @UseGuards(JwtAuthGuard, CompanyGuard)
 @Controller('dashboard')
 export class DashboardController {
@@ -17,12 +17,14 @@ export class DashboardController {
 
   // || ---------------------- Get Dashboard API ---------------------|| //
   @Get()
+  @CompanyOptional()
   @ApiOperation({ summary: 'Get CFO Dashboard Analytics' })
   getDashboard(@CurrentCompany() company: any, @Query() queryDto: GetDashboardDto) {
     return this.dashboardService.getDashboard(company, queryDto);
   }
   // || ---------------------- Export Cost Efficiency CSV API ---------------------|| //
   @Get('export-cost-efficiency')
+  @CompanyOptional()
   @ApiOperation({ summary: 'Export Cost Efficiency data as CSV' })
   async exportCostEfficiency(
     @CurrentCompany() company: any,
