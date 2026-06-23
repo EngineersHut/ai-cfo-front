@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -36,7 +36,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      <Navbar />
+      <Suspense fallback={<div className="h-[72px]" />}>
+        <Navbar />
+      </Suspense>
       <main>
         <Hero />
         <TrustedBy />
