@@ -1,5 +1,5 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import { Prop, Schema } from "@nestjs/mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 @Schema({ timestamps: true, _id: false })
 export class BaseDocument {
@@ -14,6 +14,9 @@ export class BaseDocument {
   @Prop({ default: null })
   deletedAt!: Date;
 
+  @Prop()
   createdAt?: Date;
+
+  @Prop()
   updatedAt?: Date;
 }

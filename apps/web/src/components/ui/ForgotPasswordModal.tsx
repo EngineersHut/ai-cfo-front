@@ -256,7 +256,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     placeholder="••••••••••••"
                     className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                   />
-                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
                     {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
                   </button>
                 </div>
@@ -276,7 +276,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     placeholder="••••••••••••"
                     className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                   />
-                  <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
                     {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
                   </button>
                 </div>
@@ -298,7 +298,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
           <button
             onClick={handleContinue}
             disabled={actionLoading}
-            className="w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 text-white font-medium text-[14px] rounded-[8px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
+            className="w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 text-white font-medium text-[14px] rounded-[8px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:pointer-events-none cursor-pointer"
           >
             {actionLoading && (
               <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />

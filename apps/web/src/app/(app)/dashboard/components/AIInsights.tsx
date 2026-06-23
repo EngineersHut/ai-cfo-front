@@ -44,8 +44,8 @@ export default function AIInsights({ insights }: { insights?: AIInsightItem[] })
       <div className="p-[16px] flex items-center justify-center min-h-[100px] w-full">
         {activeInsights.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
-            {activeInsights.map((item) => (
-              <div key={item.id} className="flex gap-2 group">
+            {activeInsights.map((item, idx) => (
+              <div key={item.id || `insight-${idx}`} className="flex gap-2 group">
                 {/* Left Indicator Bar */}
                 <div
                   className="w-1 rounded-full shrink-0 h-full min-h-[60px]"

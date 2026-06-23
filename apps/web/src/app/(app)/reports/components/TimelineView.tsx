@@ -49,10 +49,40 @@ const getEndDateStr = (report: any) => {
 
 const getStatusLabel = (status?: string) => {
     const s = status ? status.toLowerCase() : 'processing';
-    if (s === 'completed' || s === 'processed' || s === 'success') {
-        return 'Processed';
+    if (s === 'completed' || s === 'processed' || s === 'success' || s === 'analyzed') {
+        return 'Analyzed';
     }
-    return s.charAt(0).toUpperCase() + s.slice(1);
+    if (s === 'failed') {
+        return 'Failed';
+    }
+    return 'Processing';
+};
+
+const getStatusStyles = (status?: string) => {
+    const s = status ? status.toLowerCase() : 'processing';
+    if (s === 'completed' || s === 'processed' || s === 'success' || s === 'analyzed') {
+        return {
+            bg: 'bg-[#f2fffa]',
+            border: 'border-[#bee5d0]',
+            text: 'text-[#2cac68]',
+            dot: 'bg-[#2cac68]'
+        };
+    }
+    if (s === 'failed') {
+        return {
+            bg: 'bg-rose-50',
+            border: 'border-rose-200',
+            text: 'text-rose-600',
+            dot: 'bg-rose-600'
+        };
+    }
+    // processing or default
+    return {
+        bg: 'bg-blue-50 animate-pulse',
+        border: 'border-blue-200',
+        text: 'text-blue-600',
+        dot: 'bg-blue-600'
+    };
 };
 
 export default function TimelineView({ 
@@ -81,6 +111,7 @@ export default function TimelineView({
                     {reportsData.map((report, idx) => {
                         const reportPeriod = report.periodStartDate || report.period || '';
                         const isPeriodActive = activePeriod === reportPeriod;
+                        const statusStyles = getStatusStyles(report.uploadStatus || report.status);
 
                         return (
                             <div
@@ -116,8 +147,8 @@ export default function TimelineView({
                                     }`}>
                                     {/* Status Badge */}
                                     <div className="flex items-center justify-between">
-                                        <div className="inline-flex items-center gap-[6px] w-[92px] h-[20px] rounded-[4px] border border-[#bee5d0] bg-[#f2fffa] text-[#2cac68] text-[14px] font-normal font-inter leading-[20px] pt-[2px] pr-[6px] pb-[2px] pl-[4px]">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[#2cac68]" />
+                                        <div className={`inline-flex items-center gap-[6px] w-[92px] h-[20px] rounded-[4px] border text-[14px] font-normal font-inter leading-[20px] pt-[2px] pr-[6px] pb-[2px] pl-[4px] ${isPeriodActive ? 'bg-white/10 border-white/20 text-white' : `${statusStyles.bg} ${statusStyles.border} ${statusStyles.text}`}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${isPeriodActive ? 'bg-white' : statusStyles.dot}`} />
                                             {getStatusLabel(report.uploadStatus || report.status)}
                                         </div>
                                         <button

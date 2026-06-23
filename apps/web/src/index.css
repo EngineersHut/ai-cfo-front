@@ -17,6 +17,11 @@
   ::-webkit-scrollbar-track { background: #f1f5f9; }
   ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
   .dark ::-webkit-scrollbar-track { background: #0d1526; }
+  
+  /* Ensure all buttons have pointer cursor globally */
+  button, [role="button"], a {
+    cursor: pointer;
+  }
 }
 
 /* ── LIGHT vars ── */
@@ -126,3 +131,7 @@
 .animate-float { animation: float 6s ease-in-out infinite; }
 @keyframes pulse-slow { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+
+button {
+  cursor: pointer;
+}

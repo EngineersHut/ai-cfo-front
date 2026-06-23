@@ -116,18 +116,38 @@ export default function ReportsPage() {
     };
 
     useEffect(() => {
-        loadReports(1, 10, '');
-    }, [])
+        loadReports(1, limit, searchQuery);
+
+        const handleCompanyChange = () => {
+            loadReports(1, limit, searchQuery);
+        };
+        
+        window.addEventListener('companyChanged', handleCompanyChange);
+        return () => window.removeEventListener('companyChanged', handleCompanyChange);
+    }, [limit, searchQuery])
 
     useEffect(() => {
         if (reports) {
             const dataArray = Array.isArray(reports) ? reports : (reports.data || []);
             setReportData(dataArray);
-            if (dataArray.length > 0) {
+            if (dataArray.length > 0 && !activePeriod) {
                 setActivePeriod(dataArray[0].periodStartDate || dataArray[0].period || '');
             }
         }
     }, [reports])
+
+    useEffect(() => {
+        const hasProcessing = reportData.some(r => (r.uploadStatus || r.status) === 'processing');
+        let interval: NodeJS.Timeout;
+        if (hasProcessing) {
+            interval = setInterval(() => {
+                loadReports(currentPage, limit, searchQuery);
+            }, 5000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [reportData, currentPage, limit, searchQuery]);
 
     const paginationObj = reports && !Array.isArray(reports) ? {
         total: reports.total ?? 0,
@@ -163,7 +183,7 @@ export default function ReportsPage() {
                             <div className="w-full sm:w-[290px] h-[48px] p-[5px] flex items-center bg-white border border-[#e2e8f0] rounded-[8px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)]">
                                 <button
                                     onClick={() => setView('list')}
-                                    className={`flex-1 h-[36px] flex items-center justify-center gap-[10px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-normal font-inter leading-[20px] transition-all whitespace-nowrap ${view === 'list'
+                                    className={`flex-1 h-[36px] flex items-center justify-center gap-[10px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-normal font-inter leading-[20px] transition-all whitespace-nowrap cursor-pointer ${view === 'list'
                                         ? 'bg-[#2563eb] text-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] border border-white/10'
                                         : 'text-slate-500 hover:text-slate-700'
                                         }`}
@@ -173,7 +193,7 @@ export default function ReportsPage() {
                                 </button>
                                 <button
                                     onClick={() => setView('timeline')}
-                                    className={`flex-1 h-[36px] flex items-center justify-center gap-[10px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-normal font-inter leading-[20px] transition-all whitespace-nowrap ${view === 'timeline'
+                                    className={`flex-1 h-[36px] flex items-center justify-center gap-[10px] px-[12px] py-[4px] rounded-[8px] text-[14px] font-normal font-inter leading-[20px] transition-all whitespace-nowrap cursor-pointer ${view === 'timeline'
                                         ? 'bg-[#2563eb] text-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] border border-white/10'
                                         : 'text-slate-500 hover:text-slate-700'
                                         }`}
@@ -194,7 +214,7 @@ export default function ReportsPage() {
                                 </div>
                                 <button
                                     onClick={() => setIsAddingReport(true)}
-                                    className="w-[130px] h-[36px] flex items-center justify-center gap-[6px] pt-[4px] pr-[12px] pb-[4px] pl-[12px] bg-[#2563eb] text-white rounded-[8px] border border-white/10 text-[14px] font-normal font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all"
+                                    className="w-[130px] h-[36px] flex items-center justify-center gap-[6px] pt-[4px] pr-[12px] pb-[4px] pl-[12px] bg-[#2563eb] text-white rounded-[8px] border border-white/10 text-[14px] font-normal font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)] hover:bg-blue-700 transition-all cursor-pointer"
                                 >
                                     <Plus size={18} />
                                     Add Report

@@ -35,7 +35,7 @@ function NavItem({
   const className = `flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
     } h-[40px] ${active
       ? 'bg-[#2563eb] text-white shadow-sm font-medium'
-      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
     }`;
 
   const content = (
@@ -105,7 +105,7 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
 
   return (
     <aside
-      className={`bg-white flex flex-col h-full  transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
+      className={`bg-white dark:bg-[#0a0f1c] border-r border-slate-100 dark:border-slate-800 flex flex-col h-full transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
         }`}
     >
       {/* Branding & Toggle Section */}
@@ -123,7 +123,7 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
           {!isCollapsed && (
             <button
               onClick={onToggle}
-              className="w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
+              className="w-9 h-9 flex items-center justify-center bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
               title="Collapse"
             >
               <LayoutToggleButton isCollapsed={false} />
@@ -134,7 +134,7 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
         {isCollapsed && (
           <button
             onClick={onToggle}
-            className="mt-6 w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
+            className="mt-6 w-9 h-9 flex items-center justify-center bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
             title="Expand"
           >
             <LayoutToggleButton isCollapsed={true} />
@@ -144,7 +144,7 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
 
       {/* Indented Separator Line */}
       <div className={`px-5 mb-2 ${isCollapsed ? 'px-4' : 'px-5'}`}>
-        <div className="h-px bg-slate-100 w-full" />
+        <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
       </div>
 
       {/* Navigation */}
@@ -205,7 +205,7 @@ export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProp
       </nav>
 
       {/* User Section - Restoring sequence while maintaining size parity */}
-      <div className={`p-[20px] border-t border-slate-50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
+      <div className={`p-[20px] border-t border-slate-50 dark:border-slate-800/50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
         <NavItem
           icon={<SettingsIcon />}
           label="Settings"

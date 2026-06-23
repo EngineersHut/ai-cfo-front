@@ -85,7 +85,7 @@ const Modal: React.FC<ModalProps> = ({
         <div className="flex justify-end px-2 pt-2 flex-shrink-0">
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-50"
+            className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-50 cursor-pointer"
           >
             <X size={20} strokeWidth={2.5} className="text-black" />
           </button>
