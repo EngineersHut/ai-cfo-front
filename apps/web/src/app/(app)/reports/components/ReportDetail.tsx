@@ -79,7 +79,7 @@ const formatCurrency = (value: number) => {
 export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
     const [revenueTimeframe, setRevenueTimeframe] = React.useState<'Weekly' | 'Monthly'>('Monthly');
     const [expenseTimeframe, setExpenseTimeframe] = React.useState<'Weekly' | 'Monthly'>('Monthly');
-    const [companyType, setCompanyType] = React.useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+    const [companyType, setCompanyType] = React.useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
 
     useEffect(() => {
         const savedType = localStorage.getItem('selectedCompanyType');
@@ -128,7 +128,7 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
     const netProfit = summaryCards?.netProfit ?? 0;
     const profitMargin = summaryCards?.profitMargin ?? 0;
 
-    const currentKPIs = REPORTS_KPI_CONFIGS[companyType as IndustryEnum] || REPORTS_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const currentKPIs = REPORTS_KPI_CONFIGS[companyType as IndustryEnum] || REPORTS_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];

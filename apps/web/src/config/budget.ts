@@ -16,44 +16,44 @@ export interface BudgetHeaderConfig {
 }
 
 export const BUDGET_HEADER_CONFIGS: Record<IndustryEnum, BudgetHeaderConfig> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: {
+  [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Budget vs Actual',
     subtitle: 'Compare planned MRR scaling, SaaS direct costs, and host variances.',
   },
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: {
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: {
     title: 'Project Budget vs Actual',
     subtitle: 'Compare design project budgets, actual labor costs, and fee margins.',
   },
-  [IndustryEnum.FINANCIAL_SERVICES]: {
+  [IndustryEnum.FINANCIAL_AND_BANKING]: {
     title: 'Asset Budget vs Actual',
     subtitle: 'Track asset budgets, yield payouts, and transaction variance.',
   },
-  [IndustryEnum.FLEET_MANAGEMENT]: {
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: {
     title: 'Budget vs Actual',
     subtitle: 'Compare planned vs actual performance and manage fleet operational budgets.',
   },
 };
 
 export const BUDGET_KPI_CONFIGS: Record<IndustryEnum, BudgetKPIConfig[]> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+  [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'budgetRevenue', label: 'Budget MRR', sub: 'This period target', format: 'currency', icon: 'TrendingUp', trend: 'FY2024' },
     { key: 'actualRevenue', label: 'Actual MRR', sub: 'Reported to date', format: 'currency', icon: 'Calendar', trend: '77.1%' },
     { key: 'revenueVariance', label: 'Net MRR Variance', sub: '-$13.4K vs plan', format: 'percent', icon: 'BarChart3', trend: 'Within limit', isDownPositive: true },
     { key: 'overBudgetItems', label: 'Infra & Host Variance', sub: 'Average cloud variance', format: 'currency', icon: 'DollarSign', trend: '+4.2%' }
   ],
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: [
     { key: 'budgetRevenue', label: 'Budget Design Fees', sub: 'This period target', format: 'currency', icon: 'TrendingUp', trend: 'FY2024' },
     { key: 'actualRevenue', label: 'Actual Design Fees', sub: 'Reported to date', format: 'currency', icon: 'Calendar', trend: '77.1%' },
     { key: 'revenueVariance', label: 'Fee Variance', sub: '-$13.4K vs plan', format: 'percent', icon: 'BarChart3', trend: 'Within limit', isDownPositive: true },
     { key: 'overBudgetItems', label: 'Labor Hour Variance', sub: 'Average design variance', format: 'currency', icon: 'DollarSign', trend: '+4.2%' }
   ],
-  [IndustryEnum.FINANCIAL_SERVICES]: [
+  [IndustryEnum.FINANCIAL_AND_BANKING]: [
     { key: 'budgetRevenue', label: 'Budget Net Yield', sub: 'This period target', format: 'currency', icon: 'TrendingUp', trend: 'FY2024' },
     { key: 'actualRevenue', label: 'Actual Net Yield', sub: 'Reported to date', format: 'currency', icon: 'Calendar', trend: '77.1%' },
     { key: 'revenueVariance', label: 'Yield Variance', sub: '-$13.4K vs plan', format: 'percent', icon: 'BarChart3', trend: 'Within limit', isDownPositive: true },
     { key: 'overBudgetItems', label: 'Compliance Variance', sub: 'Average regulatory cost', format: 'currency', icon: 'DollarSign', trend: '+4.2%' }
   ],
-  [IndustryEnum.FLEET_MANAGEMENT]: [
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: [
     { key: 'budgetRevenue', label: 'Budget Revenue', sub: 'This period', format: 'currency', icon: 'TrendingUp', trend: 'FY2024' },
     { key: 'actualRevenue', label: 'Actual Revenue', sub: 'Reported to date', format: 'currency', icon: 'Calendar', trend: '77.1%' },
     { key: 'revenueVariance', label: 'Revenue Variance', sub: '-5.5%', format: 'percent', icon: 'BarChart3', trend: 'Within limit', isDownPositive: true },
@@ -61,7 +61,7 @@ export const BUDGET_KPI_CONFIGS: Record<IndustryEnum, BudgetKPIConfig[]> = {
   ],
 };
 export const BUDGET_TABLE_CONFIGS: Record<IndustryEnum, Record<string, string>> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: {
+  [IndustryEnum.TECHNOLOGY_AND_IT]: {
     'Revenue': 'MRR',
     'Direct Costs': 'Hosting & COGS',
     'Operating Expenses': 'SaaS OpEx',
@@ -83,7 +83,7 @@ export const BUDGET_TABLE_CONFIGS: Record<IndustryEnum, Record<string, string>> 
     'Forecast Cash Position': 'Forecast Cash Runway',
     'Expected Growth Rate': 'Expected LTV Growth',
   },
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: {
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: {
     'Revenue': 'Design Fees',
     'Direct Costs': 'Project Direct Labor',
     'Operating Expenses': 'Studio OpEx',
@@ -105,7 +105,7 @@ export const BUDGET_TABLE_CONFIGS: Record<IndustryEnum, Record<string, string>> 
     'Forecast Cash Position': 'Forecast Work-in-Progress Cash',
     'Expected Growth Rate': 'Expected Backlog Growth',
   },
-  [IndustryEnum.FINANCIAL_SERVICES]: {
+  [IndustryEnum.FINANCIAL_AND_BANKING]: {
     'Revenue': 'Net Yield',
     'Direct Costs': 'Transaction Costs',
     'Operating Expenses': 'Operating Expenditures',
@@ -127,7 +127,7 @@ export const BUDGET_TABLE_CONFIGS: Record<IndustryEnum, Record<string, string>> 
     'Forecast Cash Position': 'Forecast Vault Cash',
     'Expected Growth Rate': 'Expected AUM Growth',
   },
-  [IndustryEnum.FLEET_MANAGEMENT]: {
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: {
     'Revenue': 'Revenue',
     'Direct Costs': 'Direct Costs',
     'Operating Expenses': 'Operating Expenses',

@@ -102,6 +102,8 @@ export default function DashboardLayout({
             onOpenCustomize={() => setIsCustomizeOpen(true)}
           />
 
+          <GlobalProcessingBanner />
+
           {/* Content Area */}
           <main className="flex-1 bg-white relative">
             <div className="absolute inset-0 mr-2 rounded-t-[16px] p-[24px] overflow-auto shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)] bg-[#f6f8fa]">

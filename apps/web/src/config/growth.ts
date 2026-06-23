@@ -15,44 +15,44 @@ export interface GrowthHeaderConfig {
 }
 
 export const GROWTH_HEADER_CONFIGS: Record<IndustryEnum, GrowthHeaderConfig> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: {
+  [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Growth & Retention',
     subtitle: 'Track logo scaling, user expansion, and MRR growth cohorts.',
   },
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: {
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: {
     title: 'Project & Workspace Growth',
     subtitle: 'Monitor billing runway expansion, backlog progress, and fee margins.',
   },
-  [IndustryEnum.FINANCIAL_SERVICES]: {
+  [IndustryEnum.FINANCIAL_AND_BANKING]: {
     title: 'Asset Growth & Returns',
     subtitle: 'Analyze capitalization rates, asset growth, and investor returns.',
   },
-  [IndustryEnum.FLEET_MANAGEMENT]: {
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: {
     title: 'Growth Overview',
     subtitle: 'Analyze business growth trends, revenue scaling, and fleet expansion.',
   },
 };
 
 export const GROWTH_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+  [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'monthlyGrowthPercent', label: 'Monthly Growth %', sub: 'Compared to last month', format: 'percent', icon: 'TrendingUp' },
     { key: 'quarterlyGrowthPercent', label: 'Quarterly Growth %', sub: 'Q2 performance cohort', format: 'percent', icon: 'Calendar' },
     { key: 'yearlyGrowthPercent', label: 'Yearly Growth %', sub: 'Annual cohort rate', format: 'percent', icon: 'BarChart' },
     { key: 'revenuePerClient', label: 'LTV per Client', sub: 'Average recurring value', format: 'currency', icon: 'DollarSign' }
   ],
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: [
     { key: 'monthlyGrowthPercent', label: 'Monthly Projects Growth %', sub: 'Active billing speed', format: 'percent', icon: 'TrendingUp' },
     { key: 'quarterlyGrowthPercent', label: 'Quarterly Backlog %', sub: 'Current backlog health', format: 'percent', icon: 'Calendar' },
     { key: 'yearlyGrowthPercent', label: 'Yearly Projects Growth %', sub: 'Yearly design expansion', format: 'percent', icon: 'BarChart' },
     { key: 'revenuePerClient', label: 'Revenue per Project', sub: 'Average design fee value', format: 'currency', icon: 'DollarSign' }
   ],
-  [IndustryEnum.FINANCIAL_SERVICES]: [
+  [IndustryEnum.FINANCIAL_AND_BANKING]: [
     { key: 'monthlyGrowthPercent', label: 'Monthly AUM Growth %', sub: 'Net capital flow speed', format: 'percent', icon: 'TrendingUp' },
     { key: 'quarterlyGrowthPercent', label: 'Quarterly ROI Rate %', sub: 'Asset yield efficiency', format: 'percent', icon: 'Calendar' },
     { key: 'yearlyGrowthPercent', label: 'Yearly Returns %', sub: 'Annual portfolio yield', format: 'percent', icon: 'BarChart' },
     { key: 'revenuePerClient', label: 'Revenue per Account', sub: 'Average account revenue', format: 'currency', icon: 'DollarSign' }
   ],
-  [IndustryEnum.FLEET_MANAGEMENT]: [
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: [
     { key: 'monthlyGrowthPercent', label: 'Monthly Growth %', sub: 'Compared to last month', format: 'percent', icon: 'TrendingUp' },
     { key: 'quarterlyGrowthPercent', label: 'Quarterly Growth', sub: 'Q2 performance', format: 'percent', icon: 'Calendar' },
     { key: 'yearlyGrowthPercent', label: 'Year-over-Year Growth', sub: 'Annual growth rate', format: 'percent', icon: 'BarChart' },
@@ -61,22 +61,22 @@ export const GROWTH_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
 };
 
 export const GROWTH_ADDITIONAL_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
-  [IndustryEnum.TECHNOLOGY_AND_SAAS]: [
+  [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'revenuePerEmployee', label: 'SaaS Revenue / FTE', sub: 'Efficiency cohort', format: 'currency', icon: 'Banknote' },
     { key: 'employeeGrowthPercent', label: 'Team Growth', sub: 'Talent cohort expansion', format: 'percent', icon: 'TrendingUp' },
     { key: 'clientGrowthPercent', label: 'Logo Retention', sub: 'Retention efficiency', format: 'percent', icon: 'Wallet' }
   ],
-  [IndustryEnum.ARCHITECTURE_AND_DESIGN]: [
+  [IndustryEnum.CONSTRUCTION_AND_INFRASTRUCTURE]: [
     { key: 'revenuePerEmployee', label: 'Revenue per Architect', sub: 'Billable efficiency', format: 'currency', icon: 'Banknote' },
     { key: 'employeeGrowthPercent', label: 'Design Team Growth', sub: 'Workspace expansion', format: 'percent', icon: 'TrendingUp' },
     { key: 'clientGrowthPercent', label: 'Project Growth', sub: 'Project success rate', format: 'percent', icon: 'Wallet' }
   ],
-  [IndustryEnum.FINANCIAL_SERVICES]: [
+  [IndustryEnum.FINANCIAL_AND_BANKING]: [
     { key: 'revenuePerEmployee', label: 'Revenue per Broker', sub: 'Advisor efficiency', format: 'currency', icon: 'Banknote' },
     { key: 'employeeGrowthPercent', label: 'Broker Network Growth', sub: 'Network expansion', format: 'percent', icon: 'TrendingUp' },
     { key: 'clientGrowthPercent', label: 'Depositors Growth', sub: 'Investor acquisition', format: 'percent', icon: 'Wallet' }
   ],
-  [IndustryEnum.FLEET_MANAGEMENT]: [
+  [IndustryEnum.TRANSPORTATION_AND_LOGISTICS]: [
     { key: 'revenuePerEmployee', label: 'Revenue per Employee', sub: 'Efficiency metric', format: 'currency', icon: 'Banknote' },
     { key: 'employeeGrowthPercent', label: 'Employee Growth', sub: 'Team expansion', format: 'percent', icon: 'TrendingUp' },
     { key: 'clientGrowthPercent', label: 'Client Growth', sub: 'Retention rate', format: 'percent', icon: 'Wallet' }

@@ -41,13 +41,7 @@ export class DashboardService {
     const companyId = company._id.toString();
     const { month, year } = queryDto;
 
-    if (company.industry === IndustryEnum.FLEET_MANAGEMENT) {
-      return this.getFleetDashboard(companyId, month, year);
-    }
-
-    return {
-      message: `Dashboard for industry ${company.industry} is not implemented yet.`,
-    };
+    return this.getFleetDashboard(companyId, month, year);
   }
 
   private getEmptyDashboard() {

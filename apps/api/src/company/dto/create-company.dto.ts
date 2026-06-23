@@ -8,10 +8,15 @@ export class CreateCompanyDto {
   @IsNotEmpty()
   name!: string;
 
-  @ApiProperty({ description: 'The industry the company operates in', enum: IndustryEnum, example: IndustryEnum.TECHNOLOGY_AND_SAAS })
+  @ApiProperty({ description: 'The industry the company operates in', enum: IndustryEnum, example: IndustryEnum.TECHNOLOGY_AND_IT })
   @IsEnum(IndustryEnum)
   @IsNotEmpty()
   industry!: string;
+
+  @ApiPropertyOptional({ description: 'The sub-industry the company operates in', example: 'Fleet Management' })
+  @IsString()
+  @IsOptional()
+  subIndustry?: string;
 
   @ApiProperty({ description: 'The currency used by the company', enum: CurrencyEnum, example: CurrencyEnum.USD })
   @IsEnum(CurrencyEnum)

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { dispatch, useSelector } from '@/store';
-import { getAllReports } from '@/store/slices/report';
+import { getAllReports, getAllReportsSilent } from '@/store/slices/report';
 import { Report } from '@/types';
 
 export default function GlobalProcessingBanner() {
@@ -17,22 +17,21 @@ export default function GlobalProcessingBanner() {
         return dataArray.some((r: Report) => (r.uploadStatus || r.status) === 'processing');
     };
 
-    // Initial check and periodic polling
+    // Initial fetch + silent polling when processing
     useEffect(() => {
-        // Fetch initially to check status across app
         dispatch(getAllReports('?limit=10'));
 
         const interval = setInterval(() => {
-            dispatch(getAllReports('?limit=10'));
+            dispatch(getAllReportsSilent('?limit=10'));
         }, 5000);
 
         const handleReanalyzing = (e: any) => {
             if (e.detail?.reanalyzing) {
                 setReanalyzingMsg('Report successfully deleted. Remaining reports for the same month are being re-analyzed.');
-                // Auto hide the banner after 30 seconds since we don't have db status to poll
                 setTimeout(() => setReanalyzingMsg(''), 30000);
             }
         };
+
         window.addEventListener('report-deleted', handleReanalyzing);
 
         return () => {

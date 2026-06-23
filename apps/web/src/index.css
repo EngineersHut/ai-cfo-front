@@ -12,11 +12,11 @@
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-  .dark body { background-color: #080d1a !important; color: #f1f5f9; }
+  
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: #f1f5f9; }
   ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
-  .dark ::-webkit-scrollbar-track { background: #0d1526; }
+  
   
   /* Ensure all buttons have pointer cursor globally */
   button, [role="button"], a {
@@ -42,21 +42,7 @@
 }
 
 /* ── DARK vars ── */
-.dark {
-  --bg-primary:    #080d1a;
-  --bg-secondary:  #0d1526;
-  --bg-card:       #111827;
-  --bg-alt:        #0a1020;
-  --border:        rgba(255,255,255,0.08);
-  --text-primary:  #f1f5f9;
-  --text-secondary:#94a3b8;
-  --text-muted:    #64748b;
-  --nav-bg:        rgba(8,13,26,0.95);
-  --card-shadow:   0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3);
-  --card-hover:    0 8px 40px rgba(59,130,246,0.2);
-  --hero-glow:     rgba(59,130,246,0.18);
-  --showcase-bg:   #0d1a2e;
-}
+
 
 /* ── UTILITIES ── */
 @layer utilities {
@@ -80,12 +66,7 @@
     radial-gradient(ellipse 80% 50% at 50% -5%, var(--hero-glow), transparent),
     var(--bg-primary);
 }
-.dark .hero-bg {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59,130,246,0.22), transparent),
-    radial-gradient(ellipse 50% 40% at 80% 60%, rgba(99,102,241,0.10), transparent),
-    #080d1a;
-}
+
 
 /* ── GRID OVERLAY ── */
 .grid-overlay {
@@ -102,19 +83,12 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(0,0,0,0.07);
 }
-.dark .glass {
-  background: rgba(17,24,39,0.80);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-}
+
 .glass-blue {
   background: rgba(37,99,235,0.06);
   border: 1px solid rgba(59,130,246,0.18);
 }
-.dark .glass-blue {
-  background: rgba(37,99,235,0.12);
-  border: 1px solid rgba(59,130,246,0.28);
-}
+
 
 /* ── SHOWCASE SECTION ── */
 .showcase-bg { background: var(--showcase-bg); }
@@ -124,7 +98,7 @@
   background: rgba(0,0,0,0.5);
   backdrop-filter: blur(4px);
 }
-.dark .modal-backdrop { background: rgba(0,0,0,0.75); }
+
 
 /* ── ANIMATIONS ── */
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }

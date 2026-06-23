@@ -13,15 +13,15 @@ import { reportsData } from '@/data/reportsData';
 import ReportUpload from './components/ReportUpload';
 import ListView from './components/ListView';
 import TimelineView from './components/TimelineView';
-import ReportDetail from './components/ReportDetail';
+import { useRouter } from 'next/navigation';
 import DeleteModal from './components/DeleteModal';
 import { dispatch, useSelector } from '@/store';
-import { getAllReports, deleteReport } from '@/store/slices/report';
+import { getAllReports, getAllReportsSilent, deleteReport } from '@/store/slices/report';
 import { Report } from '@/types';
 import { IndustryEnum, REPORTS_HEADER_CONFIGS } from '@/config/industryConfig';
 
 export default function ReportsPage() {
-    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
 
     useEffect(() => {
         const savedType = localStorage.getItem('selectedCompanyType');
@@ -39,13 +39,13 @@ export default function ReportsPage() {
         return () => clearInterval(interval);
     }, [companyType]);
 
-    const activeHeader = REPORTS_HEADER_CONFIGS[companyType as IndustryEnum] || REPORTS_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const activeHeader = REPORTS_HEADER_CONFIGS[companyType as IndustryEnum] || REPORTS_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
     const [view, setView] = useState<'list' | 'timeline'>('list');
     const [activePeriod, setActivePeriod] = useState<string>('Jan 2025');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const router = useRouter();
     const [reportToDelete, setReportToDelete] = useState<any>(null);
     const [isAddingReport, setIsAddingReport] = useState(false);
-    const [selectedReport, setSelectedReport] = useState<any>(null);
     const searchParams = useSearchParams();
     const addParam = searchParams.get('add');
 
@@ -79,7 +79,7 @@ export default function ReportsPage() {
     };
 
     const handleReportClick = (report: any) => {
-        setSelectedReport(report);
+        router.push(`/reports/${report._id || report.id}`);
     };
 
     const handlePageChange = (page: number) => {
@@ -99,14 +99,18 @@ export default function ReportsPage() {
         loadReports(1, limit, val);
     };
 
-    const loadReports = (pageNumber = currentPage, limitVal = limit, searchVal = searchQuery) => {
+    const loadReports = (pageNumber = currentPage, limitVal = limit, searchVal = searchQuery, silent = false) => {
         const queryParams = new URLSearchParams();
         queryParams.append('page', String(pageNumber));
         queryParams.append('limit', String(limitVal));
         if (searchVal) {
             queryParams.append('search', searchVal);
         }
-        dispatch(getAllReports(`?${queryParams.toString()}`));
+        if (silent) {
+            dispatch(getAllReportsSilent(`?${queryParams.toString()}`));
+        } else {
+            dispatch(getAllReports(`?${queryParams.toString()}`));
+        }
     };
 
     const handleUploadClose = () => {
@@ -123,7 +127,9 @@ export default function ReportsPage() {
         };
         
         window.addEventListener('companyChanged', handleCompanyChange);
-        return () => window.removeEventListener('companyChanged', handleCompanyChange);
+        return () => {
+            window.removeEventListener('companyChanged', handleCompanyChange);
+        };
     }, [limit, searchQuery])
 
     useEffect(() => {
@@ -136,18 +142,21 @@ export default function ReportsPage() {
         }
     }, [reports])
 
+    // Silent polling: only when reports are processing
     useEffect(() => {
         const hasProcessing = reportData.some(r => (r.uploadStatus || r.status) === 'processing');
         let interval: NodeJS.Timeout;
         if (hasProcessing) {
             interval = setInterval(() => {
-                loadReports(currentPage, limit, searchQuery);
+                loadReports(currentPage, limit, searchQuery, true);
             }, 5000);
         }
         return () => {
             if (interval) clearInterval(interval);
         };
     }, [reportData, currentPage, limit, searchQuery]);
+
+
 
     const paginationObj = reports && !Array.isArray(reports) ? {
         total: reports.total ?? 0,
@@ -163,12 +172,7 @@ export default function ReportsPage() {
 
     return (
         <div className="flex flex-col gap-5  max-w-[1400px] mx-auto animate-in fade-in duration-500">
-            {selectedReport ? (
-                <ReportDetail
-                    reportId={selectedReport._id || selectedReport.id}
-                    onBack={() => setSelectedReport(null)}
-                />
-            ) : isAddingReport ? (
+            {isAddingReport ? (
                 <ReportUpload onCancel={handleUploadClose} />
             ) : (
                 <>

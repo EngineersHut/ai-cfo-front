@@ -44,7 +44,7 @@ export default function BudgetVsActual() {
     const dispatch = useDispatch();
     const { data } = useSelector((state: any) => state.budget);
 
-    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -76,11 +76,11 @@ export default function BudgetVsActual() {
         }
     }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-    const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] || BUDGET_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-    const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] || BUDGET_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] || BUDGET_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] || BUDGET_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
 
     const getTableLabel = (label: string) => {
-        const industryLabels = BUDGET_TABLE_CONFIGS[companyType as IndustryEnum] || BUDGET_TABLE_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+        const industryLabels = BUDGET_TABLE_CONFIGS[companyType as IndustryEnum] || BUDGET_TABLE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
         return industryLabels?.[label] || label;
     };
 

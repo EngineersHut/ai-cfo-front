@@ -80,6 +80,17 @@ export const getAllReports = (query = '') => {
   };
 };
 
+export const getAllReportsSilent = (query = '') => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const response = await getData(`/api/reports${query}`);
+      dispatch(getReportsSuccess(response));
+    } catch (error) {
+      // Do nothing on silent fail
+    }
+  };
+};
+
 export const createReport = (data: any, callback?: () => void) => {
   return async (dispatch: AppDispatch) => {
     dispatch(actionLoadingSuccess(true));
@@ -152,6 +163,63 @@ export const getReportExpenseBreakdown = (id: string | number, period: string) =
       dispatch(hasError(errorMessage));
     }
   };
+};
+
+// ========================== SSE Connection ============================ //
+
+let reportEventSource: EventSource | null = null;
+
+export const connectReportSSE = () => {
+  return (dispatch: AppDispatch) => {
+    // Close existing connection if any
+    if (reportEventSource) {
+      reportEventSource.close();
+      reportEventSource = null;
+    }
+
+    if (typeof window === 'undefined') return;
+
+    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+    const companyId = localStorage.getItem('selectedCompany');
+
+    if (!token || !companyId) return;
+
+    // Use relative URL — Next.js rewrites proxy it to the backend
+    const sseUrl = `/api/reports/status-stream?token=${encodeURIComponent(token)}&companyId=${encodeURIComponent(companyId)}`;
+
+    reportEventSource = new EventSource(sseUrl);
+
+    reportEventSource.onmessage = (event) => {
+      if (event.data) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && data.status) {
+            // Silently re-fetch latest reports without loading state
+            getData('/api/reports?limit=10')
+              .then((response) => {
+                dispatch(getReportsSuccess(response));
+              })
+              .catch(() => {
+                // Silently ignore errors
+              });
+          }
+        } catch (e) {
+          // Silently ignore parse errors
+        }
+      }
+    };
+
+    reportEventSource.onerror = () => {
+      // EventSource auto-reconnects, no action needed
+    };
+  };
+};
+
+export const disconnectReportSSE = () => {
+  if (reportEventSource) {
+    reportEventSource.close();
+    reportEventSource = null;
+  }
 };
 
 export default slice.reducer;

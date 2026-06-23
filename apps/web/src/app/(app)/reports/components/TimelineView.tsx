@@ -4,7 +4,8 @@ import React from 'react';
 import { 
     Activity, 
     MoreVertical, 
-    FileText 
+    FileText,
+    Eye
 } from 'lucide-react';
 
 interface TimelineViewProps {
@@ -137,10 +138,6 @@ export default function TimelineView({
 
                                 {/* Card */}
                                 <div 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onReportClick(report);
-                                    }}
                                     className={`w-[256px] h-[190px] p-[20px] rounded-[12px] border transition-all duration-300 shadow-sm relative group flex flex-col gap-[14px] ${isPeriodActive
                                     ? 'bg-[#5345cc] border-[#5345cc] text-white shadow-xl shadow-[#5345cc]/20 scale-[1.02] z-20'
                                     : 'bg-slate-50/50 border-slate-100 hover:border-slate-200'
@@ -151,12 +148,28 @@ export default function TimelineView({
                                             <div className={`w-1.5 h-1.5 rounded-full ${isPeriodActive ? 'bg-white' : statusStyles.dot}`} />
                                             {getStatusLabel(report.uploadStatus || report.status)}
                                         </div>
-                                        <button
-                                            onClick={(e) => onDeleteClick(e, report)}
-                                            className={`${isPeriodActive ? 'text-white/60 hover:text-white' : 'text-slate-300 hover:text-slate-500'} transition-colors`}
-                                        >
-                                            <MoreVertical size={18} />
-                                        </button>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onReportClick(report);
+                                                }}
+                                                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isPeriodActive ? 'text-white/80 hover:text-white hover:bg-white/10' : 'text-blue-500 hover:text-blue-700 hover:bg-blue-50'}`}
+                                                title="View Report"
+                                            >
+                                                <Eye size={18} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDeleteClick(e, report);
+                                                }}
+                                                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isPeriodActive ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50'}`}
+                                                title="Delete Report"
+                                            >
+                                                <MoreVertical size={18} />
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* Title & Desc */}

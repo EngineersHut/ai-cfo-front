@@ -129,7 +129,7 @@ export default function GrowthOverview() {
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.growth);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
-    const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+    const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
 
     useEffect(() => {
         const savedCompanyId = localStorage.getItem('selectedCompany');
@@ -161,9 +161,9 @@ export default function GrowthOverview() {
         }
     }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-    const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] || GROWTH_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-    const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-    const currentAdditionalKPIs = GROWTH_ADDITIONAL_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_ADDITIONAL_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+    const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] || GROWTH_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const currentAdditionalKPIs = GROWTH_ADDITIONAL_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_ADDITIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];

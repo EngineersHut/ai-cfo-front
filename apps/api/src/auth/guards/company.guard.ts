@@ -23,7 +23,7 @@ export class CompanyGuard implements CanActivate {
     ]);
 
     const request = context.switchToHttp().getRequest();
-    const companyId = request.headers["x-company-id"];
+    const companyId = request.headers["x-company-id"] || request.query?.companyId;
 
     if (!companyId || companyId === 'undefined' || companyId === 'null') {
       if (isOptional) {

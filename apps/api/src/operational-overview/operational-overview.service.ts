@@ -41,13 +41,7 @@ export class OperationalOverviewService {
     const companyId = company._id.toString();
     const { month, year } = queryDto;
 
-    if (company.industry === IndustryEnum.FLEET_MANAGEMENT) {
-      return this.getFleetOperationalOverview(companyId, month, year);
-    }
-
-    return {
-      message: `Operational Overview for industry ${company.industry} is not implemented yet.`,
-    };
+    return this.getFleetOperationalOverview(companyId, month, year);
   }
 
   private getEmptyOverview() {
