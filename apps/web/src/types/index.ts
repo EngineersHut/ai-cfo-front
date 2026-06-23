@@ -91,6 +91,7 @@ export interface DefaultRootStateProps {
   dashboard: DashboardStateProps;
   company: CompanyStateProps;
   notification: NotificationStateProps;
+  realtimeNotification: any; // Type handled by slice
   report: ReportStateProps;
   operational: OperationalStateProps;
   growth: GrowthStateProps;

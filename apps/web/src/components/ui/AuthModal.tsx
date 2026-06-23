@@ -259,7 +259,7 @@ export default function AuthModal({
                 className={`w-full h-[38px] bg-white border rounded-[8px] pl-11 pr-[40px] py-[8px] text-[14px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200'
                   }`}
               />
-              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
                 {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
               </button>
             </div>
@@ -268,7 +268,7 @@ export default function AuthModal({
             )}
             {mode === 'login' && (
               <div className="flex justify-end mt-1">
-                <button type="button" onClick={openForgotPassword} className="text-[12px] text-blue-600 hover:underline font-medium">Forgot Password?</button>
+                <button type="button" onClick={openForgotPassword} className="text-[12px] text-blue-600 hover:underline font-medium cursor-pointer">Forgot Password?</button>
               </div>
             )}
           </div>
@@ -287,7 +287,7 @@ export default function AuthModal({
                   className={`w-full h-[38px] bg-white border rounded-[8px] pl-11 pr-[40px] py-[8px] text-[14px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200'
                     }`}
                 />
-                <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
                   {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
                 </button>
               </div>
@@ -324,7 +324,7 @@ export default function AuthModal({
           <button
             onClick={handleSubmit}
             disabled={actionLoading}
-            className="flex items-center justify-center w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium text-[14px] leading-[20px] rounded-[8px] px-[12px] py-[4px] font-inter transition-all active:scale-[0.98] mt-2 shadow-sm"
+            className="flex items-center justify-center w-full h-[36px] bg-[#2563eb] hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium text-[14px] leading-[20px] rounded-[8px] px-[12px] py-[4px] font-inter transition-all active:scale-[0.98] mt-2 shadow-sm cursor-pointer"
           >
             {actionLoading ? (
               <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export default function AuthModal({
           <div className="text-center pt-2">
             <p className="font-inter font-normal text-[12px] leading-[16px] text-slate-500 text-center">
               {mode === 'login' ? "Don't have account?" : "Already have an account?"}{' '}
-              <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-[#2563eb] font-semibold hover:underline transition-all">{mode === 'login' ? 'Register' : 'Login'}</button>
+              <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-[#2563eb] font-semibold hover:underline transition-all cursor-pointer">{mode === 'login' ? 'Register' : 'Login'}</button>
             </p>
           </div>
         </div>

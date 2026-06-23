@@ -31,6 +31,7 @@ import * as xlsx from "xlsx";
 import { ReportSyncService } from "./report-sync.service";
 import { ReportMapperService } from "./mappers/report.mapper";
 import { AiService } from "../ai/ai.service";
+import { NotificationService } from '../notification/notification.service';
 @Injectable()
 export class ReportService {
   constructor(
@@ -47,6 +48,7 @@ export class ReportService {
     private reportSyncService: ReportSyncService,
     private readonly reportMapperService: ReportMapperService,
     private aiService: AiService,
+    private notificationService: NotificationService,
   ) {}
 
   private getCollectionName(companyId: string) {
@@ -62,8 +64,91 @@ export class ReportService {
   ) {
     if (!file) throw new BadRequestException("File is required");
 
+    let periodStartDate: Date | null = null;
+    let periodEndDate: Date | null = null;
+    let dbMonth: number | null = null;
+    let dbYear: number | null = null;
+
+    if (createReportDto.year != null && createReportDto.month != null) {
+      const parsedYear = parseInt(createReportDto.year as any, 10);
+      const parsedMonthOneIndexed = parseInt(createReportDto.month as any, 10);
+
+      dbYear = parsedYear;
+      dbMonth = parsedMonthOneIndexed; // Frontend sends 1-indexed (e.g. 1 for Jan, 6 for June)
+
+      periodStartDate = new Date(parsedYear, parsedMonthOneIndexed - 1, 1);
+      periodEndDate = new Date(parsedYear, parsedMonthOneIndexed, 0);
+    }
+
+    const reportId = uuidv4();
+    const reportData = {
+      _id: reportId,
+      ...createReportDto, // Contains reportName, reportType, etc.
+      month: dbMonth !== null ? dbMonth : undefined, // Override DTO's string with number
+      year: dbYear !== null ? dbYear : undefined, // Override DTO's string with number
+      collectionType: "report",
+      periodStartDate,
+      periodEndDate,
+      analytics: {}, // Strictly typed schema
+      aiInsights: [], // Dynamically extracted insights from LLM
+      uploadedBy: userId,
+      originalFileName: file.originalname,
+      storedFileName: file.filename,
+      filePath: file.path,
+      mimeType: file.mimetype,
+      fileExtension: file.originalname.split(".").pop()?.toLowerCase() || "",
+      fileSize: file.size,
+      uploadStatus: ReportStatusEnum.PROCESSING,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
+
+    const collection = this.connection.collection<any>(
+      this.getCollectionName(company._id.toString()),
+    );
+    await collection.insertOne(reportData);
+
+    // Run background task without awaiting so API responds immediately
+    this.processReportBackground(
+      userId,
+      company,
+      file,
+      createReportDto,
+      reportId,
+      dbMonth !== null ? dbMonth : undefined,
+      dbYear !== null ? dbYear : undefined,
+    ).catch((e) => {
+      console.error("Background report processing failed", e);
+    });
+
+    // Notify user that report is processing
+    await this.notificationService.createNotification(
+      userId,
+      'Report Processing',
+      `Your report "${createReportDto.reportName}" is currently being analyzed.`,
+      'INFO'
+    );
+
+    return reportData;
+  }
+
+  private async processReportBackground(
+    userId: string,
+    company: any,
+    file: Express.Multer.File,
+    createReportDto: CreateReportDto,
+    reportId: string,
+    dbMonth?: number,
+    dbYear?: number,
+  ) {
+    const collection = this.connection.collection<any>(
+      this.getCollectionName(company._id.toString()),
+    );
+
     let analytics: any = {};
     let aiInsights: any[] = [];
+    let status = ReportStatusEnum.ANALYZED;
 
     try {
       if (
@@ -102,66 +187,67 @@ export class ReportService {
       }
     } catch (e) {
       console.error("Failed to parse report file with LLM", e);
-      // Fallback
+      status = ReportStatusEnum.FAILED;
       analytics = this.reportMapperService.mapToAnalytics(
         createReportDto.reportType,
         {},
       );
     }
 
-    let periodStartDate: Date | null = null;
-    let periodEndDate: Date | null = null;
-    let dbMonth: number | null = null;
-    let dbYear: number | null = null;
+    // Save extracted metrics immediately, but DO NOT change status yet
+    // because dashboard sync needs this data to run, and we want to keep
+    // the frontend status as "Processing" until sync completes.
+    await collection.updateOne(
+      { _id: reportId },
+      {
+        $set: {
+          analytics,
+          aiInsights,
+          updatedAt: new Date(),
+        },
+      },
+    );
 
-    if (createReportDto.year != null && createReportDto.month != null) {
-      const parsedYear = parseInt(createReportDto.year as any, 10);
-      const parsedMonthOneIndexed = parseInt(createReportDto.month as any, 10);
-
-      dbYear = parsedYear;
-      dbMonth = parsedMonthOneIndexed; // Frontend sends 1-indexed (e.g. 1 for Jan, 6 for June)
-
-      periodStartDate = new Date(parsedYear, parsedMonthOneIndexed - 1, 1);
-      periodEndDate = new Date(parsedYear, parsedMonthOneIndexed, 0);
+    // Run dashboard sync
+    try {
+      await this.reportSyncService.syncToDashboards(
+        company._id.toString(),
+        dbMonth,
+        dbYear,
+      );
+    } catch (syncError) {
+      console.error("Failed to sync dashboards in background", syncError);
+      // If dashboard sync fails, we mark the report as failed so the user knows
+      status = ReportStatusEnum.FAILED;
     }
 
-    const reportData = {
-      _id: uuidv4(),
-      ...createReportDto, // Contains reportName, reportType, etc.
-      month: dbMonth !== null ? dbMonth : undefined, // Override DTO's string with number
-      year: dbYear !== null ? dbYear : undefined, // Override DTO's string with number
-      collectionType: "report",
-      periodStartDate,
-      periodEndDate,
-      analytics, // Strictly typed schema
-      aiInsights, // Dynamically extracted insights from LLM
-      uploadedBy: userId,
-      originalFileName: file.originalname,
-      storedFileName: file.filename,
-      filePath: file.path,
-      mimeType: file.mimetype,
-      fileExtension: file.originalname.split(".").pop()?.toLowerCase() || "",
-      fileSize: file.size,
-      uploadStatus: ReportStatusEnum.ANALYZED,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    };
-
-    const collection = this.connection.collection<any>(
-      this.getCollectionName(company._id.toString()),
-    );
-    await collection.insertOne(reportData);
-
-    // Sync the merged data (from DTO and Excel) to the Dashboard, Growth, and Operational tables
-    // Await this so frontend loading completes only when data is fully processed and ready
-    await this.reportSyncService.syncToDashboards(
-      company._id.toString(),
-      dbMonth !== null ? dbMonth : undefined,
-      dbYear !== null ? dbYear : undefined
+    // Finally, mark as ANALYZED (or FAILED if something went wrong)
+    await collection.updateOne(
+      { _id: reportId },
+      {
+        $set: {
+          uploadStatus: status,
+          updatedAt: new Date(),
+        },
+      },
     );
 
-    return reportData;
+    // Notify user of completion
+    if (status === ReportStatusEnum.ANALYZED) {
+      await this.notificationService.createNotification(
+        userId,
+        'Report Analyzed',
+        `Analysis for "${createReportDto.reportName}" has been successfully completed.`,
+        'SUCCESS'
+      );
+    } else {
+      await this.notificationService.createNotification(
+        userId,
+        'Report Analysis Failed',
+        `We encountered an error while analyzing "${createReportDto.reportName}".`,
+        'ERROR'
+      );
+    }
   }
 
   // || ---------------------- Get all reports function ---------------------|| //
@@ -555,7 +641,7 @@ export class ReportService {
     await this.reportSyncService.syncToDashboards(
       company._id.toString(),
       rMonth,
-      rYear
+      rYear,
     );
 
     return result;
@@ -586,10 +672,39 @@ export class ReportService {
     );
 
     // Recalculate Dashboard since a report was removed
-    await this.reportSyncService.syncToDashboards(
+    const reportMonth = report.month || (report.periodStartDate ? new Date(report.periodStartDate).getMonth() + 1 : (report.createdAt ? new Date(report.createdAt).getMonth() + 1 : new Date().getMonth() + 1));
+    const reportYear = report.year || (report.periodStartDate ? new Date(report.periodStartDate).getFullYear() : (report.createdAt ? new Date(report.createdAt).getFullYear() : new Date().getFullYear()));
+
+    // Find remaining reports for this month
+    const allReports = await collection.find({ collectionType: "report", deletedAt: null }).toArray();
+    const remainingReportIds = allReports.filter(r => {
+      const m = r.month || (r.periodStartDate ? new Date(r.periodStartDate).getMonth() + 1 : (r.createdAt ? new Date(r.createdAt).getMonth() + 1 : new Date().getMonth() + 1));
+      const y = r.year || (r.periodStartDate ? new Date(r.periodStartDate).getFullYear() : (r.createdAt ? new Date(r.createdAt).getFullYear() : new Date().getFullYear()));
+      return m === reportMonth && y === reportYear && r._id.toString() !== id;
+    }).map(r => r._id);
+
+    if (remainingReportIds.length > 0) {
+      // Return a flag indicating re-analysis is happening
+    }
+
+    // Run sync in background
+    this.reportSyncService.syncToDashboards(
       company._id.toString(),
-      report.month,
-      report.year
-    );
+      reportMonth,
+      reportYear,
+    ).then(async () => {
+      if (remainingReportIds.length > 0) {
+        await this.notificationService.createNotification(
+          userId,
+          'Re-analysis Complete',
+          `Data for ${reportMonth}/${reportYear} has been re-analyzed successfully.`,
+          'SUCCESS'
+        );
+      }
+    }).catch(async (e) => {
+      console.error("Failed to re-sync dashboards after delete", e);
+    });
+
+    return { success: true, message: "Report deleted successfully", reanalyzing: remainingReportIds.length > 0 };
   }
 }

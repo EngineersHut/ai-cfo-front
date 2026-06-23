@@ -57,7 +57,7 @@ export default function Navbar() {
           className="flex items-center justify-between px-[15px] py-[15px] rounded-[16px] transition-all duration-500 border w-full max-w-[1200px] h-[72px] pointer-events-auto bg-white/80 backdrop-blur-md shadow-md border-slate-100/50"
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group cursor-pointer">
             <div className="w-10 h-10 bg-[#0f172a] rounded-lg flex items-center justify-center text-white font-bold text-xl">
               N
             </div>
@@ -71,7 +71,7 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map(link => (
               <a key={link.label} href={link.href}
-                className="px-4 py-2 text-[14px] font-medium transition-all hover:text-blue-600 text-slate-600"
+                className="px-4 py-2 text-[14px] font-medium transition-all hover:text-blue-600 text-slate-600 cursor-pointer"
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 {link.label}
               </a>
@@ -82,14 +82,14 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => openModal('login')}
-              className="px-6 py-2 text-[14px] font-medium leading-[20px] border border-slate-200 rounded-[12px] hover:bg-slate-50 transition-colors text-slate-700"
+              className="px-6 py-2 text-[14px] font-medium leading-[20px] border border-slate-200 rounded-[12px] hover:bg-slate-50 transition-colors text-slate-700 cursor-pointer"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}
             >
               Login
             </button>
             <button
               onClick={() => openModal('register')}
-              className="px-6 py-2 text-[14px] font-medium leading-[20px] bg-[#2563eb] text-white rounded-[12px] transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95"
+              className="px-6 py-2 text-[14px] font-medium leading-[20px] bg-[#2563eb] text-white rounded-[12px] transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 cursor-pointer"
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}
             >
               Get Started Free
@@ -98,7 +98,7 @@ export default function Navbar() {
 
           {/* Mobile */}
           <div className="md:hidden flex items-center">
-            <button className="p-2 text-slate-600" onClick={() => setMobileOpen(!mobileOpen)}>
+            <button className="p-2 text-slate-600 cursor-pointer" onClick={() => setMobileOpen(!mobileOpen)}>
               {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -116,18 +116,18 @@ export default function Navbar() {
               <div className="px-6 py-6 flex flex-col gap-2">
                 {navLinks.map(link => (
                   <a key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
-                    className="px-4 py-3 text-[14px] font-medium rounded-xl hover:bg-slate-50 text-slate-700">
+                    className="px-4 py-3 text-[14px] font-medium rounded-xl hover:bg-slate-50 text-slate-700 cursor-pointer">
                     {link.label}
                   </a>
                 ))}
                 <div className="h-[1px] bg-slate-100 my-2" />
                 <div className="grid grid-cols-2 gap-3">
                   <button onClick={() => { openModal('login'); setMobileOpen(false) }}
-                    className="py-3 text-sm font-medium rounded-xl border border-slate-200 text-slate-700">
+                    className="py-3 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 cursor-pointer">
                     Login
                   </button>
                   <button onClick={() => { openModal('register'); setMobileOpen(false) }}
-                    className="py-3 text-sm font-semibold bg-[#2563eb] text-white rounded-xl">
+                    className="py-3 text-sm font-semibold bg-[#2563eb] text-white rounded-xl cursor-pointer">
                     Sign Up
                   </button>
                 </div>

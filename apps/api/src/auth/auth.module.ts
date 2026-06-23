@@ -42,6 +42,6 @@ import { User, UserSchema } from '../schemas/user.schema';
     AppleStrategy,
   ],
 
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

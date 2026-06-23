@@ -99,7 +99,12 @@ export const deleteReport = (id: string | number, callback?: () => void) => {
   return async (dispatch: AppDispatch) => {
     dispatch(actionLoadingSuccess(true));
     try {
-      await deleteData(`/api/reports/${id}`);
+      const response = await deleteData(`/api/reports/${id}`);
+      if (response && response.reanalyzing) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('report-deleted', { detail: { reanalyzing: true } }));
+        }
+      }
       callback?.();
     } catch (error) {
       const errorMessage = getErrorMessage(error);

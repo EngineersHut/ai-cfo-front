@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Sun,
+  Moon,
   Settings,
   Bell,
   SlidersHorizontal,
@@ -14,8 +15,10 @@ import {
   Check
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { dispatch, useSelector } from '@/store';
+import { useTheme } from 'next-themes';
+import { dispatch, useSelector, useDispatch } from '@/store';
 import { getAllCompanies } from '@/store/slices/company';
+import { getAllNotifications } from '@/store/slices/realtimeNotification';
 import NotificationModal from './NotificationModal';
 
 interface HeaderProps {
@@ -28,10 +31,15 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const pathname = usePathname();
   const router = useRouter();
 
   const { companies } = useSelector((state) => state.company);
+  const { unreadCount } = useSelector((state) => state.realtimeNotification);
 
   useEffect(() => {
     dispatch(getAllCompanies('', (fetchedCompanies) => {
@@ -57,6 +65,8 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const [selectedWorkspace, setSelectedWorkspace] = useState<any>(null);
 
   useEffect(() => {
+    dispatch(getAllNotifications());
+
     if (dynamicOptions.length > 0) {
       const savedCompanyId = localStorage.getItem('selectedCompany');
       const found = savedCompanyId ? dynamicOptions.find(opt => opt.id === savedCompanyId) : null;
@@ -153,6 +163,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
                         if (option.industry) {
                           localStorage.setItem('selectedCompanyType', option.industry);
                         }
+                        window.dispatchEvent(new Event('companyChanged'));
                         setIsOpen(false);
                       }}
                       className={`group flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all ${selectedWorkspace?.id === option.id ? 'bg-blue-50' : 'hover:bg-slate-50'
@@ -195,10 +206,20 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
       <div className="flex items-center gap-2 md:gap-[20px]">
         {/* Functional Icons Group - Hidden on very small screens, scrollable or wrap on medium */}
         <div className="hidden sm:flex items-center justify-between gap-3 md:gap-[16px]">
-          {/* <IconButton icon={<Sun size={18} />} /> */}
+          {/* mounted && (
+            <IconButton 
+              icon={theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />} 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+            />
+          ) */}
           <IconButton icon={<Settings size={18} />} onClick={() => router.push('/settings')} />
           <div className="relative flex items-center" ref={notificationRef}>
-            <IconButton icon={<Bell size={18} />} onClick={() => setIsNotificationOpen(!isNotificationOpen)} />
+            <div className="relative">
+              <IconButton icon={<Bell size={18} />} onClick={() => setIsNotificationOpen(!isNotificationOpen)} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              )}
+            </div>
             <NotificationModal isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
           </div>
         </div>
@@ -209,20 +230,20 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
         <div className="flex items-center gap-2 md:gap-[10px]">
           <button
             onClick={onOpenCustomize}
-            className="h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] bg-white border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-all text-slate-900 group whitespace-nowrap"
+            className="h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] bg-white border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-all text-slate-900 group whitespace-nowrap cursor-pointer"
           >
             <SlidersHorizontal size={16} className="text-slate-400 group-hover:text-blue-600" />
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter hidden md:inline">Customize</span>
           </button>
 
-          <button className="h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] bg-white border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-all text-slate-900 group whitespace-nowrap">
+          <button className="h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] bg-white border border-slate-200 rounded-[8px] hover:bg-slate-50 transition-all text-slate-900 group whitespace-nowrap cursor-pointer">
             <DownloadIcon />
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter hidden md:inline">Export</span>
           </button>
 
           <button
             onClick={() => router.push('/reports?add=true')}
-            className="h-[36px] w-auto px-3 md:w-[125px] flex items-center justify-center gap-[6px] bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 shadow-md shadow-blue-100 transition-all active:scale-95 whitespace-nowrap"
+            className="h-[36px] w-auto px-3 md:w-[125px] flex items-center justify-center gap-[6px] bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 shadow-md shadow-blue-100 transition-all active:scale-95 whitespace-nowrap cursor-pointer"
           >
             <Plus size={18} />
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter tracking-normal hidden sm:inline">Add Report</span>
@@ -235,7 +256,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
 
 function IconButton({ icon, onClick }: { icon: React.ReactNode; onClick?: () => void }) {
   return (
-    <button onClick={onClick} className="flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all p-1">
+    <button onClick={onClick} className="flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all p-1 cursor-pointer">
       {icon}
     </button>
   );

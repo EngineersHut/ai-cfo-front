@@ -10,6 +10,7 @@ import reportReducer from './slices/report';
 import operationalReducer from './slices/operational';
 import growthReducer from './slices/growth';
 import budgetReducer from './slices/budget';
+import realtimeNotificationReducer from './slices/realtimeNotification';
 
 // ==============================|| COMBINE REDUCER ||============================== //
 
@@ -19,6 +20,7 @@ const reducer = combineReducers({
   dashboard: dashboardReducer,
   company: companyReducer,
   notification: notificationReducer,
+  realtimeNotification: realtimeNotificationReducer,
   report: reportReducer,
   operational: operationalReducer,
   growth: growthReducer,

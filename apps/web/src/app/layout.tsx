@@ -28,6 +28,8 @@ export const metadata: Metadata = {
   description: "Master your finances with AI-powered insights and real-time tracking.",
 };
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,9 +42,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ProviderWrapper>
-          {children}
-        </ProviderWrapper>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ProviderWrapper>
+            {children}
+          </ProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

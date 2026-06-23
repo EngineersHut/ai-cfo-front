@@ -46,10 +46,40 @@ const getReportTypeLabel = (type?: string) => {
 
 const getStatusLabel = (status?: string) => {
     const s = status ? status.toLowerCase() : 'processing';
-    if (s === 'completed' || s === 'processed' || s === 'success') {
-        return 'Processed';
+    if (s === 'completed' || s === 'processed' || s === 'success' || s === 'analyzed') {
+        return 'Analyzed';
     }
-    return s.charAt(0).toUpperCase() + s.slice(1);
+    if (s === 'failed') {
+        return 'Failed';
+    }
+    return 'Processing';
+};
+
+const getStatusStyles = (status?: string) => {
+    const s = status ? status.toLowerCase() : 'processing';
+    if (s === 'completed' || s === 'processed' || s === 'success' || s === 'analyzed') {
+        return {
+            bg: 'bg-[#f2fffa]',
+            border: 'border-[#bee5d0]',
+            text: 'text-[#2cac68]',
+            dot: 'bg-[#2cac68]'
+        };
+    }
+    if (s === 'failed') {
+        return {
+            bg: 'bg-rose-50',
+            border: 'border-rose-200',
+            text: 'text-rose-600',
+            dot: 'bg-rose-600'
+        };
+    }
+    // processing or default
+    return {
+        bg: 'bg-blue-50 animate-pulse',
+        border: 'border-blue-200',
+        text: 'text-blue-600',
+        dot: 'bg-blue-600'
+    };
 };
 
 const getDateRangeString = (startStr?: string, endStr?: string) => {
@@ -122,7 +152,9 @@ export default function ListView({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#f1f5f9]">
-                        {reportsData.map((report) => (
+                        {reportsData.map((report) => {
+                            const statusStyles = getStatusStyles(report.uploadStatus || report.status);
+                            return (
                             <tr
                                 key={report._id || report.id}
                                 onClick={() => onReportClick(report)}
@@ -138,8 +170,8 @@ export default function ListView({
                                     {getReportTypeLabel(report.reportType || report.type)}
                                 </td>
                                 <td className="px-[24px] py-[16px] text-center w-[180px] border-r border-[#f1f5f9]">
-                                    <div className="inline-flex items-center justify-center gap-[6px] w-[92px] h-[20px] rounded-[4px] bg-[#f2fffa] border border-[#bee5d0] text-[#2cac68] text-[14px] font-normal font-inter leading-[20px]">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#2cac68]" />
+                                    <div className={`inline-flex items-center justify-center gap-[6px] w-[92px] h-[20px] rounded-[4px] border ${statusStyles.bg} ${statusStyles.border} ${statusStyles.text} text-[14px] font-normal font-inter leading-[20px]`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${statusStyles.dot}`} />
                                         {getStatusLabel(report.uploadStatus || report.status)}
                                     </div>
                                 </td>
@@ -158,7 +190,8 @@ export default function ListView({
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

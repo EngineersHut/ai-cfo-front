@@ -15,10 +15,13 @@ import { ReportSyncService } from './report-sync.service';
 import { ReportMapperService } from './mappers/report.mapper';
 import { AiModule } from '../ai/ai.module';
 
+import { NotificationModule } from '../notification/notification.module';
+
 @Module({
   imports: [
     CompanyModule,
     AiModule,
+    NotificationModule,
     MongooseModule.forFeature([
       { name: Company.name, schema: CompanySchema },
       { name: DashboardSummary.name, schema: DashboardSummarySchema },

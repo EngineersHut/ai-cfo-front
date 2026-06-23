@@ -11,6 +11,7 @@ export interface Report {
   period: string;
   type: string;
   status: string;
+  uploadStatus?: string;
   dateRange: string;
   reportName?: string;
   reportType?: ReportTypeEnum;
