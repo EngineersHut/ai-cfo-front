@@ -41,6 +41,7 @@ import AIInsights from '../dashboard/components/AIInsights';
 import { useDispatch, useSelector } from '@/store';
 import { fetchGrowthData } from '@/store/slices/growth';
 import { useEffect } from 'react';
+import { usePersistentDate } from '@/hooks/usePersistentDate';
 import { IndustryEnum, GROWTH_KPI_CONFIGS, GROWTH_ADDITIONAL_KPI_CONFIGS, GROWTH_HEADER_CONFIGS } from '@/config/industryConfig';
 import * as LucideIcons from 'lucide-react';
 
@@ -122,10 +123,7 @@ const MONTHS = [
 const YEARS = [2024, 2025, 2026];
 
 export default function GrowthOverview() {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
     const [activeChart, setActiveChart] = useState('line');
 
     const dispatch = useDispatch();

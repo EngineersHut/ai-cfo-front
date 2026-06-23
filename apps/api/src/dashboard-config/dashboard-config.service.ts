@@ -27,7 +27,7 @@ export class DashboardConfigService {
     const config = await this.configModel.findOneAndUpdate(
       { userId },
       { $set: updateDto },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
     
     return ResponseHelper.success('Dashboard config updated successfully', config);

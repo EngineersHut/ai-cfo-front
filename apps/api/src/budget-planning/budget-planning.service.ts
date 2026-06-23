@@ -386,7 +386,7 @@ export class BudgetPlanningService {
           totalOperatingExpensesBudget,
         },
       },
-      { new: true, upsert: true },
+      { returnDocument: 'after', upsert: true },
     );
 
     return updatedBudget;

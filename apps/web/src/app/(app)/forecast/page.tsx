@@ -34,6 +34,7 @@ import {
 import KPICard from '@/components/common/KPICard';
 import { useDispatch, useSelector } from '@/store';
 import { fetchDashboardData } from '@/store/slices/dashboard';
+import { usePersistentDate } from '@/hooks/usePersistentDate';
 import {
   forecastChartData,
   scenarioData,
@@ -127,11 +128,8 @@ export default function ForecastPage() {
     costEfficiency
   } = useSelector((state: any) => state.dashboard);
 
+  const { selectedMonth, selectedYear } = usePersistentDate();
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const [selectedMonth] = useState(currentMonth);
-  const [selectedYear] = useState(currentYear);
 
   useEffect(() => {
     const savedCompanyId = localStorage.getItem('selectedCompany');

@@ -154,12 +154,12 @@ export class ReportService {
     await collection.insertOne(reportData);
 
     // Sync the merged data (from DTO and Excel) to the Dashboard, Growth, and Operational tables
-    // Run this in the background to avoid blocking the upload response or causing 500 errors on timeout.
-    this.reportSyncService
-      .syncToDashboards(company._id.toString())
-      .catch((err) => {
-        console.error("Background sync to dashboards failed:", err);
-      });
+    // Await this so frontend loading completes only when data is fully processed and ready
+    await this.reportSyncService.syncToDashboards(
+      company._id.toString(),
+      dbMonth !== null ? dbMonth : undefined,
+      dbYear !== null ? dbYear : undefined
+    );
 
     return reportData;
   }
@@ -550,7 +550,13 @@ export class ReportService {
     );
 
     // Recalculate Dashboard since report has changed
-    await this.reportSyncService.syncToDashboards(company._id.toString());
+    const rMonth = updatePayload.month || report.month;
+    const rYear = updatePayload.year || report.year;
+    await this.reportSyncService.syncToDashboards(
+      company._id.toString(),
+      rMonth,
+      rYear
+    );
 
     return result;
   }
@@ -580,6 +586,10 @@ export class ReportService {
     );
 
     // Recalculate Dashboard since a report was removed
-    await this.reportSyncService.syncToDashboards(company._id.toString());
+    await this.reportSyncService.syncToDashboards(
+      company._id.toString(),
+      report.month,
+      report.year
+    );
   }
 }

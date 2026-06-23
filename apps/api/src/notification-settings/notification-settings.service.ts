@@ -42,7 +42,7 @@ export class NotificationSettingsService {
       .findOneAndUpdate(
         { userId, deletedAt: null },
         { $set: updateDto },
-        { new: true },
+        { returnDocument: 'after' },
       )
       .exec();
 

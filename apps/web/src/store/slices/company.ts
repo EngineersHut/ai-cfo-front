@@ -48,12 +48,13 @@ export const {
 
 //----------------------------  Company Thunks ------------------------------//
 
-export const getAllCompanies = (query = '') => {
+export const getAllCompanies = (query = '', onSuccess?: (data: any) => void) => {
   return async (dispatch: AppDispatch) => {
     dispatch(getCompaniesLoading(true));
     try {
       const response = await getData(`/api/company${query}`);
       dispatch(getCompaniesSuccess(response));
+      if (onSuccess) onSuccess(response);
     } catch (error) {
       dispatch(hasError(error));
     }

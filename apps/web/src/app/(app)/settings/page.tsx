@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Pencil, ShieldCheck, MoreVertical, Trash2, CreditCard, CheckCircle2, AlertTriangle, X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Modal from '@/components/common/Modal';
@@ -21,6 +22,15 @@ const isValidSrc = (src: any): boolean => {
 };
 
 export default function SettingsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SettingsPageContent />
+        </Suspense>
+    );
+}
+
+function SettingsPageContent() {
+    const searchParams = useSearchParams();
     const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
     const [isAutoRenewal, setIsAutoRenewal] = React.useState(true);
     const [isCompanyModalOpen, setIsCompanyModalOpen] = React.useState(false);
@@ -60,6 +70,12 @@ export default function SettingsPage() {
     useEffect(() => {
         dispatch(getUserProfile());
     }, []);
+
+    useEffect(() => {
+        if (searchParams?.get('createCompany') === 'true') {
+            setIsCompanyModalOpen(true);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         if (userData) {

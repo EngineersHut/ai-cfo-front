@@ -39,7 +39,7 @@ export class ReportSyncService {
   ) {}
 
   // || ---------------------- Sync data to Dashboards function ---------------------|| //
-  async syncToDashboards(companyId: string) {
+  async syncToDashboards(companyId: string, targetMonth?: number, targetYear?: number) {
     // 1. Fetch all active reports for this company
     const collection = this.dashboardModel.db.collection(
       `company_${companyId}`,
@@ -95,6 +95,10 @@ export class ReportSyncService {
         (report.periodStartDate
           ? new Date(report.periodStartDate).getFullYear()
           : new Date(report.createdAt).getFullYear());
+      if (targetMonth && targetYear && (month !== targetMonth || year !== targetYear)) {
+        continue;
+      }
+
       const key = `${year}-${month}`;
       if (!monthlyReportsMap.has(key)) {
         monthlyReportsMap.set(key, []);
@@ -103,8 +107,14 @@ export class ReportSyncService {
     }
 
     // Find all existing periods in dashboard to identify which ones need to be deleted
+    const query: any = { companyId };
+    if (targetMonth && targetYear) {
+      query.month = targetMonth;
+      query.year = targetYear;
+    }
+
     const existingDashboards = await this.dashboardModel
-      .find({ companyId }, { year: 1, month: 1 })
+      .find(query, { year: 1, month: 1 })
       .lean();
     const existingKeys = new Set(
       existingDashboards
@@ -326,22 +336,22 @@ export class ReportSyncService {
             }),
           },
         },
-        { upsert: true, new: true },
+        { upsert: true, returnDocument: 'after' },
       ),
       this.growthModel.findOneAndUpdate(
         query,
         { $set: growthPayload },
-        { upsert: true, new: true },
+        { upsert: true, returnDocument: 'after' },
       ),
       this.fleetModel.findOneAndUpdate(
         query,
         { $set: fleetPayload },
-        { upsert: true, new: true },
+        { upsert: true, returnDocument: 'after' },
       ),
       this.budgetModel.findOneAndUpdate(
         query,
         { $set: budgetPayload },
-        { upsert: true, new: true },
+        { upsert: true, returnDocument: 'after' },
       ),
     ]);
   }
