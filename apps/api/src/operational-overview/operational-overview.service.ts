@@ -346,7 +346,7 @@ export class OperationalOverviewService {
           currentFleet.costEfficiency !== undefined &&
           currentFleet.costEfficiency !== null
             ? currentFleet.costEfficiency
-            : 100,
+            : 0,
       },
       costEfficiency: costEfficiencyBlock,
       fleetDriverUtilization: fleetDriverUtilizationBlock,

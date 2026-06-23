@@ -181,14 +181,18 @@ export class DashboardService {
       currentDashboard.equityHealth !== undefined &&
       currentDashboard.equityHealth !== null
         ? currentDashboard.equityHealth
-        : summary.revenue > summary.totalExpenses
-          ? 85
-          : 40;
+        : summary.revenue > 0 || summary.totalExpenses > 0
+          ? summary.revenue > summary.totalExpenses
+            ? 85
+            : 40
+          : 0;
     const auditCompliance =
       currentDashboard.auditCompliance !== undefined &&
       currentDashboard.auditCompliance !== null
         ? currentDashboard.auditCompliance
-        : 100;
+        : summary.revenue > 0 || summary.totalExpenses > 0
+          ? 100
+          : 0;
 
     const driverEfficiencyOverall =
       currentFleet.driverEfficiencyOverall !== undefined &&
@@ -202,6 +206,7 @@ export class DashboardService {
       currentDashboard.financialHealthScore > 0
         ? currentDashboard.financialHealthScore
         : (() => {
+            if (summary.revenue === 0 && summary.totalExpenses === 0 && summary.cashBalance === 0) return 0;
             let score = 0;
             if (summary.revenue > 0) {
               const margin = summary.grossProfit / summary.revenue;
@@ -223,7 +228,7 @@ export class DashboardService {
             if (auditCompliance >= 90) {
               score += 10;
             }
-            return score > 0 ? score : 75;
+            return score;
           })();
 
     const employeeCount = currentGrowth.employeeCount || 0;

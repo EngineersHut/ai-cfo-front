@@ -247,11 +247,11 @@ export default function BudgetVsActual() {
             }
         }
         if (revenueAmount === 0) {
-            revenueAmount = 9178724; // fallback
+            revenueAmount = 0; // fallback
         }
 
-        let forecastProfitAmount = 2032186;
-        let forecastProfitPercent = 22.1;
+        let forecastProfitAmount = 0;
+        let forecastProfitPercent = 0;
         if (data?.summaryTable) {
             const rev = data.summaryTable.revenue?.budget || revenueAmount;
             const direct = data.summaryTable.directCosts?.budget || 0;
@@ -305,7 +305,7 @@ export default function BudgetVsActual() {
                     {
                         id: 14,
                         name: 'Forecast Cash Position',
-                        amount: data?.summaryCards?.budgetRevenue ? Math.round(data.summaryCards.budgetRevenue * 0.15) : 32800,
+                        amount: data?.summaryCards?.budgetRevenue ? Math.round(data.summaryCards.budgetRevenue * 0.15) : 0,
                         percentage: null,
                         isHighlight: false,
                         isPercentageValue: false
@@ -313,7 +313,7 @@ export default function BudgetVsActual() {
                     {
                         id: 15,
                         name: 'Expected Growth Rate',
-                        amount: data?.summaryTable?.netMargin?.budget || 18.2,
+                        amount: data?.summaryTable?.netMargin?.budget || 0,
                         percentage: null,
                         isHighlight: false,
                         isPercentageValue: true
