@@ -72,7 +72,7 @@ export default function AuthModal({
     const params = new URLSearchParams(searchParams.toString());
     params.delete('modal');
     const newQuery = params.toString();
-    router.push(newQuery ? `${pathname}?${newQuery}` : pathname);
+    router.replace(newQuery ? `${pathname}?${newQuery}` : pathname, { scroll: false });
   };
 
   const setMode = (newMode: AuthMode) => {
@@ -82,7 +82,7 @@ export default function AuthModal({
     setSuccessMessage(null);
     const params = new URLSearchParams(searchParams.toString());
     params.set('modal', newMode);
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const openForgotPassword = () => {
@@ -91,7 +91,7 @@ export default function AuthModal({
     setValidationErrors({});
     const params = new URLSearchParams(searchParams.toString());
     params.set('modal', 'forgot-password');
-    router.push(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
