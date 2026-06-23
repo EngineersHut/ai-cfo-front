@@ -97,6 +97,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
     if (pathname.includes('operational-overview')) return 'Operational Overview';
     if (pathname.includes('budget-vs-actual')) return 'Budget vs Actual';
     if (pathname === '/dashboard' || pathname === '/') return 'Dashboard';
+    if (pathname.startsWith('/reports/')) return 'Report Detail';
 
     // Fallback: convert slug to Title Case
     const lastSegment = pathname.split('/').pop() || 'Overview';

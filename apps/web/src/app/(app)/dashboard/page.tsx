@@ -146,7 +146,7 @@ export default function ReportPage() {
   }, [reduxRevenueData]);
 
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
-  const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+  const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
 
   const formatChartValue = (value: number) => {
     if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
@@ -192,8 +192,8 @@ export default function ReportPage() {
     }
   }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-  const currentKPIs = DASHBOARD_KPI_CONFIGS[companyType as IndustryEnum] || DASHBOARD_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-  const currentHeader = DASHBOARD_HEADER_CONFIGS[companyType as IndustryEnum] || DASHBOARD_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const currentKPIs = DASHBOARD_KPI_CONFIGS[companyType as IndustryEnum] || DASHBOARD_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+  const currentHeader = DASHBOARD_HEADER_CONFIGS[companyType as IndustryEnum] || DASHBOARD_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
 
   const getIcon = (iconName: string) => {
     const IconComp = (LucideIcons as any)[iconName];

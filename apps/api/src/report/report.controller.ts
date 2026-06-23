@@ -11,7 +11,11 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Sse,
+  MessageEvent,
 } from "@nestjs/common";
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import {
   ApiTags,
   ApiOperation,
@@ -83,6 +87,21 @@ export class ReportController {
       return { data: [], total: 0 };
     }
     return this.reportService.findAll(req.user._id || req.user.id, company, queryDto);
+  }
+
+  // || ---------------------- SSE Report Status Stream API ---------------------|| //
+  @Sse("status-stream")
+  @ApiOperation({
+    summary: "Stream report processing updates via Server-Sent Events",
+  })
+  streamStatus(@CurrentCompany() company: any): Observable<MessageEvent> {
+    const companyId = company?._id?.toString() || company?.id;
+    return this.reportService.reportStatus$.asObservable().pipe(
+      filter((event) => event.companyId === companyId),
+      map((event) => ({
+        data: event,
+      } as MessageEvent))
+    );
   }
 
   // || ---------------------- Get Report By ID API ---------------------|| //

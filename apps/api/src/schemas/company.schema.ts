@@ -15,8 +15,11 @@ export class Company extends BaseDocument {
   @Prop({ required: true })
   name!: string;
 
-  @Prop({ required: true, enum: IndustryEnum })
+  @Prop({ required: true })
   industry!: string;
+
+  @Prop({ required: false })
+  subIndustry!: string;
 
   @Prop({ required: true, enum: CurrencyEnum })
   currency!: string;

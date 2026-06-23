@@ -166,7 +166,7 @@ export default function ForecastPage() {
   // Simulated data state
   const [simulatedData, setSimulatedData] = useState<ForecastChartItem[]>([]);
 
-  const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
+  const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
 
   useEffect(() => {
     const savedType = localStorage.getItem('selectedCompanyType');
@@ -195,8 +195,8 @@ export default function ForecastPage() {
     }
   }, [rawSummary]);
 
-  const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] || FORECAST_HEADER_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
-  const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] || FORECAST_KPI_CONFIGS[IndustryEnum.FLEET_MANAGEMENT];
+  const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] || FORECAST_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+  const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] || FORECAST_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
 
   const getIcon = (iconName: string) => {
     const IconComp = (LucideIcons as any)[iconName];

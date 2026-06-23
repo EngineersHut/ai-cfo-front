@@ -4,7 +4,7 @@ import { } from '@/types';
 import { Company } from '@/types/company';
 import { ChevronDown } from 'lucide-react';
 import { useDispatch } from '@/store';
-import { IndustryEnum } from '@/config/industryConfig';
+import { IndustryEnum, IndustryToSubIndustryMap, formatIndustryName } from '@/config/industryConfig';
 import { createCompany, updateCompany } from '@/store/slices/company';
 
 interface AddEditClientProps {
@@ -17,7 +17,8 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
     const dispatch = useDispatch();
     const [formData, setFormData] = useState<any>({
         name: '',
-        industry: 'technology_and_saas',
+        industry: IndustryEnum.TECHNOLOGY_AND_IT,
+        subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
         currency: 'usd',
         isPrimary: false,
     })
@@ -26,14 +27,16 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
             if (companyData) {
                 setFormData({
                     name: companyData.name || '',
-                    industry: companyData.industry || 'technology_and_saas',
+                    industry: companyData.industry || IndustryEnum.TECHNOLOGY_AND_IT,
+                    subIndustry: companyData.subIndustry || IndustryToSubIndustryMap[companyData.industry || IndustryEnum.TECHNOLOGY_AND_IT]?.[0] || '',
                     currency: companyData.currency || 'usd',
                     isPrimary: companyData.isPrimary || false,
                 });
             } else {
                 setFormData({
                     name: '',
-                    industry: 'technology_and_saas',
+                    industry: IndustryEnum.TECHNOLOGY_AND_IT,
+                    subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
                     currency: 'usd',
                     isPrimary: false,
                 });
@@ -44,7 +47,8 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
     const handleClear = () => {
         setFormData({
             name: '',
-            industry: 'technology_and_saas',
+            industry: IndustryEnum.TECHNOLOGY_AND_IT,
+            subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
             currency: 'usd',
             isPrimary: false,
         });
@@ -101,13 +105,41 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                         <div className="relative group w-full">
                             <select
                                 value={formData.industry}
-                                onChange={(e) => handleChange('industry', e.target.value)}
+                                onChange={(e) => {
+                                    const newIndustry = e.target.value;
+                                    setFormData((prev: any) => ({
+                                        ...prev,
+                                        industry: newIndustry,
+                                        subIndustry: IndustryToSubIndustryMap[newIndustry]?.[0] || ''
+                                    }));
+                                }}
                                 className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                             >
-                                <option value={IndustryEnum.TECHNOLOGY_AND_SAAS}>Technology & SaaS</option>
-                                <option value={IndustryEnum.ARCHITECTURE_AND_DESIGN}>Architecture & Design</option>
-                                <option value={IndustryEnum.FINANCIAL_SERVICES}>Financial Services</option>
-                                <option value={IndustryEnum.FLEET_MANAGEMENT}>Fleet Management</option>
+                                {Object.values(IndustryEnum).map((industryVal) => (
+                                    <option key={industryVal} value={industryVal}>
+                                        {formatIndustryName(industryVal)}
+                                    </option>
+                                ))}
+                            </select>
+                            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                        </div>
+                    </div>
+
+                    {/* Sub-Industry Dropdown */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Sub-Industry</label>
+                        <div className="relative group w-full">
+                            <select
+                                value={formData.subIndustry}
+                                onChange={(e) => handleChange('subIndustry', e.target.value)}
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                                disabled={!formData.industry || !IndustryToSubIndustryMap[formData.industry]}
+                            >
+                                {formData.industry && IndustryToSubIndustryMap[formData.industry]?.map((subInd) => (
+                                    <option key={subInd} value={subInd.toLowerCase().replace(/[\s&-]+/g, '_')}>
+                                        {subInd}
+                                    </option>
+                                ))}
                             </select>
                             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
                         </div>

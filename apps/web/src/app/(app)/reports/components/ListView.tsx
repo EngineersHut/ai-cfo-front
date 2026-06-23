@@ -6,7 +6,8 @@ import {
     Search,
     Trash2,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Eye
 } from 'lucide-react';
 
 interface ListViewProps {
@@ -157,8 +158,7 @@ export default function ListView({
                             return (
                             <tr
                                 key={report._id || report.id}
-                                onClick={() => onReportClick(report)}
-                                className="h-[70px] hover:bg-slate-50/50 transition-colors group border-b border-[#f1f5f9] cursor-pointer"
+                                className="h-[70px] hover:bg-slate-50/50 transition-colors group border-b border-[#f1f5f9]"
                             >
                                 <td className="px-[24px] py-[16px] text-[14px] font-medium text-[#0a092e] font-inter leading-[20px] w-[220px] border-r border-[#f1f5f9]">
                                     {report.reportName || 'N/A'}
@@ -182,12 +182,28 @@ export default function ListView({
                                     }
                                 </td>
                                 <td className="px-[24px] py-[16px] text-center w-[120px]">
-                                    <button
-                                        onClick={(e) => onDeleteClick(e, report)}
-                                        className="p-2.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onReportClick(report);
+                                            }}
+                                            className="p-2.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all cursor-pointer"
+                                            title="View Report"
+                                        >
+                                            <Eye size={18} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteClick(e, report);
+                                            }}
+                                            className="p-2.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                                            title="Delete Report"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             );

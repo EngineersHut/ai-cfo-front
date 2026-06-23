@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectModel, InjectConnection } from "@nestjs/mongoose";
 import { Model, Connection, Types } from "mongoose";
+import { Subject } from 'rxjs';
 import {
   DashboardSummary,
   DashboardSummaryDocument,
@@ -34,6 +35,8 @@ import { AiService } from "../ai/ai.service";
 import { NotificationService } from '../notification/notification.service';
 @Injectable()
 export class ReportService {
+  public reportStatus$ = new Subject<any>();
+
   constructor(
     @InjectConnection() private connection: Connection,
     @InjectModel(DashboardSummary.name)
@@ -129,6 +132,13 @@ export class ReportService {
       `Your report "${createReportDto.reportName}" is currently being analyzed.`,
       'INFO'
     );
+
+    // Emit event for SSE clients
+    this.reportStatus$.next({
+      companyId: company._id.toString(),
+      reportId,
+      status: ReportStatusEnum.PROCESSING,
+    });
 
     return reportData;
   }
@@ -248,6 +258,13 @@ export class ReportService {
         'ERROR'
       );
     }
+
+    // Emit event for SSE clients
+    this.reportStatus$.next({
+      companyId: company._id.toString(),
+      reportId,
+      status,
+    });
   }
 
   // || ---------------------- Get all reports function ---------------------|| //

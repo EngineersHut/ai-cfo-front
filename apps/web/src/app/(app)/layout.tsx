@@ -8,6 +8,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { DashboardProvider } from "@/context/DashboardContext";
 import Modal from "@/components/common/Modal";
 import { LogOut } from "lucide-react";
+import GlobalProcessingBanner from "@/components/common/GlobalProcessingBanner";
 
 export default function DashboardLayout({
   children,
@@ -101,6 +102,8 @@ export default function DashboardLayout({
             onToggleMenu={toggleSidebar}
             onOpenCustomize={() => setIsCustomizeOpen(true)}
           />
+
+          <GlobalProcessingBanner />
 
           {/* Content Area */}
           <main className="flex-1 bg-white relative">
