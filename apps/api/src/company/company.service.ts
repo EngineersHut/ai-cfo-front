@@ -126,7 +126,7 @@ export class CompanyService {
       .findOneAndUpdate(
         { _id: id, userId: userId, deletedAt: null },
         updateCompanyDto,
-        { new: true },
+        { returnDocument: 'after' },
       )
       .exec();
     if (!updatedCompany) {
@@ -200,7 +200,7 @@ export class CompanyService {
       .findOneAndUpdate(
         { _id: id, userId: userId, deletedAt: null },
         { isPrimary: true },
-        { new: true },
+        { returnDocument: 'after' },
       )
       .exec();
 

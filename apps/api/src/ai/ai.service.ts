@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 
 @Injectable()
 export class AiService {
@@ -120,7 +121,12 @@ ${csvContent}
 
       const responseText = await this.callClaude(prompt);
       this.logger.log("Successfully extracted metrics using Claude API");
-      return JSON.parse(this.cleanJson(responseText));
+      try {
+        return JSON.parse(jsonrepair(this.cleanJson(responseText)));
+      } catch (parseError) {
+        this.logger.error("Failed to parse Claude output", parseError);
+        throw parseError;
+      }
     } catch (error) {
       this.logger.error("Failed to extract metrics using Claude", error);
       throw error;
@@ -149,6 +155,7 @@ CRITICAL RULES:
 3. If a field's value cannot be calculated or found in the reports, set its value to null. Do NOT skip any fields.
 4. You MUST generate at least 3 to 4 detailed, actionable insights under "growthAnalytics.insights". Do not leave it empty.
 5. Response must be ONLY a valid JSON object. No markdown formatting (do NOT wrap in \`\`\`json block), no explanation.
+6. For budgetPlanning.lineItems, limit to the top 15 most significant items to prevent excessive response length.
 
 EXPECTED JSON SCHEMA:
 {
@@ -211,7 +218,7 @@ EXPECTED JSON SCHEMA:
     "totalRevenueBudget": null, // Total revenue budget expected (number or null)
     "totalDirectCostsBudget": null, // Total direct costs budget expected (number or null)
     "totalOperatingExpensesBudget": null, // Total operating expenses budget expected (number or null)
-    "lineItems": [] // Array of { "category": "Revenue" | "Direct Costs" | "Operating Expenses" | "Growth & Expansion" | "Leadership & Compliance", "name": "Item name", "amount": number }
+    "lineItems": [] // Array of { "category": "Revenue" | "Direct Costs" | "Operating Expenses" | "Growth & Expansion" | "Leadership & Compliance", "name": "Item name", "amount": number } (Limit to top 15 items)
   }
 }
 
@@ -225,9 +232,16 @@ ${reportsFormatted}
       this.logger.log(
         "Successfully generated consolidated monthly metrics using Claude API",
       );
-      console.log("responseText", responseText);
-      return JSON.parse(this.cleanJson(responseText));
+      try {
+        return JSON.parse(jsonrepair(this.cleanJson(responseText)));
+      } catch (parseError) {
+        this.logger.error("Failed to parse Claude output", parseError);
+        console.log("responseText was:", responseText);
+        throw parseError;
+      }
     } catch (error) {
+      console.log(error);
+
       this.logger.error(
         "Failed to generate consolidated monthly metrics using Claude",
         error,

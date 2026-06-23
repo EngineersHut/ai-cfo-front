@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { AtSign, Key, Eye, EyeOff, User } from "lucide-react";
 import Modal from "../common/Modal";
 import { dispatch, useSelector } from "@/store";
@@ -44,6 +44,7 @@ export default function AuthModal({
 }: AuthModalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const modalParam = searchParams.get('modal');
 
   const isOpen = modalParam === 'login' || modalParam === 'register';
@@ -70,7 +71,8 @@ export default function AuthModal({
     setSuccessMessage(null);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('modal');
-    router.push(`?${params.toString()}`);
+    const newQuery = params.toString();
+    router.push(newQuery ? `${pathname}?${newQuery}` : pathname);
   };
 
   const setMode = (newMode: AuthMode) => {
@@ -80,7 +82,7 @@ export default function AuthModal({
     setSuccessMessage(null);
     const params = new URLSearchParams(searchParams.toString());
     params.set('modal', newMode);
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const openForgotPassword = () => {
@@ -89,7 +91,7 @@ export default function AuthModal({
     setValidationErrors({});
     const params = new URLSearchParams(searchParams.toString());
     params.set('modal', 'forgot-password');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -354,7 +356,7 @@ export default function AuthModal({
           <div className="text-center pt-2">
             <p className="font-inter font-normal text-[12px] leading-[16px] text-slate-500 text-center">
               {mode === 'login' ? "Don't have account?" : "Already have an account?"}{' '}
-              <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-[#2563eb] font-semibold hover:underline transition-all">{mode === 'login' ? 'Register' : 'Login'}</button>
+              <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-[#2563eb] font-semibold hover:underline transition-all">{mode === 'login' ? 'Register' : 'Login'}</button>
             </p>
           </div>
         </div>

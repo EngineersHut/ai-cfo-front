@@ -34,8 +34,12 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   const { companies } = useSelector((state) => state.company);
 
   useEffect(() => {
-    dispatch(getAllCompanies());
-  }, []);
+    dispatch(getAllCompanies('', (fetchedCompanies) => {
+      if (fetchedCompanies && fetchedCompanies.length === 0 && !pathname.includes('/settings')) {
+        router.push('/settings?createCompany=true');
+      }
+    }));
+  }, [pathname, router]);
 
   const dynamicOptions = React.useMemo(() => {
     if (!companies || companies.length === 0) {

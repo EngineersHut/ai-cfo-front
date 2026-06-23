@@ -20,6 +20,7 @@ import {
 import { IndustryEnum, BUDGET_KPI_CONFIGS, BUDGET_HEADER_CONFIGS, BUDGET_TABLE_CONFIGS } from '@/config/industryConfig';
 import * as LucideIcons from 'lucide-react';
 import { fetchBudgetData, setTimeframe } from '@/store/slices/budget';
+import { usePersistentDate } from '@/hooks/usePersistentDate';
 
 const MONTHS = [
   { value: 1, label: 'January' },
@@ -39,16 +40,12 @@ const MONTHS = [
 const YEARS = [2024, 2025, 2026];
 
 export default function BudgetVsActual() {
+    const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
     const dispatch = useDispatch();
     const { data } = useSelector((state: any) => state.budget);
 
     const [companyType, setCompanyType] = useState<string>(IndustryEnum.FLEET_MANAGEMENT);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
-    
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
 
     useEffect(() => {
         const savedType = localStorage.getItem('selectedCompanyType');

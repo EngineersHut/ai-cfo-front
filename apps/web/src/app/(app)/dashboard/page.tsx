@@ -44,6 +44,7 @@ import KPICard from '@/components/common/KPICard';
 import { useDispatch, useSelector } from '@/store';
 import { fetchDashboardData } from '@/store/slices/dashboard';
 import { useEffect } from 'react';
+import { usePersistentDate } from '@/hooks/usePersistentDate';
 import { DASHBOARD_KPI_CONFIGS, DASHBOARD_HEADER_CONFIGS, IndustryEnum } from '@/config/industryConfig';
 import * as LucideIcons from 'lucide-react';
 
@@ -119,10 +120,7 @@ const YEARS = [2024, 2025, 2026];
 
 export default function ReportPage() {
   const { visibility } = useDashboardSettings();
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
   const [activeChart, setActiveChart] = useState('line');
 
   const dispatch = useDispatch();

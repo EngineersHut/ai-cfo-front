@@ -14,6 +14,7 @@ import { healthData } from '@/data/dashboardData';
 import { useDispatch, useSelector } from '@/store';
 import { fetchOperationalData } from '@/store/slices/operational';
 import { useEffect } from 'react';
+import { usePersistentDate } from '@/hooks/usePersistentDate';
 import { IndustryEnum, OPERATIONAL_KPI_CONFIGS, OPERATIONAL_HEADER_CONFIGS, OPERATIONAL_CORE_CONFIGS, OPERATIONAL_SECTION_CONFIGS, OPERATIONAL_COST_CONFIGS, OPERATIONAL_UTILIZATION_CONFIGS, OPERATIONAL_PERFORMANCE_CONFIGS } from '@/config/industryConfig';
 import * as LucideIcons from 'lucide-react';
 
@@ -90,10 +91,7 @@ const MONTHS = [
 const YEARS = [2024, 2025, 2026];
 
 export default function OperationalOverview() {
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
