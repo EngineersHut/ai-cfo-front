@@ -16,7 +16,7 @@ export interface OperationalHeaderConfig {
   subtitle: string;
 }
 
-export const OPERATIONAL_HEADER_CONFIGS: Record<IndustryEnum, OperationalHeaderConfig> = {
+export const OPERATIONAL_HEADER_CONFIGS: Partial<Record<IndustryEnum, OperationalHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Support & Operations',
     subtitle: 'Monitor ticket response times, system uptime, and customer health parameters.',
@@ -35,7 +35,7 @@ export const OPERATIONAL_HEADER_CONFIGS: Record<IndustryEnum, OperationalHeaderC
   },
 };
 
-export const OPERATIONAL_KPI_CONFIGS: Record<IndustryEnum, OperationalKPIConfig[]> = {
+export const OPERATIONAL_KPI_CONFIGS: Partial<Record<IndustryEnum, OperationalKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'activeTickets', label: 'Active Support Tickets', sub: 'vs last week', format: 'number', icon: 'Zap', trend: '-12.5%', isDownPositive: true },
     { key: 'resolutionTime', label: 'Ticket Resolution Time', sub: 'Optimal speed', format: 'text', icon: 'Users', trend: '-15%' },
@@ -71,7 +71,7 @@ export interface OperationalCoreConfig {
   isDownPositive?: boolean;
 }
 
-export const OPERATIONAL_CORE_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+export const OPERATIONAL_CORE_CONFIGS: Partial<Record<IndustryEnum, OperationalCoreConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'ticketVolume', metric: 'Ticket Volume', sub: 'Completed today', format: 'number', color: '#6366f1', isDownPositive: true },
     { key: 'avgResolution', metric: 'Avg Resolution Time', sub: 'Daily average', format: 'text', color: '#f59e0b', isDownPositive: true },
@@ -110,7 +110,7 @@ export interface OperationalSectionConfig {
   healthMetric3Label: string;
 }
 
-export const OPERATIONAL_SECTION_CONFIGS: Record<IndustryEnum, OperationalSectionConfig> = {
+export const OPERATIONAL_SECTION_CONFIGS: Partial<Record<IndustryEnum, OperationalSectionConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     costEfficiencyTitle: 'SaaS Cost Efficiency',
     costEfficiencyIcon: 'Wallet',
@@ -157,7 +157,7 @@ export const OPERATIONAL_SECTION_CONFIGS: Record<IndustryEnum, OperationalSectio
   }
 };
 
-export const OPERATIONAL_COST_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+export const OPERATIONAL_COST_CONFIGS: Partial<Record<IndustryEnum, OperationalCoreConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'hostingCost', metric: 'Hosting / Cloud Cost', sub: 'Infrastructure spend', format: 'currency', color: '#6366f1', isDownPositive: true },
     { key: 'supportToolsCost', metric: 'Support Tools Cost', sub: 'Software subscriptions', format: 'currency', color: '#f59e0b', isDownPositive: true },
@@ -184,7 +184,7 @@ export const OPERATIONAL_COST_CONFIGS: Record<IndustryEnum, OperationalCoreConfi
   ]
 };
 
-export const OPERATIONAL_UTILIZATION_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+export const OPERATIONAL_UTILIZATION_CONFIGS: Partial<Record<IndustryEnum, OperationalCoreConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'activeAgents', metric: 'Active Support Agents', sub: 'Agents currently online', format: 'number', color: '#6366f1' },
     { key: 'agentCapacity', metric: 'Agent Utilization %', sub: 'Target: 80-85%', format: 'percent', color: '#10b981' },
@@ -211,7 +211,7 @@ export const OPERATIONAL_UTILIZATION_CONFIGS: Record<IndustryEnum, OperationalCo
   ]
 };
 
-export const OPERATIONAL_PERFORMANCE_CONFIGS: Record<IndustryEnum, OperationalCoreConfig[]> = {
+export const OPERATIONAL_PERFORMANCE_CONFIGS: Partial<Record<IndustryEnum, OperationalCoreConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'ticketsResolved', metric: 'Resolved Tickets', sub: 'Completed today', format: 'number', color: '#6366f1' },
     { key: 'avgResponseTime', metric: 'Avg Response Time', sub: 'Optimal response speed', format: 'text', color: '#f59e0b', isDownPositive: true },

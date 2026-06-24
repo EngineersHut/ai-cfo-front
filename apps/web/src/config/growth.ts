@@ -14,7 +14,7 @@ export interface GrowthHeaderConfig {
   subtitle: string;
 }
 
-export const GROWTH_HEADER_CONFIGS: Record<IndustryEnum, GrowthHeaderConfig> = {
+export const GROWTH_HEADER_CONFIGS: Partial<Record<IndustryEnum, GrowthHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Growth & Retention',
     subtitle: 'Track logo scaling, user expansion, and MRR growth cohorts.',
@@ -33,7 +33,7 @@ export const GROWTH_HEADER_CONFIGS: Record<IndustryEnum, GrowthHeaderConfig> = {
   },
 };
 
-export const GROWTH_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
+export const GROWTH_KPI_CONFIGS: Partial<Record<IndustryEnum, GrowthKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'monthlyGrowthPercent', label: 'Monthly Growth %', sub: 'Compared to last month', format: 'percent', icon: 'TrendingUp' },
     { key: 'quarterlyGrowthPercent', label: 'Quarterly Growth %', sub: 'Q2 performance cohort', format: 'percent', icon: 'Calendar' },
@@ -60,7 +60,7 @@ export const GROWTH_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
   ],
 };
 
-export const GROWTH_ADDITIONAL_KPI_CONFIGS: Record<IndustryEnum, GrowthKPIConfig[]> = {
+export const GROWTH_ADDITIONAL_KPI_CONFIGS: Partial<Record<IndustryEnum, GrowthKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'revenuePerEmployee', label: 'SaaS Revenue / FTE', sub: 'Efficiency cohort', format: 'currency', icon: 'Banknote' },
     { key: 'employeeGrowthPercent', label: 'Team Growth', sub: 'Talent cohort expansion', format: 'percent', icon: 'TrendingUp' },

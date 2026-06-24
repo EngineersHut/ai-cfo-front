@@ -39,7 +39,7 @@ export default function ReportsPage() {
         return () => clearInterval(interval);
     }, [companyType]);
 
-    const activeHeader = REPORTS_HEADER_CONFIGS[companyType as IndustryEnum] || REPORTS_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeHeader = REPORTS_HEADER_CONFIGS[companyType as IndustryEnum] ?? REPORTS_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Reports', subtitle: '' };
     const [view, setView] = useState<'list' | 'timeline'>('list');
     const [activePeriod, setActivePeriod] = useState<string>('Jan 2025');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

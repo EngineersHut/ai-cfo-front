@@ -161,9 +161,9 @@ export default function GrowthOverview() {
         }
     }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-    const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] || GROWTH_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-    const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-    const currentAdditionalKPIs = GROWTH_ADDITIONAL_KPI_CONFIGS[companyType as IndustryEnum] || GROWTH_ADDITIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] ?? GROWTH_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Growth Overview', subtitle: '' };
+    const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] ?? GROWTH_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
+    const currentAdditionalKPIs = GROWTH_ADDITIONAL_KPI_CONFIGS[companyType as IndustryEnum] ?? GROWTH_ADDITIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];

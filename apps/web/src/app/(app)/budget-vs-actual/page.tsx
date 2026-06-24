@@ -76,8 +76,8 @@ export default function BudgetVsActual() {
         }
     }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-    const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] || BUDGET_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-    const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] || BUDGET_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeHeader = BUDGET_HEADER_CONFIGS[companyType as IndustryEnum] ?? BUDGET_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Budget vs Actual', subtitle: '' };
+    const currentKPIs = BUDGET_KPI_CONFIGS[companyType as IndustryEnum] ?? BUDGET_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
 
     const getTableLabel = (label: string) => {
         const industryLabels = BUDGET_TABLE_CONFIGS[companyType as IndustryEnum] || BUDGET_TABLE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];

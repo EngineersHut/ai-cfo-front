@@ -129,9 +129,9 @@ export default function OperationalOverview() {
         }
     }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-    const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-    const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-    const activeSections = OPERATIONAL_SECTION_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_SECTION_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Operational Overview', subtitle: '' };
+    const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
+    const activeSections = OPERATIONAL_SECTION_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_SECTION_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { costEfficiencyTitle: 'Cost Efficiency', costEfficiencyIcon: 'DollarSign', utilizationTitle: 'Utilization', utilizationIcon: 'Activity', performanceTitle: 'Performance', performanceIcon: 'Zap', healthMetric1Label: 'Efficiency', healthMetric2Label: 'Success Rate', healthMetric3Label: 'Cost Efficiency' };
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];
@@ -194,7 +194,7 @@ export default function OperationalOverview() {
         return defaultIsDown;
     };
 
-    const currentCoreConfigs = OPERATIONAL_CORE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_CORE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const currentCoreConfigs = OPERATIONAL_CORE_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_CORE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
 
     const coreOperations = currentCoreConfigs.map((cfg) => {
         const rawItem = data?.coreOperations?.[cfg.key];
@@ -258,7 +258,7 @@ export default function OperationalOverview() {
         }).format(num);
     };
 
-    const activeCostConfigs = OPERATIONAL_COST_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_COST_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeCostConfigs = OPERATIONAL_COST_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_COST_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
     const costEfficiency = activeCostConfigs.map((cfg) => {
         const rawItem = data?.costEfficiency?.[cfg.key];
 
@@ -300,7 +300,7 @@ export default function OperationalOverview() {
         };
     });
 
-    const activeUtilizationConfigs = OPERATIONAL_UTILIZATION_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_UTILIZATION_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activeUtilizationConfigs = OPERATIONAL_UTILIZATION_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_UTILIZATION_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
     const fleetDriverUtilization = activeUtilizationConfigs.map((cfg) => {
         const rawItem = data?.fleetDriverUtilization?.[cfg.key];
 
@@ -342,7 +342,7 @@ export default function OperationalOverview() {
         };
     });
 
-    const activePerformanceConfigs = OPERATIONAL_PERFORMANCE_CONFIGS[companyType as IndustryEnum] || OPERATIONAL_PERFORMANCE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const activePerformanceConfigs = OPERATIONAL_PERFORMANCE_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_PERFORMANCE_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
     const driverPerformance = activePerformanceConfigs.map((cfg) => {
         const rawItem = data?.driverPerformance?.[cfg.key];
 

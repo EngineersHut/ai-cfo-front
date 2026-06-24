@@ -9,7 +9,7 @@ export interface DashboardKPIConfig {
   isDownPositive?: boolean;
 }
 
-export const DASHBOARD_KPI_CONFIGS: Record<IndustryEnum, DashboardKPIConfig[]> = {
+export const DASHBOARD_KPI_CONFIGS: Partial<Record<IndustryEnum, DashboardKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     // Row 1
     { key: 'mrr', label: 'MRR (Monthly Recurring)', sub: 'vs last mo.', format: 'currency', icon: 'DollarSign' },
@@ -65,7 +65,7 @@ export interface DashboardHeaderConfig {
   subtitle: string;
 }
 
-export const DASHBOARD_HEADER_CONFIGS: Record<IndustryEnum, DashboardHeaderConfig> = {
+export const DASHBOARD_HEADER_CONFIGS: Partial<Record<IndustryEnum, DashboardHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Performance & Growth',
     subtitle: 'Monitor recurring revenue, cohort retention, and customer acquisition metrics.',

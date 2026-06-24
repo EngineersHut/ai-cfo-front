@@ -9,7 +9,7 @@ export interface ReportsKPIConfig {
   isDownPositive?: boolean;
 }
 
-export const REPORTS_KPI_CONFIGS: Record<IndustryEnum, ReportsKPIConfig[]> = {
+export const REPORTS_KPI_CONFIGS: Partial<Record<IndustryEnum, ReportsKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'totalRevenue', label: 'SaaS Revenue', sub: 'vs last period', format: 'currency', icon: 'DollarSign' },
     { key: 'netProfit', label: 'Net Profit', sub: 'vs last period', format: 'currency', icon: 'PieChart' },
@@ -41,7 +41,7 @@ export interface ReportsHeaderConfig {
   subtitle: string;
 }
 
-export const REPORTS_HEADER_CONFIGS: Record<IndustryEnum, ReportsHeaderConfig> = {
+export const REPORTS_HEADER_CONFIGS: Partial<Record<IndustryEnum, ReportsHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Report Timeline',
     subtitle: 'Your SaaS financial performance metrics have been consolidated. AI CFO has identified key SaaS growth and customer churn insights.'

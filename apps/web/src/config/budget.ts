@@ -15,7 +15,7 @@ export interface BudgetHeaderConfig {
   subtitle: string;
 }
 
-export const BUDGET_HEADER_CONFIGS: Record<IndustryEnum, BudgetHeaderConfig> = {
+export const BUDGET_HEADER_CONFIGS: Partial<Record<IndustryEnum, BudgetHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Budget vs Actual',
     subtitle: 'Compare planned MRR scaling, SaaS direct costs, and host variances.',
@@ -34,7 +34,7 @@ export const BUDGET_HEADER_CONFIGS: Record<IndustryEnum, BudgetHeaderConfig> = {
   },
 };
 
-export const BUDGET_KPI_CONFIGS: Record<IndustryEnum, BudgetKPIConfig[]> = {
+export const BUDGET_KPI_CONFIGS: Partial<Record<IndustryEnum, BudgetKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'budgetRevenue', label: 'Budget MRR', sub: 'This period target', format: 'currency', icon: 'TrendingUp', trend: 'FY2024' },
     { key: 'actualRevenue', label: 'Actual MRR', sub: 'Reported to date', format: 'currency', icon: 'Calendar', trend: '77.1%' },
@@ -60,7 +60,7 @@ export const BUDGET_KPI_CONFIGS: Record<IndustryEnum, BudgetKPIConfig[]> = {
     { key: 'overBudgetItems', label: 'Over-Budget Items', sub: 'Average per customer', format: 'currency', icon: 'DollarSign', trend: '+4.2%' }
   ],
 };
-export const BUDGET_TABLE_CONFIGS: Record<IndustryEnum, Record<string, string>> = {
+export const BUDGET_TABLE_CONFIGS: Partial<Record<IndustryEnum, Record<string, string>>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     'Revenue': 'MRR',
     'Direct Costs': 'Hosting & COGS',

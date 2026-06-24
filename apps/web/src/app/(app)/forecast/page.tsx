@@ -195,8 +195,8 @@ export default function ForecastPage() {
     }
   }, [rawSummary]);
 
-  const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] || FORECAST_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-  const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] || FORECAST_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+  const activeHeader = FORECAST_HEADER_CONFIGS[companyType as IndustryEnum] ?? FORECAST_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Forecast', subtitle: '' };
+  const currentKPIs = FORECAST_KPI_CONFIGS[companyType as IndustryEnum] ?? FORECAST_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
 
   const getIcon = (iconName: string) => {
     const IconComp = (LucideIcons as any)[iconName];

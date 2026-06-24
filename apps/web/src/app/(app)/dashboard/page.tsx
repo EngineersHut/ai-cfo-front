@@ -192,8 +192,8 @@ export default function ReportPage() {
     }
   }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
 
-  const currentKPIs = DASHBOARD_KPI_CONFIGS[companyType as IndustryEnum] || DASHBOARD_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
-  const currentHeader = DASHBOARD_HEADER_CONFIGS[companyType as IndustryEnum] || DASHBOARD_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+  const currentKPIs = DASHBOARD_KPI_CONFIGS[companyType as IndustryEnum] ?? DASHBOARD_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
+  const currentHeader = DASHBOARD_HEADER_CONFIGS[companyType as IndustryEnum] ?? DASHBOARD_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Dashboard', subtitle: '' };
 
   const getIcon = (iconName: string) => {
     const IconComp = (LucideIcons as any)[iconName];

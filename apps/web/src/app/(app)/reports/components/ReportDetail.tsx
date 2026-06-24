@@ -128,7 +128,7 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
     const netProfit = summaryCards?.netProfit ?? 0;
     const profitMargin = summaryCards?.profitMargin ?? 0;
 
-    const currentKPIs = REPORTS_KPI_CONFIGS[companyType as IndustryEnum] || REPORTS_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS];
+    const currentKPIs = REPORTS_KPI_CONFIGS[companyType as IndustryEnum] ?? REPORTS_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
 
     const getIcon = (iconName: string) => {
         const IconComp = (LucideIcons as any)[iconName];

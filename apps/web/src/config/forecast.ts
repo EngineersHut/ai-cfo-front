@@ -42,7 +42,7 @@ export interface AIInsightItemConfig {
   textColor: string;
 }
 
-export const FORECAST_HEADER_CONFIGS: Record<IndustryEnum, ForecastHeaderConfig> = {
+export const FORECAST_HEADER_CONFIGS: Partial<Record<IndustryEnum, ForecastHeaderConfig>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: {
     title: 'SaaS Projections & Strategy',
     subtitle: 'Model planned MRR growth, hosting server expenses, and sales efficiency runway.',
@@ -61,7 +61,7 @@ export const FORECAST_HEADER_CONFIGS: Record<IndustryEnum, ForecastHeaderConfig>
   },
 };
 
-export const FORECAST_KPI_CONFIGS: Record<IndustryEnum, ForecastKPIConfig[]> = {
+export const FORECAST_KPI_CONFIGS: Partial<Record<IndustryEnum, ForecastKPIConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { key: 'opMargin', label: 'Operating Margin', format: 'percent', icon: 'Coins', trend: '+12.5%', defaultValue: 28.4 },
     { key: 'burnRate', label: 'SaaS Cash Burn Rate', format: 'currency', icon: 'Wallet', trend: '+1.5%', unit: '/ Month', sub: 'Optimal cloud spend' },
@@ -88,7 +88,7 @@ export const FORECAST_KPI_CONFIGS: Record<IndustryEnum, ForecastKPIConfig[]> = {
   ],
 };
 
-export const FORECAST_EXPENSE_CONFIGS: Record<IndustryEnum, ExpenseItemConfig[]> = {
+export const FORECAST_EXPENSE_CONFIGS: Partial<Record<IndustryEnum, ExpenseItemConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { name: 'R&D Engineering', value: 45, color: '#6366f1' },
     { name: 'S&M (CAC)', value: 25, color: '#f59e0b' },
@@ -115,7 +115,7 @@ export const FORECAST_EXPENSE_CONFIGS: Record<IndustryEnum, ExpenseItemConfig[]>
   ],
 };
 
-export const FORECAST_COST_DETAILS_CONFIGS: Record<IndustryEnum, CostDetailItemConfig[]> = {
+export const FORECAST_COST_DETAILS_CONFIGS: Partial<Record<IndustryEnum, CostDetailItemConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { name: 'Engineering R&D Payroll', value: '$72.5k', trend: '+10.2%', progress: 80, color: '#6366f1', dotColor: '#6366f1' },
     { name: 'AWS & GCP Hosting', value: '$32.2k', trend: '+15.5%', progress: 92, color: '#f59e0b', dotColor: '#f59e0b' },
@@ -142,7 +142,7 @@ export const FORECAST_COST_DETAILS_CONFIGS: Record<IndustryEnum, CostDetailItemC
   ],
 };
 
-export const FORECAST_AI_INSIGHTS_CONFIGS: Record<IndustryEnum, AIInsightItemConfig[]> = {
+export const FORECAST_AI_INSIGHTS_CONFIGS: Partial<Record<IndustryEnum, AIInsightItemConfig[]>> = {
   [IndustryEnum.TECHNOLOGY_AND_IT]: [
     { id: '1', title: 'EXPANSION MRR', percentage: '+12.4%', description: 'Upsell campaigns targeting high-tier clients show a +15% conversion lift.', color: '#2563eb', bgColor: '#dbeafe', textColor: '#2563eb' },
     { id: '2', title: 'SERVER COGS ALERT', percentage: '+18.2%', description: 'Cloud infrastructure billing exceeds budget by $12.5K. Optimization is required.', color: '#ef4444', bgColor: '#fee2fee2', textColor: '#ef4444' },
