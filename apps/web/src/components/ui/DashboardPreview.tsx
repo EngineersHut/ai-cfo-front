@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 interface MonthlyData {
   month: string;
@@ -15,8 +16,6 @@ interface TooltipData {
   y: number;
   data: MonthlyData;
 }
-
-
 
 const monthlyData: MonthlyData[] = [
   { month: "Jan", revenue: 28000, profit: 8000, expense: 20000 },
@@ -33,7 +32,7 @@ const monthlyData: MonthlyData[] = [
   { month: "Dec", revenue: 26000, profit: 7500, expense: 18500 },
 ];
 
-function LineChart({ data }: { data: MonthlyData[] }) {
+function LineChart({ data, isDark }: { data: MonthlyData[]; isDark: boolean }) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const w = 540, h = 220;
@@ -81,7 +80,7 @@ function LineChart({ data }: { data: MonthlyData[] }) {
             <line
               x1={pad.left} y1={yScale(v)}
               x2={pad.left + chartW} y2={yScale(v)}
-              stroke="#f1f5f9" strokeWidth="1"
+              stroke={isDark ? "#334155" : "#f1f5f9"} strokeWidth="1"
             />
             <text
               x={pad.left - 6} y={yScale(v) + 4}
@@ -97,7 +96,7 @@ function LineChart({ data }: { data: MonthlyData[] }) {
             key={`v-${i}`}
             x1={xScale(i)} y1={pad.top}
             x2={xScale(i)} y2={pad.top + chartH}
-            stroke="#f1f5f9" strokeWidth="1"
+            stroke={isDark ? "#334155" : "#f1f5f9"} strokeWidth="1"
           />
         ))}
 
@@ -131,7 +130,7 @@ function LineChart({ data }: { data: MonthlyData[] }) {
             key={i}
             cx={xScale(i)} cy={yScale(d.revenue)}
             r={tooltip?.index === i ? 5 : 4}
-            fill={tooltip?.index === i ? "#6366f1" : "white"}
+            fill={tooltip?.index === i ? "#6366f1" : (isDark ? "#1e293b" : "white")}
             stroke="#6366f1"
             strokeWidth="2"
             style={{ cursor: "pointer", transition: "r 0.15s" }}
@@ -170,13 +169,13 @@ function LineChart({ data }: { data: MonthlyData[] }) {
             position: "absolute",
             top: tooltip.y - 8,
             left: tooltip.x + 12,
-            background: "white",
-            border: "1px solid #e5e7eb",
+            background: isDark ? "#1e293b" : "white",
+            border: isDark ? "1px solid #334155" : "1px solid #e5e7eb",
             borderRadius: 8,
             padding: "8px 12px",
             fontSize: 11,
-            color: "#374151",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.15)",
+            color: isDark ? "#f8fafc" : "#374151",
+            boxShadow: isDark ? "0 4px 16px rgba(0,0,0,0.3)" : "0 4px 16px rgba(99,102,241,0.15)",
             pointerEvents: "none",
             zIndex: 10,
             lineHeight: "1.7",
@@ -184,7 +183,7 @@ function LineChart({ data }: { data: MonthlyData[] }) {
           }}
         >
           <div>Revenue : ${tooltip.data.revenue.toLocaleString()}</div>
-          <div>Profite : ${tooltip.data.profit.toLocaleString()}</div>
+          <div>Profit : ${tooltip.data.profit.toLocaleString()}</div>
           <div>Expense : ${tooltip.data.expense.toLocaleString()}</div>
         </div>
       )}
@@ -192,13 +191,13 @@ function LineChart({ data }: { data: MonthlyData[] }) {
   );
 }
 
-function DonutRing({ pct, color, size = 36, stroke = 4 }: any) {
+function DonutRing({ pct, color, size = 36, stroke = 4, isDark }: any) {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={isDark ? "#334155" : "#e5e7eb"} strokeWidth={stroke} />
       <circle
         cx={size / 2} cy={size / 2} r={r}
         fill="none"
@@ -214,22 +213,29 @@ function DonutRing({ pct, color, size = 36, stroke = 4 }: any) {
 }
 
 export default function DashboardPreview() {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     setTimeout(() => setVisible(true), 80);
   }, []);
 
+  const isDark = mounted && theme === "dark";
+
   const card = {
-    background: "white",
+    background: isDark ? "#1e293b" : "white",
     borderRadius: 10,
     padding: "12px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-    border: "1px solid rgba(226, 232, 240, 1)",
+    boxShadow: isDark ? "0 1px 3px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.02)",
+    border: isDark ? "1px solid #334155" : "1px solid rgba(226, 232, 240, 1)",
+    transition: "background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
   };
 
   const label = {
     fontSize: 11,
-    color: "#94a3b8",
+    color: isDark ? "#94a3b8" : "#94a3b8",
     fontFamily: "'DM Sans', sans-serif",
     letterSpacing: "0.02em",
     marginBottom: 6,
@@ -238,10 +244,11 @@ export default function DashboardPreview() {
   const bigNum = {
     fontSize: 26,
     fontWeight: 700,
-    color: "#0f172a",
+    color: isDark ? "#f8fafc" : "#0f172a",
     fontFamily: "'DM Sans', sans-serif",
     letterSpacing: "-0.5px",
     lineHeight: 1.1,
+    transition: "color 0.3s ease",
   };
 
   const upBadge = {
@@ -270,23 +277,28 @@ export default function DashboardPreview() {
         style={{
           position: "absolute",
           inset: "-100px",
-          background: "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.12) 0%, transparent 70%)",
+          background: isDark 
+            ? "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.05) 0%, transparent 70%)"
+            : "radial-gradient(circle at 50% 50%, rgba(37,99,235,0.12) 0%, transparent 70%)",
           zIndex: -1,
           pointerEvents: "none",
+          transition: "background 0.3s ease",
         }}
       />
       {/* Main card */}
       <div
         style={{
-          background: "#f8f9fc",
+          background: isDark ? "#0f172a" : "#f8f9fc",
           borderRadius: 24,
           padding: 20,
           width: "100%",
           maxWidth: 750,
-          boxShadow: "0px 0px 220px 0px rgba(197, 221, 255, 1)",
+          boxShadow: isDark 
+            ? "0px 0px 150px 0px rgba(0, 0, 0, 0.4)" 
+            : "0px 0px 220px 0px rgba(197, 221, 255, 1)",
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)",
-          transition: "opacity 0.5s ease, transform 0.5s ease",
+          transition: "opacity 0.5s ease, transform 0.5s ease, background-color 0.3s ease, box-shadow 0.3s ease",
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
@@ -314,10 +326,10 @@ export default function DashboardPreview() {
 
         {/* Revenue Trend Chart */}
         <div style={{ ...card, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", marginBottom: 10, transition: "color 0.3s ease" }}>
             Revenue Trend
           </div>
-          <LineChart data={monthlyData} />
+          <LineChart data={monthlyData} isDark={isDark} />
         </div>
 
         {/* Cash metrics row */}
@@ -326,7 +338,7 @@ export default function DashboardPreview() {
           <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
             <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash Burn Rate</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>-$10,400</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", lineHeight: "1", transition: "color 0.3s ease" }}>-$10,400</span>
               <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "#22c55e", lineHeight: "1" }}>/ Month</span>
             </div>
           </div>
@@ -334,7 +346,7 @@ export default function DashboardPreview() {
           <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
             <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash Runway</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>10.00</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", lineHeight: "1", transition: "color 0.3s ease" }}>10.00</span>
               <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: "#22c55e", lineHeight: "1" }}>/ Month</span>
             </div>
           </div>
@@ -342,7 +354,7 @@ export default function DashboardPreview() {
           <div style={{ ...card, height: 59, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
             <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: "#94a3b8", marginBottom: 2 }}>Cash in Hand</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: "#0f172a", lineHeight: "1" }}>$95,600</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", lineHeight: "1", transition: "color 0.3s ease" }}>$95,600</span>
               <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#22c55e", fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, lineHeight: "1" }}>
                 <span>↑</span>
                 <span>+12.4%</span>
@@ -367,16 +379,16 @@ export default function DashboardPreview() {
             <div style={label}>Budget vs Actual vs Forecast</div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <DonutRing pct={80} color="#2563eb" size={36} stroke={5} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>80%</span>
+                <DonutRing pct={80} color="#2563eb" size={36} stroke={5} isDark={isDark} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", transition: "color 0.3s ease" }}>80%</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <DonutRing pct={75} color="#2563eb" size={36} stroke={5} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>75%</span>
+                <DonutRing pct={75} color="#2563eb" size={36} stroke={5} isDark={isDark} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", transition: "color 0.3s ease" }}>75%</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <DonutRing pct={100} color="#2563eb" size={36} stroke={5} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a" }}>100%</span>
+                <DonutRing pct={100} color="#2563eb" size={36} stroke={5} isDark={isDark} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#f8fafc" : "#0f172a", transition: "color 0.3s ease" }}>100%</span>
               </div>
             </div>
           </div>
@@ -385,13 +397,14 @@ export default function DashboardPreview() {
         {/* AI Insight */}
         <div
           style={{
-            background: "#eff6ff",
+            background: isDark ? "rgba(30, 58, 138, 0.2)" : "#eff6ff",
             borderRadius: 14,
             padding: "14px 16px",
             display: "flex",
             alignItems: "center",
             gap: 12,
-            border: "1px solid #dbeafe",
+            border: isDark ? "1px solid rgba(30, 58, 138, 0.4)" : "1px solid #dbeafe",
+            transition: "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <div
@@ -410,10 +423,10 @@ export default function DashboardPreview() {
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a8a", marginBottom: 2 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: isDark ? "#60a5fa" : "#1e3a8a", marginBottom: 2, transition: "color 0.3s ease" }}>
               AI Insight
             </div>
-            <div style={{ fontSize: 11.5, color: "#64748b", lineHeight: 1.5 }}>
+            <div style={{ fontSize: 11.5, color: isDark ? "#94a3b8" : "#64748b", lineHeight: 1.5, transition: "color 0.3s ease" }}>
               Revenue increased 12% over the last 3 months driven by higher client retention.
             </div>
           </div>

@@ -98,6 +98,22 @@
     --hero-glow: rgba(59,130,246,0.12);
     --showcase-bg: #f8faff;
   }
+
+  .dark {
+    --bg-primary: #0b0f19;
+    --bg-secondary: #111827;
+    --bg-card: #1f2937;
+    --bg-alt: #111827;
+    --border-rgba: rgba(255,255,255,0.08);
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --nav-bg: rgba(11,15,25,0.92);
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.3);
+    --card-hover: 0 8px 40px rgba(37,99,235,0.25);
+    --hero-glow: rgba(59,130,246,0.15);
+    --showcase-bg: #111827;
+  }
 }
 
 @layer base {

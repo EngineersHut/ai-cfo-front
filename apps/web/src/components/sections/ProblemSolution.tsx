@@ -23,11 +23,11 @@ export default function ProblemSolution() {
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
-          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
+          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-text-primary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Our Next Gen AI Solve Finance<br className="hidden sm:block" /> Problem
           </h2>
-          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-slate-500"
+          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-text-secondary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Everything you need to analyze, predict, and optimize your finances.
           </p>
@@ -38,13 +38,13 @@ export default function ProblemSolution() {
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{ height: 260, padding: 30, borderRadius: 16 }}
-            className="bg-[#f8fafc] border border-slate-100 shadow-sm flex flex-col justify-between">
+            className="bg-bg-alt border border-border-subtle shadow-sm flex flex-col justify-between">
             <div>
-              <p className="text-[12px] font-normal leading-[16px] text-slate-400 mb-2"
+              <p className="text-[12px] font-normal leading-[16px] text-text-muted mb-2"
                 style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>The Problem</p>
-              <h3 className="text-[20px] font-medium leading-[28px] text-slate-900 mb-4"
+              <h3 className="text-[20px] font-medium leading-[28px] text-text-primary mb-4"
                 style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>Spreadsheets are slowing you down</h3>
-              <div className="w-full h-[1px] bg-slate-200 mb-6" />
+              <div className="w-full h-[1px] bg-border-subtle mb-6" />
             </div>
             <ul className="space-y-3">
               {problems.map(item => (
@@ -52,7 +52,7 @@ export default function ProblemSolution() {
                   <span className="relative w-[20px] h-[20px] rounded-[7px] bg-[#ef4444] flex items-center justify-center shrink-0">
                     <X size={12} className="text-white" />
                   </span>
-                  <span className="text-[14px] leading-[20px] text-slate-500 font-normal"
+                  <span className="text-[14px] leading-[20px] text-text-secondary font-normal"
                     style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>{item}</span>
                 </li>
               ))}
