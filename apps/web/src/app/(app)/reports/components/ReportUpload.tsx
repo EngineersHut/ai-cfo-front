@@ -190,14 +190,14 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
   if (isAnalyzing) {
     return (
-      <div className="min-h-[500px] flex flex-col items-center justify-center bg-[#f8fafc]/50 rounded-[24px] p-12 animate-in fade-in duration-700">
+      <div className="min-h-[500px] flex flex-col items-center justify-center bg-[#f8fafc]/50 dark:bg-slate-900/50 rounded-[24px] p-12 animate-in fade-in duration-700">
         <div className="flex flex-col gap-12 w-full max-w-[500px]">
           <div className="flex items-center gap-4">
             <div className="relative flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full border-[3px] border-indigo-100" />
+              <div className="w-8 h-8 rounded-full border-[3px] border-indigo-100 dark:border-indigo-900/30" />
               <div className="absolute w-8 h-8 rounded-full border-[3px] border-indigo-600 border-t-transparent animate-spin" />
             </div>
-            <h2 className="text-[20px] font-semibold text-slate-800 font-inter">
+            <h2 className="text-[20px] font-semibold text-slate-800 dark:text-slate-100 font-inter">
               Analyzing your financial documents...
             </h2>
           </div>
@@ -214,7 +214,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               >
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${
-                    index < analysisStep ? "bg-indigo-600" : "bg-slate-200"
+                    index < analysisStep ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
                   }`}
                 >
                   {index < analysisStep ? (
@@ -227,7 +227,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                 </div>
                 <span
                   className={`text-[18px] font-normal font-inter leading-[24px] tracking-[0%] transition-colors duration-500 ${
-                    index <= analysisStep ? "text-[#0f172a]" : "text-slate-400"
+                    index <= analysisStep ? "text-[#0f172a] dark:text-slate-200" : "text-slate-400 dark:text-slate-500"
                   }`}
                 >
                   {step}
@@ -242,14 +242,14 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
   if (isCompleted) {
     return (
-      <div className="min-h-[500px] flex flex-col items-center justify-center bg-white rounded-[24px] p-12 animate-in zoom-in-95 duration-1000">
+      <div className="min-h-[500px] flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-[24px] p-12 animate-in zoom-in-95 duration-1000">
         <div className="w-[60px] h-[60px] rounded-[15px] bg-[#27ae60] flex items-center justify-center text-white mb-8 transform hover:scale-110 transition-transform cursor-pointer">
           <BadgeCheck size={32} />
         </div>
-        <h2 className="text-[24px] font-medium text-[#2e2e37] font-inter leading-[32px] tracking-[0%] mb-1">
+        <h2 className="text-[24px] font-medium text-[#2e2e37] dark:text-slate-100 font-inter leading-[32px] tracking-[0%] mb-1">
           Report Uploaded Successfully
         </h2>
-        <p className="text-[18px] font-normal text-[#0f172a] font-inter text-center max-w-2xl mb-6 leading-[24px] tracking-[0%]">
+        <p className="text-[18px] font-normal text-[#0f172a] dark:text-slate-200 font-inter text-center max-w-2xl mb-6 leading-[24px] tracking-[0%]">
           Your document has been added to the queue and is now being analyzed.{" "}
           <br />
           We will notify you once the analysis is complete.
@@ -270,7 +270,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
       <div className="flex items-center">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-[#e2e8f0] bg-white text-[13px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.06)] font-inter cursor-pointer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-[8px] border border-[#e2e8f0] dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-[0px_2px_4px_0px_rgba(0,0,0,0.06)] font-inter cursor-pointer"
         >
           <ArrowLeft size={16} />
           Back to Reports
@@ -279,10 +279,10 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
       {/* New Report Upload Header */}
       <div className="space-y-1">
-        <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px]">
+        <h1 className="text-[24px] font-medium text-slate-800 dark:text-slate-100 font-inter leading-[32px]">
           New Report Upload
         </h1>
-        <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px]">
+        <p className="text-[14px] font-normal text-slate-400 dark:text-slate-500 font-inter leading-[20px]">
           Integrate new financial data points into the Precision Ledger
           ecosystem. Ensure all documents meet our architectural quant standards
           for processing.
@@ -292,19 +292,19 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
       {/* Grid for Metadata and Precision Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         {/* Metadata Card */}
-        <div className="lg:col-span-2 bg-white rounded-[12px] border border-slate-100 p-[24px] pb-[16px] shadow-sm flex flex-col gap-6">
-          <div className="border-b border-[#f1f5f9] pb-4">
-            <h3 className="text-[18px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 p-[24px] pb-[16px] shadow-sm flex flex-col gap-6">
+          <div className="border-b border-[#f1f5f9] dark:border-slate-700 pb-4">
+            <h3 className="text-[18px] font-normal text-slate-800 dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">
               Report metadata
             </h3>
-            <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%]">
+            <p className="text-[14px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[20px] tracking-[0%]">
               Enter your email and password to Login
             </p>
           </div>
 
           <div className="space-y-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[14px] font-medium text-slate-600 font-inter block">
+              <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter block">
                 Report name
               </label>
               <input
@@ -314,10 +314,10 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                   handleInputChange("reportName", e.target.value)
                 }
                 placeholder="e.g. Q3 Architecture Sustainability Audit"
-                className={`w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm ${
+                className={`w-full max-w-[648px] h-[38px] px-[10px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm ${
                   validationErrors.reportName
                     ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-                    : "border-[#e2e8f0]"
+                    : "border-[#e2e8f0] dark:border-slate-600"
                 }`}
               />
               {validationErrors.reportName && (
@@ -328,7 +328,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
+              <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
                 Report Type <span className="text-red-500">*</span>
               </label>
               <div className="relative group max-w-[648px] w-full">
@@ -337,10 +337,10 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                   onChange={(e) =>
                     handleInputChange("reportType", e.target.value)
                   }
-                  className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${
+                  className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer ${
                     validationErrors.reportType
                       ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-                      : "border-[#e2e8f0]"
+                      : "border-[#e2e8f0] dark:border-slate-600"
                   }`}
                 >
                   <option value="" disabled>
@@ -365,17 +365,17 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
             <div className="flex flex-col sm:flex-row gap-4 max-w-[648px] w-full">
               <div className="flex-1 flex flex-col gap-2">
-                <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
+                <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
                   Month <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group w-full">
                   <select
                     value={formData.month}
                     onChange={(e) => handleInputChange("month", e.target.value)}
-                    className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${
+                    className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer ${
                       validationErrors.month
                         ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-                        : "border-[#e2e8f0]"
+                        : "border-[#e2e8f0] dark:border-slate-600"
                     }`}
                   >
                     {monthOptions.map((option) => {
@@ -405,17 +405,17 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               </div>
 
               <div className="flex-1 flex flex-col gap-2">
-                <label className="text-[14px] font-medium text-slate-600 font-inter flex items-center gap-1">
+                <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
                   Year <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group w-full">
                   <select
                     value={formData.year}
                     onChange={(e) => handleInputChange("year", e.target.value)}
-                    className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer text-slate-800 ${
+                    className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer ${
                       validationErrors.year
                         ? "border-red-500 focus:border-red-500 focus:ring-red-100"
-                        : "border-[#e2e8f0]"
+                        : "border-[#e2e8f0] dark:border-slate-600"
                     }`}
                   >
                     {yearOptions.map((option) => (
@@ -493,36 +493,36 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
       </div>
 
       {/* Document Assets Card */}
-      <div className="bg-white rounded-[12px] border border-slate-100 p-[16px] shadow-sm flex flex-col gap-4">
+      <div className="bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 p-[16px] shadow-sm flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+            <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-300 border border-slate-100 dark:border-slate-600">
               <FileText size={20} />
             </div>
-            <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">
+            <h3 className="text-[16px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">
               Document Assets
             </h3>
           </div>
-          <div className="w-[100px] h-[23px] rounded-[2px] bg-[#f6f8fa] flex items-center justify-center text-[10px] font-semibold text-[#64748b] font-inter leading-[15px] tracking-[0px] uppercase">
+          <div className="w-[100px] h-[23px] rounded-[2px] bg-[#f6f8fa] dark:bg-slate-700 flex items-center justify-center text-[10px] font-semibold text-[#64748b] dark:text-slate-300 font-inter leading-[15px] tracking-[0px] uppercase">
             Secure Upload
           </div>
         </div>
 
         <div
-          className={`border-2 border-dashed rounded-[16px] p-8 flex flex-col items-center justify-center gap-6 bg-slate-50/20 hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer group relative ${
+          className={`border-2 border-dashed rounded-[16px] p-8 flex flex-col items-center justify-center gap-6 bg-slate-50/20 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer group relative ${
             validationErrors.file
-              ? "border-red-400 bg-red-50/5 hover:border-red-500"
-              : "border-slate-200"
+              ? "border-red-400 dark:border-red-500 bg-red-50/5 hover:border-red-500"
+              : "border-slate-200 dark:border-slate-600 hover:border-blue-200 dark:hover:border-blue-500"
           }`}
         >
           <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-all duration-500">
             <UploadCloud width={44} height={32} className="text-[#94a3b8]" />
           </div>
           <div className="text-center space-y-2">
-            <h4 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">
+            <h4 className="text-[18px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">
               Drag and drop documents here
             </h4>
-            <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] text-center">
+            <p className="text-[14px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[20px] tracking-[0%] text-center">
               XLSX, XLS, or CSV formats supported (Max 50MB)
             </p>
           </div>
@@ -534,8 +534,8 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               onChange={handleFileBrowse}
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
-            <button className="mt-4 w-[140px] h-[40px] pt-[4px] pr-[16px] pb-[4px] pl-[12px] gap-[6px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-normal text-[#0f172a] font-inter leading-[20px] tracking-[0%] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all flex items-center pointer-events-none">
-              <Paperclip size={16} className="text-[#64748b]" />
+            <button className="mt-4 w-[140px] h-[40px] pt-[4px] pr-[16px] pb-[4px] pl-[12px] gap-[6px] bg-white dark:bg-slate-700 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0%] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center pointer-events-none">
+              <Paperclip size={16} className="text-[#64748b] dark:text-slate-400" />
               Browse Files
             </button>
           </div>
@@ -588,12 +588,12 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
       )}
       {/* Footer Section */}
       <div className="flex flex-col gap-6 ">
-        <div className="w-full h-[68px] px-4 rounded-[12px] border border-[#f2f2f3] bg-white flex items-center justify-between shadow-sm">
+        <div className="w-full h-[68px] px-4 rounded-[12px] border border-[#f2f2f3] dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3 text-slate-500">
-            <div className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+            <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300">
               <Info size={18} />
             </div>
-            <p className="text-[14px] font-inter text-[#434654] font-normal leading-[20px] tracking-[0px]">
+            <p className="text-[14px] font-inter text-[#434654] dark:text-slate-300 font-normal leading-[20px] tracking-[0px]">
               Final submission will trigger an email notification to the
               compliance team.
             </p>
@@ -603,7 +603,7 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               type="button"
               onClick={onCancel}
               disabled={actionLoading}
-              className="w-[100px] h-[36px] px-[12px] py-[4px] bg-[#f6f8fa] text-[#394c84] rounded-[8px] border border-[#e2e8f0] text-[14px] font-normal font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-[#eef2f6] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center cursor-pointer"
+              className="w-[100px] h-[36px] px-[12px] py-[4px] bg-[#f6f8fa] dark:bg-slate-700 text-[#394c84] dark:text-slate-200 rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 text-[14px] font-normal font-inter leading-[20px] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-[#eef2f6] dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center cursor-pointer"
             >
               Cancel
             </button>

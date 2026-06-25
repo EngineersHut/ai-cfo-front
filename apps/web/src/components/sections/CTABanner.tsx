@@ -6,10 +6,20 @@ import AuthModal from '../ui/AuthModal';
 import ForgotPasswordModal from '../ui/ForgotPasswordModal';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-function ModalHandler() {
+function ModalHandler({
+  isOpen,
+  onClose,
+  mode,
+  setMode,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: "login" | "register";
+  setMode: (mode: "login" | "register") => void;
+}) {
   return (
     <>
-      <AuthModal />
+      <AuthModal isOpen={isOpen} onClose={onClose} mode={mode} setMode={setMode} />
       <ForgotPasswordModal />
     </>
   )
@@ -21,6 +31,9 @@ export default function CTABanner() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll)
@@ -28,9 +41,8 @@ export default function CTABanner() {
   }, [])
 
   const openModal = (mode: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('modal', mode)
-    router.push(`?${params.toString()}`)
+    setAuthMode(mode as "login" | "register");
+    setAuthOpen(true);
   }
 
   return (<>
@@ -77,7 +89,7 @@ export default function CTABanner() {
       </div>
     </section>
     <Suspense fallback={null}>
-      <ModalHandler />
+      <ModalHandler isOpen={authOpen} onClose={() => setAuthOpen(false)} mode={authMode} setMode={setAuthMode} />
     </Suspense>
   </>
   )

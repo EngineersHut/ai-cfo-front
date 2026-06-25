@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4: class-based dark mode (used by next-themes) ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-plus-jakarta-sans), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -107,6 +110,14 @@
     font-family: var(--font-plus-jakarta-sans), sans-serif;
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .autofill-light:-webkit-autofill,
+  .autofill-light:-webkit-autofill:hover, 
+  .autofill-light:-webkit-autofill:focus, 
+  .autofill-light:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px white inset !important;
+      -webkit-text-fill-color: #0f172a !important;
   }
 }
 

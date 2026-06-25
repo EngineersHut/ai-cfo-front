@@ -330,8 +330,8 @@ export default function BudgetVsActual() {
             {/* Header Section */}
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 dark:text-slate-500 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
@@ -340,7 +340,7 @@ export default function BudgetVsActual() {
                         <select
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                            className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                            className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
                         >
                             {MONTHS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
@@ -358,7 +358,7 @@ export default function BudgetVsActual() {
                         <select
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                            className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
                         >
                             {YEARS.map((year) => (
                                 <option key={year} value={year}>
@@ -390,18 +390,18 @@ export default function BudgetVsActual() {
             </div>
 
             {/* Budget vs Actual Summary Table */}
-            <div className="w-full h-[410px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-                <div className="min-h-[64px] py-3 sm:py-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 border-b border-slate-50 bg-slate-50/20 gap-3 sm:gap-0">
+            <div className="w-full h-[410px] bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+                <div className="min-h-[64px] py-3 sm:py-0 flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 border-b border-slate-50 dark:border-slate-700 bg-slate-50/20 dark:bg-slate-800/50 gap-3 sm:gap-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
                             <DollarSign size={16} />
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="text-[13px] font-semibold text-slate-900 font-inter leading-[19.5px] tracking-[0%]">Budget vs Actual Summary</h3>
-                            <span className="text-[10.5px] text-slate-400 font-normal font-inter leading-[15.75px] tracking-[0%]">Editable · variance auto-computed</span>
+                            <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-[19.5px] tracking-[0%]">Budget vs Actual Summary</h3>
+                            <span className="text-[10.5px] text-slate-400 dark:text-slate-500 font-normal font-inter leading-[15.75px] tracking-[0%]">Editable · variance auto-computed</span>
                         </div>
                     </div>
-                    <button className="w-[140px] h-[23.75px] flex items-center justify-center gap-[5px] py-[3px] px-[9px] text-[10.5px] font-normal text-slate-400 border border-slate-200 rounded-[6px] hover:bg-slate-50 transition-colors font-inter leading-[15.75px]">
+                    <button className="w-[140px] h-[23.75px] flex items-center justify-center gap-[5px] py-[3px] px-[9px] text-[10.5px] font-normal text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-[6px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-inter leading-[15.75px]">
                         <SquarePen size={12} />
                         Click any cell to edit
                     </button>
@@ -410,39 +410,39 @@ export default function BudgetVsActual() {
                 <div className="flex-1 overflow-x-auto overflow-y-auto">
                     <table className="w-full min-w-[800px] lg:min-w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-[#f8fafc] border-b border-[#e2e3f0] h-[36.75px]">
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Metric</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Budget</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Actual</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Variance %</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Formula / Notes</th>
+                            <tr className="bg-[#f8fafc] dark:bg-slate-700/50 border-b border-[#e2e3f0] dark:border-slate-600 h-[36.75px]">
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Metric</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Budget</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Actual</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Variance %</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Formula / Notes</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                             {activeSummaryData.map((row: any, index: number) => (
-                                <tr key={index} className="hover:bg-slate-50/30 transition-colors h-[56px] border-b border-[#f1f5f9]">
+                                <tr key={index} className="hover:bg-slate-50/30 dark:hover:bg-slate-700/30 transition-colors h-[56px] border-b border-[#f1f5f9] dark:border-slate-700">
                                     <td className="px-6 py-3">
                                         <div className="flex flex-col">
-                                            <span className="text-[12.5px] font-medium text-slate-900 font-inter leading-[18.75px]">{getTableLabel(row.metric)}</span>
-                                            {row.isAutoComputed && <span className="text-[10px] text-slate-300 font-normal font-inter leading-[15px] tracking-[0%]">Auto-computed</span>}
+                                            <span className="text-[12.5px] font-medium text-slate-900 dark:text-slate-100 font-inter leading-[18.75px]">{getTableLabel(row.metric)}</span>
+                                            {row.isAutoComputed && <span className="text-[10px] text-slate-300 dark:text-slate-500 font-normal font-inter leading-[15px] tracking-[0%]">Auto-computed</span>}
                                         </div>
                                     </td>
                                     <td className="px-6 py-3">
-                                        <span className="text-[12.5px] font-medium text-slate-600 font-inter leading-[18.75px]">
+                                        <span className="text-[12.5px] font-medium text-slate-600 dark:text-slate-300 font-inter leading-[18.75px]">
                                             {row.isPercentage ? `${row.budget}%` : `$ ${row.budget.toLocaleString()}`}
                                         </span>
                                     </td>
                                     <td className="px-6 py-3">
-                                        <span className="text-[12.5px] font-medium text-slate-600 font-inter leading-[18.75px]">
+                                        <span className="text-[12.5px] font-medium text-slate-600 dark:text-slate-300 font-inter leading-[18.75px]">
                                             {row.isPercentage ? `${row.actual}%` : `$ ${row.actual.toLocaleString()}`}
                                         </span>
                                     </td>
                                     <td className="px-6 py-3">
                                         <div className={`w-[62px] h-[20.5px] inline-flex items-center gap-[2px] pt-[2px] pr-[6px] pb-[2px] pl-[4px] rounded-[4px] border text-[11px] font-semibold font-inter leading-[16.5px] ${row.variance < 0
-                                            ? 'bg-[#fbf1f2] text-[#dc2626] border-[#eab7bc]'
+                                            ? 'bg-[#fbf1f2] dark:bg-red-900/30 text-[#dc2626] dark:text-red-400 border-[#eab7bc] dark:border-red-800'
                                             : row.variance > 0
-                                                ? 'bg-[#ecfdf5] text-[#059669] border-[#a7f3d0]'
-                                                : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                ? 'bg-[#ecfdf5] dark:bg-emerald-900/30 text-[#059669] dark:text-emerald-400 border-[#a7f3d0] dark:border-emerald-800'
+                                                : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                                             }`}>
                                             {row.variance > 0 && <ArrowUpRight size={10} />}
                                             {row.variance < 0 && <ArrowDownRight size={10} />}
@@ -460,18 +460,18 @@ export default function BudgetVsActual() {
             </div>
 
             {/* Budget Planning Table */}
-            <div className="w-full bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden mb-6">
-                <div className="min-h-[65.25px] flex flex-col sm:flex-row items-start sm:items-center justify-between pt-[14px] pr-[18px] pb-[14px] pl-[18px] border-b border-[#e2e8f0] bg-[#fafbfc] gap-4 sm:gap-0">
+            <div className="w-full bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden mb-6">
+                <div className="min-h-[65.25px] flex flex-col sm:flex-row items-start sm:items-center justify-between pt-[14px] pr-[18px] pb-[14px] pl-[18px] border-b border-[#e2e8f0] dark:border-slate-700 bg-[#fafbfc] dark:bg-slate-800 gap-4 sm:gap-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 shrink-0">
                             <DollarSign size={16} />
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="text-[13px] font-semibold text-slate-900 font-inter leading-[19.5px] tracking-normal">Budget Planning Table</h3>
-                            <span className="text-[10.5px] text-slate-400 font-normal font-inter leading-[15.75px] tracking-normal">Editable spreadsheet · changes reflect in forecast summary</span>
+                            <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-[19.5px] tracking-normal">Budget Planning Table</h3>
+                            <span className="text-[10.5px] text-slate-400 dark:text-slate-500 font-normal font-inter leading-[15.75px] tracking-normal">Editable spreadsheet · changes reflect in forecast summary</span>
                         </div>
                     </div>
-                    <button className="w-[121.8px] h-[32px] flex items-center justify-center gap-2 rounded-[7px] border border-[#2563eb] bg-[#eff6ff] text-[#2563eb] text-[12px] font-medium font-inter leading-[18px] transition-colors hover:bg-blue-100 shrink-0">
+                    <button className="w-[121.8px] h-[32px] flex items-center justify-center gap-2 rounded-[7px] border border-[#2563eb] dark:border-blue-800 bg-[#eff6ff] dark:bg-blue-900/30 text-[#2563eb] dark:text-blue-400 text-[12px] font-medium font-inter leading-[18px] transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/50 shrink-0">
                         <Plus size={14} />
                         Add Line Item
                     </button>
@@ -480,10 +480,10 @@ export default function BudgetVsActual() {
                 <div className="overflow-x-auto overflow-y-auto max-h-[800px]">
                     <table className="w-full min-w-[1000px] lg:min-w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-[#f8fafc] border-b border-[#e2e8f0] h-[52.5px]">
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[60%]">Metric / Category</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Amount ($)</th>
-                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%] text-right">% of Revenue</th>
+                            <tr className="bg-[#f8fafc] dark:bg-slate-700/50 border-b border-[#e2e8f0] dark:border-slate-600 h-[52.5px]">
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[60%]">Metric / Category</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%]">Amount ($)</th>
+                                <th className="px-6 py-0 text-[10.5px] font-bold text-[#64748b] dark:text-slate-300 uppercase tracking-[0.74px] font-inter leading-[15.75px] w-[20%] text-right">% of Revenue</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -498,14 +498,14 @@ export default function BudgetVsActual() {
                                 return categoriesWithCalculatedPercentages.map((cat: any, catIndex: number) => {
                                     return (
                                         <React.Fragment key={cat.category}>
-                                            <tr className="bg-[#f8fafc] h-[30px] border-b border-[#e2e8f0]">
-                                                <td colSpan={3} className="pt-[7px] pr-[18px] pb-[7px] pl-[18px] text-[10px] font-bold text-slate-400 uppercase tracking-[1px] font-inter">
+                                            <tr className="bg-[#f8fafc] dark:bg-slate-800/80 h-[30px] border-b border-[#e2e8f0] dark:border-slate-700">
+                                                <td colSpan={3} className="pt-[7px] pr-[18px] pb-[7px] pl-[18px] text-[10px] font-bold text-slate-400 font-inter uppercase tracking-[1px]">
                                                     {cat.category.toUpperCase()}
                                                 </td>
                                             </tr>
                                             {cat.items.length === 0 ? (
-                                                <tr className="h-[52px] border-b border-[#f8fafc] hover:bg-slate-50/30 transition-colors">
-                                                    <td colSpan={3} className="px-6 py-3 text-[12.5px] text-slate-400 italic font-inter">
+                                                <tr className="h-[52px] border-b border-[#f8fafc] dark:border-slate-700 hover:bg-slate-50/30 dark:hover:bg-slate-700/30 transition-colors">
+                                                    <td colSpan={3} className="px-6 py-3 text-[12.5px] text-slate-400 dark:text-slate-500 italic font-inter">
                                                         No items in this category
                                                     </td>
                                                 </tr>
@@ -527,29 +527,29 @@ export default function BudgetVsActual() {
                                                     return (
                                                         <tr 
                                                             key={item.name} 
-                                                            className={`h-[52px] border-b border-[#f8fafc] transition-colors ${
+                                                            className={`h-[52px] border-b border-[#f8fafc] dark:border-slate-700 transition-colors ${
                                                                 isHighlight 
-                                                                    ? 'bg-emerald-50/10 hover:bg-emerald-50/20' 
-                                                                    : 'hover:bg-slate-50/30'
+                                                                    ? 'bg-emerald-50/10 dark:bg-emerald-900/10 hover:bg-emerald-50/20 dark:hover:bg-emerald-900/20' 
+                                                                    : 'hover:bg-slate-50/30 dark:hover:bg-slate-700/30'
                                                             }`}
                                                         >
                                                             <td className="px-6 py-0">
                                                                 <div className="flex items-center gap-6">
                                                                     <span className={`w-6 text-center font-inter ${
                                                                         isHighlight 
-                                                                            ? 'text-[14px] font-bold text-emerald-600' 
-                                                                            : 'text-[11px] font-medium text-slate-300'
+                                                                            ? 'text-[14px] font-bold text-emerald-600 dark:text-emerald-400' 
+                                                                            : 'text-[11px] font-medium text-slate-300 dark:text-slate-500'
                                                                     }`}>
                                                                         {rowLabel}
                                                                     </span>
                                                                     <div className="flex flex-col">
                                                                         <span className={`text-[12.5px] font-medium font-inter ${
-                                                                            isHighlight ? 'text-slate-900' : 'text-slate-600'
+                                                                            isHighlight ? 'text-slate-900 dark:text-slate-100' : 'text-slate-600 dark:text-slate-300'
                                                                         }`}>
                                                                             {getTableLabel(item.name)}
                                                                         </span>
                                                                         {item.name === 'Forecast Profit' && (
-                                                                            <span className="text-[10px] text-slate-400 font-normal font-inter leading-[15px]">
+                                                                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal font-inter leading-[15px]">
                                                                                 Revenue - All Expenses
                                                                             </span>
                                                                         )}
@@ -557,23 +557,23 @@ export default function BudgetVsActual() {
                                                                 </div>
                                                             </td>
                                                             <td className={`px-6 py-0 text-[12.5px] font-medium font-inter ${
-                                                                isHighlight ? 'text-emerald-600' : 'text-slate-600'
+                                                                isHighlight ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'
                                                             }`}>
                                                                 {item.isPercentageValue ? (
                                                                     <>
-                                                                        {item.amount} <span className="text-[10px] text-slate-300">%</span>
+                                                                        {item.amount} <span className="text-[10px] text-slate-300 dark:text-slate-500">%</span>
                                                                     </>
                                                                 ) : (
                                                                     formatPlanningAmount(item.amount)
                                                                 )}
                                                             </td>
                                                             <td className={`px-6 py-0 text-right pr-12 text-[12.5px] font-medium font-inter ${
-                                                                isHighlight ? 'text-emerald-600' : 'text-slate-600'
+                                                                isHighlight ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'
                                                             }`}>
                                                                 {item.percentage !== null ? (
                                                                     <>
                                                                         {item.percentage} <span className={`text-[10px] ${
-                                                                            isHighlight ? 'text-emerald-300' : 'text-slate-300'
+                                                                            isHighlight ? 'text-emerald-300 dark:text-emerald-500' : 'text-slate-300 dark:text-slate-500'
                                                                         }`}>%</span>
                                                                     </>
                                                                 ) : '—'}
@@ -590,8 +590,8 @@ export default function BudgetVsActual() {
                     </table>
                 </div>
 
-                <div className="h-[55px] flex items-center pt-[11px] pr-[18px] pl-[50px] border-t border-[#f1f5f9] bg-white">
-                    <button className="w-full max-w-[1089px] h-[34px] flex items-center justify-center gap-2 rounded-[7px] border border-dashed border-[#cbd5e1] text-[#64748b] text-[12px] font-medium font-inter leading-[18px] transition-all hover:bg-slate-50 hover:border-slate-400">
+                <div className="h-[55px] flex items-center pt-[11px] pr-[18px] pl-[50px] border-t border-[#f1f5f9] dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <button className="w-full max-w-[1089px] h-[34px] flex items-center justify-center gap-2 rounded-[7px] border border-dashed border-[#cbd5e1] dark:border-slate-600 text-[#64748b] dark:text-slate-400 text-[12px] font-medium font-inter leading-[18px] transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-500">
                         <Plus size={14} />
                         Add Line Item
                     </button>

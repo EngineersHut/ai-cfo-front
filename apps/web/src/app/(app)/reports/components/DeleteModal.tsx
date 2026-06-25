@@ -20,12 +20,12 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, reportToDelete
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-[12px] shadow-2xl w-[401px] h-[408px] overflow-hidden animate-in zoom-in-95 duration-200 relative">
+            <div className="bg-white dark:bg-slate-800 rounded-[12px] shadow-2xl w-[401px] h-[408px] overflow-hidden animate-in zoom-in-95 duration-200 relative">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
                     disabled={isDeleting}
-                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute top-4 right-4 p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <X size={20} />
                 </button>
@@ -39,11 +39,11 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, reportToDelete
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-[24px] font-medium text-[#2e2e37] font-inter leading-[32px]">Delete Report?</h2>
+                    <h2 className="text-[24px] font-medium text-[#2e2e37] dark:text-slate-100 font-inter leading-[32px]">Delete Report?</h2>
 
                     {/* Description */}
-                    <p className="text-[15px] text-[#4b5563] leading-[24px] font-inter">
-                        This action cannot be undone. All data associated with <span className="font-bold text-[#111827]">"{reportIdentifier}"</span> will be permanently removed from the CFO vault.
+                    <p className="text-[15px] text-[#4b5563] dark:text-slate-300 leading-[24px] font-inter">
+                        This action cannot be undone. All data associated with <span className="font-bold text-[#111827] dark:text-slate-100">"{reportIdentifier}"</span> will be permanently removed from the CFO vault.
                     </p>
 
                     {/* Actions */}
@@ -65,7 +65,7 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, reportToDelete
                         <button
                             onClick={onClose}
                             disabled={isDeleting}
-                            className="w-[336px] h-[36px] bg-[#f6f8fa] text-[#394c84] rounded-[8px] text-[16px] font-normal font-inter leading-[24px] flex items-center justify-center p-[20px] opacity-100 rotate-0 transition-all hover:bg-[#eef2f6] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-[336px] h-[36px] bg-[#f6f8fa] dark:bg-slate-700 text-[#394c84] dark:text-slate-200 rounded-[8px] text-[16px] font-normal font-inter leading-[24px] flex items-center justify-center p-[20px] opacity-100 rotate-0 transition-all hover:bg-[#eef2f6] dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Cancel
                         </button>

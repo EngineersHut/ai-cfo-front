@@ -72,7 +72,7 @@ export default function DashboardLayout({
 
   return (
     <DashboardProvider>
-      <div className="flex min-h-screen bg-white overflow-hidden font-inter">
+      <div className="flex min-h-screen bg-white dark:bg-slate-900 overflow-hidden font-inter">
         {isMobileOpen && (
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[40] lg:hidden transition-all duration-300"
@@ -106,8 +106,8 @@ export default function DashboardLayout({
           <GlobalProcessingBanner />
 
           {/* Content Area */}
-          <main className="flex-1 bg-white relative">
-            <div className="absolute inset-0 mr-2 rounded-t-[16px] p-[24px] overflow-auto shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)] bg-[#f6f8fa]">
+          <main className="flex-1 bg-white dark:bg-slate-900 relative">
+            <div className="absolute inset-0 mr-2 rounded-t-[16px] p-[24px] overflow-auto shadow-[inset_0_2px_4px_rgba(0,0,0,0.01)] bg-[#f6f8fa] dark:bg-slate-900 dark:border dark:border-slate-800">
               {children}
             </div>
           </main>
@@ -126,19 +126,19 @@ export default function DashboardLayout({
           width="360px"
         >
           <div className="p-6 text-center font-inter">
-            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4 text-red-500">
+            <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4 text-red-500 dark:text-red-400">
               <LogOut size={24} strokeWidth={2} />
             </div>
-            <h3 className="text-[#0f172a] font-semibold text-[18px] leading-[26px] mb-1">
+            <h3 className="text-[#0f172a] dark:text-slate-100 font-semibold text-[18px] leading-[26px] mb-1">
               Confirm Logout
             </h3>
-            <p className="text-slate-500 text-[14px] leading-[20px] mb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-[14px] leading-[20px] mb-6">
               Are you sure you want to log out of your account?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setIsLogoutModalOpen(false)}
-                className="flex-1 h-[36px] bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-medium text-[14px] leading-[20px] rounded-[8px] transition-all shadow-sm"
+                className="flex-1 h-[36px] bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 font-medium text-[14px] leading-[20px] rounded-[8px] transition-all shadow-sm"
               >
                 Cancel
               </button>

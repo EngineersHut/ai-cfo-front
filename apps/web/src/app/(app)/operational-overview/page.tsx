@@ -92,6 +92,11 @@ const YEARS = [2024, 2025, 2026];
 
 export default function OperationalOverview() {
     const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.operational);
@@ -413,8 +418,8 @@ export default function OperationalOverview() {
         <div className=" space-y-8 animate-in fade-in duration-500">
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 dark:text-slate-500 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
@@ -423,7 +428,7 @@ export default function OperationalOverview() {
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
                     >
                       {MONTHS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -431,7 +436,7 @@ export default function OperationalOverview() {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
                       <ChevronDown size={14} className="stroke-[2.5]" />
                     </div>
                   </div>
@@ -441,7 +446,7 @@ export default function OperationalOverview() {
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
                     >
                       {YEARS.map((year) => (
                         <option key={year} value={year}>
@@ -449,7 +454,7 @@ export default function OperationalOverview() {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
                       <ChevronDown size={14} className="stroke-[2.5]" />
                     </div>
                   </div>
@@ -487,70 +492,72 @@ export default function OperationalOverview() {
                 {/* Operational Health Card */}
 
 
-                <div className="h-[374px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+                <div className="h-[374px] bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
                     {/* Header - 54px */}
-                    <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                    <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50 dark:border-slate-700">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300">
                             <Pin size={16} />
                         </div>
-                        <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Operational Health</h3>
+                        <h3 className="text-[16px] font-normal text-slate-800 dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Operational Health</h3>
                     </div>
 
                     {/* Body */}
                     <div className="flex-1 flex flex-col">
-                        <div className="relative h-[180px] w-full flex items-center justify-center">
-                            <div className="w-[260px] h-[180px] relative mx-auto">
+                        <div className="relative h-[180px] w-full flex items-center justify-center min-h-0 min-w-0">
+                            <div className="w-[260px] h-[180px] relative mx-auto min-h-0 min-w-0">
                                 {/* Compact Gauge Chart with ZERO Gaps */}
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RePieChart>
-                                        <defs>
-                                            {gaugeGradients.map((grad) => (
-                                                <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
-                                                    {grad.stops.map((stop, i) => (
-                                                        <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                                                    ))}
-                                                </linearGradient>
-                                            ))}
-                                        </defs>
-                                        {/* Outer Arc - Touching the inner arc (No Gap) */}
-                                        <Pie
-                                            data={outerHealthData}
-                                            cx={130}
-                                            cy={140}
-                                            startAngle={180}
-                                            endAngle={0}
-                                            innerRadius={85}
-                                            outerRadius={115}
-                                            paddingAngle={0}
-                                            dataKey="value"
-                                            stroke="none"
-                                            labelLine={false}
-                                            label={renderOuterLabel}
-                                        >
-                                            {outerHealthData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
-                                        <Pie
-                                            data={healthData}
-                                            cx={130}
-                                            cy={140}
-                                            startAngle={180}
-                                            endAngle={0}
-                                            innerRadius={30}
-                                            outerRadius={85}
-                                            paddingAngle={0}
-                                            dataKey="value"
-                                            stroke="none"
-                                        >
-                                            {healthData.map((entry, index) => {
-                                                const gradientIds = ['gradPoor', 'gradFair', 'gradGood', 'gradExcellent'];
-                                                return <Cell key={`cell-${index}`} fill={`url(#${gradientIds[index]})`} />;
-                                            })}
-                                        </Pie>
-                                    </RePieChart>
-                                </ResponsiveContainer>
+                                {isMounted && (
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                        <RePieChart>
+                                            <defs>
+                                                {gaugeGradients.map((grad) => (
+                                                    <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
+                                                        {grad.stops.map((stop, i) => (
+                                                            <stop key={i} offset={stop.offset} stopColor={stop.color} />
+                                                        ))}
+                                                    </linearGradient>
+                                                ))}
+                                            </defs>
+                                            {/* Outer Arc - Touching the inner arc (No Gap) */}
+                                            <Pie
+                                                data={outerHealthData}
+                                                cx={130}
+                                                cy={140}
+                                                startAngle={180}
+                                                endAngle={0}
+                                                innerRadius={85}
+                                                outerRadius={115}
+                                                paddingAngle={0}
+                                                dataKey="value"
+                                                stroke="none"
+                                                labelLine={false}
+                                                label={renderOuterLabel}
+                                            >
+                                                {outerHealthData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
+                                            <Pie
+                                                data={healthData}
+                                                cx={130}
+                                                cy={140}
+                                                startAngle={180}
+                                                endAngle={0}
+                                                innerRadius={30}
+                                                outerRadius={85}
+                                                paddingAngle={0}
+                                                dataKey="value"
+                                                stroke="none"
+                                            >
+                                                {healthData.map((entry, index) => {
+                                                    const gradientIds = ['gradPoor', 'gradFair', 'gradGood', 'gradExcellent'];
+                                                    return <Cell key={`cell-${index}`} fill={`url(#${gradientIds[index]})`} />;
+                                                })}
+                                            </Pie>
+                                        </RePieChart>
+                                    </ResponsiveContainer>
+                                )}
 
                                 {/* Independent Needle Layer */}
                                 <NeedleLayer value={operationalHealth.score} cx={130} cy={140} iR={30} oR={85} />
@@ -558,19 +565,19 @@ export default function OperationalOverview() {
                         </div>
 
                         <div className="text-center mt-[-10px] mb-2">
-                            <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
+                            <p className="text-[11px] font-normal text-slate-600 dark:text-slate-400 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                             <div className="flex items-center justify-center gap-2">
-                                <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">{operationalHealth.status}</span>
-                                <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">{operationalHealth.score}</span>
+                                <span className="text-[9px] font-normal text-slate-400 dark:text-slate-500 uppercase tracking-[0%] font-inter leading-none text-center">{operationalHealth.status}</span>
+                                <span className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-none tracking-[0%]">{operationalHealth.score}</span>
                             </div>
                         </div>
 
                         {/* Health Metrics Details */}
-                        <div className="px-5 space-y-6 border-t border-slate-50 pt-2">
+                        <div className="px-5 space-y-6 border-t border-slate-50 dark:border-slate-700 pt-2">
                             {operationalHealth.metrics.map((item: any, i: number) => (
                                 <div key={i} className="flex items-center justify-between">
-                                    <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">{item.label}</span>
-                                    <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{item.value}</span>
+                                    <span className="text-[12px] font-normal text-slate-700 dark:text-slate-300 font-inter leading-none">{item.label}</span>
+                                    <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-none">{item.value}</span>
                                 </div>
                             ))}
                         </div>

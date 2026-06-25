@@ -80,7 +80,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
             <div className="p-[16px]  space-y-2">
                 {/* Header */}
                 <div className="text-center">
-                    <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">
+                    <h2 className="text-[24px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">
                         {companyData ? 'Edit Company Details' : 'Add New Company Details'}
                     </h2>
                 </div>
@@ -89,19 +89,19 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                 <div className="space-y-4">
                     {/* Company Name */}
                     <div className="space-y-2">
-                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Company Name</label>
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Company Name</label>
                         <input
                             type="text"
                             placeholder="Nexus FinTech Global"
                             value={formData.name}
                             onChange={(e) => handleChange('name', e.target.value)}
-                            className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                            className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                         />
                     </div>
 
                     {/* Industry Dropdown */}
                     <div className="space-y-2">
-                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Industry</label>
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Industry</label>
                         <div className="relative group w-full">
                             <select
                                 value={formData.industry}
@@ -113,7 +113,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                                         subIndustry: IndustryToSubIndustryMap[newIndustry]?.[0] || ''
                                     }));
                                 }}
-                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                             >
                                 {Object.values(IndustryEnum).map((industryVal) => (
                                     <option key={industryVal} value={industryVal}>
@@ -127,12 +127,12 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
 
                     {/* Sub-Industry Dropdown */}
                     <div className="space-y-2">
-                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Sub-Industry</label>
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Sub-Industry</label>
                         <div className="relative group w-full">
                             <select
                                 value={formData.subIndustry}
                                 onChange={(e) => handleChange('subIndustry', e.target.value)}
-                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                                 disabled={!formData.industry || !IndustryToSubIndustryMap[formData.industry]}
                             >
                                 {formData.industry && IndustryToSubIndustryMap[formData.industry]?.map((subInd) => (
@@ -147,12 +147,12 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
 
                     {/* Currency Dropdown */}
                     <div className="space-y-2">
-                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Currency</label>
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Currency</label>
                         <div className="relative group w-full">
                             <select
                                 value={formData.currency}
                                 onChange={(e) => handleChange('currency', e.target.value)}
-                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                             >
                                 <option value="usd">USD - US Dollar</option>
                                 <option value="inr">INR - Indian Rupee</option>
@@ -164,12 +164,12 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
 
                     {/* Primary Status Dropdown */}
                     <div className="space-y-2">
-                        <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Set as Primary</label>
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Set as Primary</label>
                         <div className="relative group w-full">
                             <select
                                 value={formData.isPrimary ? "true" : "false"}
                                 onChange={(e) => handleChange('isPrimary', e.target.value === "true")}
-                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
                             >
                                 <option value="false">No (Subsidiary Entity)</option>
                                 <option value="true">Yes (Primary Account Workspace)</option>
@@ -183,7 +183,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                 <div className="flex justify-center gap-3 pt-2">
                     <button
                         onClick={handleClose}
-                        className=" w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                        className=" w-full h-[36px] px-[12px] py-[4px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-medium text-[#64748b] dark:text-slate-300 font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                     >
                         Cancel
                     </button>

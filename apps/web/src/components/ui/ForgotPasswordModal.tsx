@@ -166,7 +166,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
   const { width, height } = getModalDimensions();
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} height={height} width={width}>
+    <Modal isOpen={isOpen} onClose={handleClose} height={height} width={width} className="!bg-white dark:!bg-white !border-slate-200 dark:!border-slate-200">
       <div className="px-8 h-full flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
 
         {/* Success Icon */}
@@ -210,7 +210,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Ahmad.account@gmail.com"
-                  className={`w-full h-[38px] border rounded-[8px] pl-11 pr-4 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                  className={`w-full h-[38px] border rounded-[8px] pl-11 pr-4 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                 />
               </div>
               {validationErrors.email && (
@@ -254,7 +254,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                   />
                   <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
                     {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
@@ -274,7 +274,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
                   />
                   <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
                     {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
