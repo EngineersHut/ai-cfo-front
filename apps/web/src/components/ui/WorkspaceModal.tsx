@@ -31,7 +31,7 @@ export default function WorkspaceModal() {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} height="406px" width="398px">
+    <Modal isOpen={isOpen} onClose={handleClose} height="406px" width="398px" className="!bg-white dark:!bg-white !border-slate-200 dark:!border-slate-200">
       <div className="px-8 h-full flex flex-col relative" style={{ fontFamily: "'Inter', sans-serif" }}>
 
 

@@ -210,16 +210,16 @@ function SettingsPageContent() {
         <div className="mx-auto space-y-4 pb-10">
             {/* Header Section */}
             <div className="mb-2">
-                <h1 className="text-[24px] font-medium text-[#2e2e37] font-inter leading-[32px] tracking-[0%]">Settings</h1>
-                <p className="text-[14px] font-normal text-[#737379] font-inter leading-[20px] tracking-[0%]">
+                <h1 className="text-[24px] font-medium text-[#2e2e37] dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">Settings</h1>
+                <p className="text-[14px] font-normal text-[#737379] dark:text-slate-400 font-inter leading-[20px] tracking-[0%]">
                     Manage your corporate profile, enterprise subscription, and billing infrastructure.
                 </p>
             </div>
 
             {/* Profile Settings Card */}
-            <div className="bg-white rounded-[16px] border border-[#f1f5f9] shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-[16px] border border-[#f1f5f9] dark:border-slate-700 shadow-sm overflow-hidden">
                 <div className="p-[16px] space-y-4">
-                    <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Profile Settings</h2>
+                    <h2 className="text-[18px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Profile Settings</h2>
 
                     {/* Success Message */}
                     {profileSuccess && (
@@ -240,7 +240,7 @@ function SettingsPageContent() {
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10">
                         {/* Avatar Section */}
                         <div className="relative group shrink-0">
-                            <div className="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center text-slate-400 font-bold font-inter text-[24px]">
+                            <div className="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300 font-bold font-inter text-[24px]">
                                 {isValidSrc(profileData.profilePic) ? (
                                     <img
                                         src={getImageUrl(profileData.profilePic) as string}
@@ -253,7 +253,7 @@ function SettingsPageContent() {
                             </div>
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-blue-600 hover:bg-slate-50 transition-colors"
+                                className="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm flex items-center justify-center text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
                             >
                                 <Pencil size={14} />
                             </button>
@@ -269,37 +269,37 @@ function SettingsPageContent() {
                         {/* Form Section */}
                         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Full Name</label>
+                                <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Full Name</label>
                                 <input
                                     type="text"
                                     value={profileData.name}
                                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a]"
+                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a] dark:text-slate-100"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Work Email</label>
+                                <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Work Email</label>
                                 <input
                                     type="email"
                                     value={profileData.email}
                                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a]"
+                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter text-[14px] text-[#0f172a] dark:text-slate-100"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="pt-4 border-t border-slate-50 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="space-y-1">
-                            <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">
+                            <h3 className="text-[14px] font-medium text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0%]">
                                 Account Password
                             </h3>
-                            <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">Last changed 3 months ago</p>
+                            <p className="text-[12px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[16px] tracking-[0%]">Last changed 3 months ago</p>
                         </div>
                         <div className="flex items-center gap-3 w-full sm:w-auto">
                             <button
                                 onClick={() => setIsPasswordModalOpen(true)}
-                                className="w-full sm:w-auto px-[16px] h-[36px] rounded-[8px] border border-[#e2e8f0] bg-white text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                                className="w-full sm:w-auto px-[16px] h-[36px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-800 text-[14px] font-medium text-[#64748b] dark:text-slate-300 font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                             >
                                 Change Password
                             </button>
@@ -322,11 +322,11 @@ function SettingsPageContent() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
                 <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
+                    <div className="bg-white dark:bg-slate-800 rounded-[16px] border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
                         <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="space-y-0.5">
-                                <h2 className="text-[18px] font-bold text-[#1e293b] font-inter">Company Settings</h2>
-                                <p className="text-[13px] text-slate-400 font-inter max-w-[300px]">Configure multiple entity identities and regional preferences.</p>
+                                <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-slate-100 font-inter">Company Settings</h2>
+                                <p className="text-[13px] text-slate-400 dark:text-slate-500 font-inter max-w-[300px]">Configure multiple entity identities and regional preferences.</p>
                             </div>
                             <button
                                 onClick={() => {
@@ -338,23 +338,23 @@ function SettingsPageContent() {
                                 <span className="text-[18px] leading-none">+</span> Add Company
                             </button>
                         </div>
-                        <div className="mx-4 h-px bg-slate-100" />
+                        <div className="mx-4 h-px bg-slate-100 dark:bg-slate-700" />
                         <div className="p-4 space-y-3">
                             {companyData?.map((company: any) => {
                                 const initials = company.name
                                     ? company.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
                                     : 'CO';
                                 return (
-                                    <div key={company._id} className={`min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] rounded-[8px] border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative ${activeMenu === `company-${company._id}` ? 'z-[50]' : 'z-0'}`}>
+                                    <div key={company._id} className={`min-h-[90px] p-[16px] sm:p-[20px] bg-[#f6f8fa] dark:bg-slate-900 rounded-[8px] border border-black/5 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative ${activeMenu === `company-${company._id}` ? 'z-[50]' : 'z-0'}`}>
                                         <div className="flex items-center gap-5">
                                             <div className="w-[48px] h-[48px] bg-[#1d4ed8] rounded-[4px] flex items-center justify-center text-white font-bold text-[16px] font-inter shadow-md shrink-0">
                                                 {initials}
                                             </div>
                                             <div className="space-y-1">
-                                                <h3 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px]">
+                                                <h3 className="text-[16px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px]">
                                                     {company.name}
                                                 </h3>
-                                                <p className="text-[14px] font-normal text-[#64748b] font-inter">
+                                                <p className="text-[14px] font-normal text-[#64748b] dark:text-slate-400 font-inter">
                                                     {company.location || 'New York, NY'}
                                                 </p>
                                             </div>
@@ -366,26 +366,26 @@ function SettingsPageContent() {
                                             <div className="relative">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); toggleMenu(`company-${company._id}`); }}
-                                                    className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                                    className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-300 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                                                 >
                                                     <MoreVertical size={20} />
                                                 </button>
                                                 {activeMenu === `company-${company._id}` && (
-                                                    <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-[100] animate-in fade-in slide-in-from-top-1">
+                                                    <div className="absolute right-0 top-full mt-2 w-[160px] bg-white dark:bg-slate-800 rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-700 py-2 z-[100] animate-in fade-in slide-in-from-top-1">
                                                         <button
                                                             onClick={() => {
                                                                 setSelectedCompany(company);
                                                                 setIsCompanyModalOpen(true);
                                                                 setActiveMenu(null);
                                                             }}
-                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors"
+                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                                                         >
                                                             <Pencil size={16} className="text-slate-400" />
                                                             <span>Edit</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleDeleteCompany(company._id)}
-                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors"
+                                                            className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                                         >
                                                             <Trash2 size={16} className="text-red-400" />
                                                             <span>Delete</span>
@@ -401,11 +401,11 @@ function SettingsPageContent() {
                     </div>
 
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
+                    <div className="bg-white dark:bg-slate-800 rounded-[16px] border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit relative">
                         <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="space-y-0.5">
-                                <h2 className="text-[18px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Payment Details and Billing Info</h2>
-                                <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[20px] tracking-[0%] max-w-[400px]">Update your payment methods and view recent transactions.</p>
+                                <h2 className="text-[18px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Payment Details and Billing Info</h2>
+                                <p className="text-[14px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[20px] tracking-[0%] max-w-[400px]">Update your payment methods and view recent transactions.</p>
                             </div>
                             <button
                                 onClick={() => setIsPaymentModalOpen(true)}
@@ -414,19 +414,19 @@ function SettingsPageContent() {
                                 <span className="text-[18px] leading-none">+</span> Add Payment
                             </button>
                         </div>
-                        <div className="mx-4 h-px bg-slate-100" />
+                        <div className="mx-4 h-px bg-slate-100 dark:bg-slate-700" />
                         <div className="p-5">
-                            <div className="bg-[#f8fafc] p-4 sm:p-5 rounded-[12px] border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
+                            <div className="bg-[#f8fafc] dark:bg-slate-900 p-4 sm:p-5 rounded-[12px] border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group relative">
                                 <div className="flex items-center gap-4 sm:gap-5">
                                     <div className="w-[44px] h-[44px] bg-[#2563eb] rounded-[6px] flex items-center justify-center text-white shadow-sm shrink-0">
                                         <CreditCard size={20} />
                                     </div>
                                     <div className="space-y-1 overflow-hidden">
                                         <div className="flex items-center gap-2 sm:gap-8 overflow-hidden">
-                                            <div className="flex items-center gap-1 sm:gap-2 text-[14px] sm:text-[18px] font-bold text-[#0f172a] tracking-[2px] sm:tracking-[4px] shrink-0">
+                                            <div className="flex items-center gap-1 sm:gap-2 text-[14px] sm:text-[18px] font-bold text-[#0f172a] dark:text-slate-100 tracking-[2px] sm:tracking-[4px] shrink-0">
                                                 <span>●●●●</span><span>●●●●</span><span>●●●●</span>
                                             </div>
-                                            <span className="text-[14px] sm:text-[18px] font-medium text-[#0f172a] font-inter shrink-0">5698</span>
+                                            <span className="text-[14px] sm:text-[18px] font-medium text-[#0f172a] dark:text-slate-100 font-inter shrink-0">5698</span>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:gap-16">
                                             <span className="text-[11px] sm:text-[13px] font-normal text-[#94a3b8] font-inter uppercase whitespace-nowrap">EXP 12/28</span>
@@ -437,17 +437,17 @@ function SettingsPageContent() {
                                 <div className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); toggleMenu('payment-1'); }}
-                                        className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-300 hover:text-slate-600"
+                                        className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-300 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                                     >
                                         <MoreVertical size={20} />
                                     </button>
                                     {activeMenu === 'payment-1' && (
-                                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-20 animate-in fade-in slide-in-from-top-1">
-                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] hover:bg-slate-50 transition-colors">
+                                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white dark:bg-slate-800 rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-700 py-2 z-20 animate-in fade-in slide-in-from-top-1">
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-[#0f172a] dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                                 <Pencil size={16} className="text-slate-400" />
                                                 <span>Edit</span>
                                             </button>
-                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 transition-colors">
+                                            <button className="w-full px-4 py-2 flex items-center gap-3 text-[14px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
                                                 <Trash2 size={16} className="text-red-400" />
                                                 <span>Delete</span>
                                             </button>
@@ -459,18 +459,18 @@ function SettingsPageContent() {
                     </div>
 
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[20px] flex-grow">
-                        <h2 className="text-[18px] pb-4 font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%] border-b border-slate-50 mb-6">Notification Settings</h2>
+                    <div className="bg-white dark:bg-slate-800 rounded-[16px] border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[20px] flex-grow">
+                        <h2 className="text-[18px] pb-4 font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%] border-b border-slate-50 dark:border-slate-700 mb-6">Notification Settings</h2>
                         <div className="space-y-8">
                             {notifications.map((setting) => (
                                 <div key={setting.id} className="flex items-center justify-between">
                                     <div className="space-y-0.5">
-                                        <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">{setting.title}</h3>
-                                        <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">{setting.desc}</p>
+                                        <h3 className="text-[14px] font-medium text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0%]">{setting.title}</h3>
+                                        <p className="text-[12px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[16px] tracking-[0%]">{setting.desc}</p>
                                     </div>
                                     <div
                                         onClick={() => toggleNotification(setting.id)}
-                                        className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200'}`}
+                                        className={`w-11 h-6 rounded-full relative p-1 cursor-pointer transition-colors ${setting.active ? 'bg-[#2563eb]' : 'bg-slate-200 dark:bg-slate-600'}`}
                                     >
                                         <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${setting.active ? 'translate-x-5' : 'translate-x-0'}`} />
                                     </div>
@@ -513,13 +513,13 @@ function SettingsPageContent() {
                             </div>
                             <div className="h-px bg-white/10 w-full" />
                         </div>
-                        <button className="w-full h-[36px] bg-white border border-slate-100 rounded-[8px] text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)]">Manage Plan</button>
+                        <button className="w-full h-[36px] bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-600 rounded-[8px] text-[14px] font-medium text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_rgba(255,255,255,0.4)]">Manage Plan</button>
                     </div>
 
-                    <div className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] space-y-6 h-fit">
+                    <div className="bg-white dark:bg-slate-800 rounded-[16px] border border-slate-100 dark:border-slate-700 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-[16px] space-y-6 h-fit">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><ShieldCheck size={18} /></div>
-                            <h2 className="text-[16px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Subscription Upgrade Details</h2>
+                            <div className="w-8 h-8 bg-slate-50 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-300"><ShieldCheck size={18} /></div>
+                            <h2 className="text-[16px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Subscription Upgrade Details</h2>
                         </div>
                         <div className="space-y-3">
                             {[
@@ -530,8 +530,8 @@ function SettingsPageContent() {
                                 <div key={i} className="flex gap-3">
                                     <div className="mt-1 text-blue-500"><CheckCircle2 size={16} /></div>
                                     <div className="space-y-0.5">
-                                        <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0%]">{item.title}</h3>
-                                        <p className="text-[12px] font-normal text-[#64748b] font-inter leading-[16px] tracking-[0%]">{item.desc}</p>
+                                        <h3 className="text-[14px] font-medium text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0%]">{item.title}</h3>
+                                        <p className="text-[12px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[16px] tracking-[0%]">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -541,14 +541,14 @@ function SettingsPageContent() {
                         </button>
                     </div>
 
-                    <div className="h-[182px] bg-[#fef2f2] rounded-[12px] border border-[#fecaca] p-[20px] flex flex-col justify-between flex-grow">
+                    <div className="h-[182px] bg-[#fef2f2] dark:bg-red-900/10 rounded-[12px] border border-[#fecaca] dark:border-red-900/30 p-[20px] flex flex-col justify-between flex-grow">
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-red-500">
                                 <AlertTriangle size={18} />
                                 <h2 className="text-[14px] font-medium text-[#eb5757] font-inter leading-[20px] tracking-[0%]">Danger Zone</h2>
                             </div>
                             <div className="space-y-2">
-                                <h3 className="text-[14px] font-medium text-[#0f172a] font-inter leading-[20px] tracking-[0px]">Delete your workspace permanently.</h3>
+                                <h3 className="text-[14px] font-medium text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0px]">Delete your workspace permanently.</h3>
                                 <p className="text-[12px] font-normal text-[#eb5757] font-inter leading-[16px] tracking-[0%]">
                                     This action will erase all historical data, financial insights, and connected accounts. This action cannot be undone.
                                 </p>
@@ -584,40 +584,40 @@ function SettingsPageContent() {
                 <div className="p-[16px] space-y-2">
                     {/* Header */}
                     <div className="text-center">
-                        <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Add Payment Details</h2>
+                        <h2 className="text-[24px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Add Payment Details</h2>
                     </div>
 
                     {/* Form Fields */}
                     <div className="space-y-4">
                         {/* Cardholder Name */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Cardholder name</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Cardholder name</label>
                             <input
                                 type="text"
                                 placeholder="Johnson"
-                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                             />
                         </div>
 
                         {/* Card Details Group */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Card Details</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Card Details</label>
                             <div className="space-y-3">
                                 <input
                                     type="text"
                                     placeholder="Enter card"
-                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                    className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                                 />
                                 <div className="grid grid-cols-2 gap-3">
                                     <input
                                         type="text"
                                         placeholder="MM/YY"
-                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                                     />
                                     <input
                                         type="text"
                                         placeholder="CVC"
-                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                        className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                                     />
                                 </div>
                             </div>
@@ -625,9 +625,9 @@ function SettingsPageContent() {
 
                         {/* Billing Address Dropdown */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Billing Address</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Billing Address</label>
                             <div className="relative group w-full">
-                                <select className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer">
+                                <select className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer">
                                     <option>United States</option>
                                     <option>United Kingdom</option>
                                     <option>Canada</option>
@@ -642,7 +642,7 @@ function SettingsPageContent() {
                     <div className="flex justify-center gap-3 pt-2">
                         <button
                             onClick={() => setIsPaymentModalOpen(false)}
-                            className=" w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                            className=" w-full h-[36px] px-[12px] py-[4px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-medium text-[#64748b] dark:text-slate-300 font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                         >
                             Cancel
                         </button>
@@ -670,21 +670,21 @@ function SettingsPageContent() {
 
                     {/* Content */}
                     <div className="space-y-3 mb-4">
-                        <h2 className="text-[24px] font-bold text-[#1e293b] font-inter">Delete Workspace?</h2>
-                        <p className="text-[14px] font-normal text-[#64748b] font-inter leading-[22px]">
-                            Are you sure you want to delete this workspace? All financial data and AI models associated with <span className="font-semibold text-slate-800">Nexus FinTech Global</span> will be permanently removed.
+                        <h2 className="text-[24px] font-bold text-[#1e293b] dark:text-slate-100 font-inter">Delete Workspace?</h2>
+                        <p className="text-[14px] font-normal text-[#64748b] dark:text-slate-400 font-inter leading-[22px]">
+                            Are you sure you want to delete this workspace? All financial data and AI models associated with <span className="font-semibold text-slate-800 dark:text-slate-200">Nexus FinTech Global</span> will be permanently removed.
                         </p>
                     </div>
 
                     {/* Confirmation Input */}
                     <div className="w-full space-y-2 mb-8 text-left">
-                        <label className="text-[12px] font-medium text-[#2e2e37] font-inter">To confirm please type a delete below</label>
+                        <label className="text-[12px] font-medium text-[#2e2e37] dark:text-slate-300 font-inter">To confirm please type a delete below</label>
                         <input
                             type="text"
                             value={deleteConfirmation}
                             onChange={(e) => setDeleteConfirmation(e.target.value)}
                             placeholder="Delete"
-                            className="w-full h-[44px] px-[12px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 transition-all placeholder:text-slate-300"
+                            className="w-full h-[44px] px-[12px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-500/10 focus:border-red-500 transition-all placeholder:text-slate-300"
                         />
                     </div>
 
@@ -701,7 +701,7 @@ function SettingsPageContent() {
                         </button>
                         <button
                             onClick={() => setIsDeleteModalOpen(false)}
-                            className="w-full h-[40px] px-[12px] py-[4px] bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] hover:bg-slate-100 transition-all"
+                            className="w-full h-[40px] px-[12px] py-[4px] bg-[#f8fafc] dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-medium text-[#64748b] dark:text-slate-300 font-inter leading-[20px] hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                         >
                             Cancel
                         </button>
@@ -725,13 +725,13 @@ function SettingsPageContent() {
                 <div className="p-[16px] space-y-4">
                     {/* Header */}
                     <div className="text-center space-y-1">
-                        <h2 className="text-[24px] font-normal text-[#0f172a] font-inter leading-[24px] tracking-[0%]">Change Account Password</h2>
-                        <p className="text-[13px] text-slate-400 font-inter">Ensure your account stays secure by choosing a strong password.</p>
+                        <h2 className="text-[24px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Change Account Password</h2>
+                        <p className="text-[13px] text-slate-400 dark:text-slate-500 font-inter">Ensure your account stays secure by choosing a strong password.</p>
                     </div>
 
                     {/* Success Message */}
                     {passwordSuccess && (
-                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2.5 text-emerald-700 text-[14px]">
+                        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 rounded-xl flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400 text-[14px]">
                             <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
                             <span>{passwordSuccess}</span>
                         </div>
@@ -749,7 +749,7 @@ function SettingsPageContent() {
                     <div className="space-y-4">
                         {/* Current Password */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Current Password</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Current Password</label>
                             <input
                                 type="password"
                                 value={passwordData.currentPassword}
@@ -758,7 +758,7 @@ function SettingsPageContent() {
                                     setPasswordErrors({ ...passwordErrors, currentPassword: '' });
                                 }}
                                 placeholder="••••••••"
-                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                             />
                             {passwordErrors.currentPassword && (
                                 <p className="text-red-500 text-[11px] font-inter">{passwordErrors.currentPassword}</p>
@@ -767,7 +767,7 @@ function SettingsPageContent() {
 
                         {/* New Password */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">New Password</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">New Password</label>
                             <input
                                 type="password"
                                 value={passwordData.newPassword}
@@ -776,7 +776,7 @@ function SettingsPageContent() {
                                     setPasswordErrors({ ...passwordErrors, newPassword: '' });
                                 }}
                                 placeholder="••••••••"
-                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                             />
                             {passwordErrors.newPassword && (
                                 <p className="text-red-500 text-[11px] font-inter">{passwordErrors.newPassword}</p>
@@ -785,7 +785,7 @@ function SettingsPageContent() {
 
                         {/* Confirm New Password */}
                         <div className="space-y-2">
-                            <label className="text-[12px] font-normal text-[#2e2e37] font-inter leading-[16px] tracking-[0%]">Confirm New Password</label>
+                            <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Confirm New Password</label>
                             <input
                                 type="password"
                                 value={passwordData.confirmPassword}
@@ -794,7 +794,7 @@ function SettingsPageContent() {
                                     setPasswordErrors({ ...passwordErrors, confirmPassword: '' });
                                 }}
                                 placeholder="••••••••"
-                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] bg-white font-inter text-[14px] text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                className="w-full h-[40px] px-[10px] py-[8px] rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
                             />
                             {passwordErrors.confirmPassword && (
                                 <p className="text-red-500 text-[11px] font-inter">{passwordErrors.confirmPassword}</p>
@@ -812,7 +812,7 @@ function SettingsPageContent() {
                                 setPasswordSuccess(null);
                                 dispatch(hasActionError(null));
                             }}
-                            className="w-full h-[36px] px-[12px] py-[4px] bg-white border border-[#e2e8f0] rounded-[8px] text-[14px] font-medium text-[#64748b] font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 transition-all"
+                            className="w-full h-[36px] px-[12px] py-[4px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-medium text-[#64748b] dark:text-slate-300 font-inter leading-[20px] shadow-[0_2px_4px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                         >
                             Cancel
                         </button>

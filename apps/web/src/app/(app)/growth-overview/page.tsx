@@ -125,6 +125,11 @@ const YEARS = [2024, 2025, 2026];
 export default function GrowthOverview() {
     const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
     const [activeChart, setActiveChart] = useState('line');
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const dispatch = useDispatch();
     const { data } = useSelector((state) => state.growth);
@@ -273,8 +278,8 @@ export default function GrowthOverview() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
-                    <h1 className="text-[24px] font-medium text-slate-800 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
-                    <p className="text-[14px] font-normal text-slate-400 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
+                    <h1 className="text-[24px] font-medium text-slate-800 dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
+                    <p className="text-[14px] font-normal text-slate-400 dark:text-slate-500 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
@@ -283,7 +288,7 @@ export default function GrowthOverview() {
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
                     >
                       {MONTHS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -301,7 +306,7 @@ export default function GrowthOverview() {
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white border border-slate-200 rounded-[10px] text-[13px] font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
                     >
                       {YEARS.map((year) => (
                         <option key={year} value={year}>
@@ -334,19 +339,19 @@ export default function GrowthOverview() {
             {/* Summary Grid - Row 2 (Compact) - Inline Implementation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {currentAdditionalKPIs.map((metric, i) => (
-                    <div key={i} className="h-[110px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col p-0 hover:shadow-md transition-all duration-300 overflow-hidden">
+                    <div key={i} className="h-[110px] bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col p-0 hover:shadow-md transition-all duration-300 overflow-hidden">
                         {/* Top Section - 50% (55px) */}
-                        <div className="h-[55px] flex items-center gap-3 border-b border-slate-100 px-4 bg-slate-50/30">
-                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-400">
+                        <div className="h-[55px] flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 px-4 bg-slate-50/30 dark:bg-slate-800/50">
+                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-slate-400 dark:text-slate-300">
                                 {getIcon(metric.icon)}
                             </div>
-                            <span className="text-[14px] font-normal text-slate-500 font-inter leading-[20px] tracking-[0%]">{metric.label}</span>
+                            <span className="text-[14px] font-normal text-slate-500 dark:text-slate-400 font-inter leading-[20px] tracking-[0%]">{metric.label}</span>
                         </div>
 
                         {/* Bottom Section - 50% (55px) */}
                         <div className="h-[55px] flex items-center justify-between px-4">
-                            <span className="text-[24px] font-medium text-slate-900 font-inter leading-[32px] tracking-[0%]">{getKpiValue(metric.key, metric.format)}</span>
-                            <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] border text-[12px] font-medium ${!getIsDown(metric.key) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-500 border-red-100'
+                            <span className="text-[24px] font-medium text-slate-900 dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">{getKpiValue(metric.key, metric.format)}</span>
+                            <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] border text-[12px] font-medium ${!getIsDown(metric.key) ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 border-red-100 dark:border-red-800'
                                 }`}>
                                 {!getIsDown(metric.key) ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                                 {getTrendValue(metric.key)}
@@ -360,14 +365,14 @@ export default function GrowthOverview() {
 
                 {/* Revenue Over Time Chart (Span 2) */}
 
-                <div className="lg:col-span-2 w-full h-[490px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+                <div className="lg:col-span-2 w-full h-[490px] bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
                     {/* Chart Header - 68px */}
-                    <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50">
+                    <div className="h-[68px] flex items-center justify-between p-[12px] gap-[12px] border-b border-slate-50 dark:border-slate-700">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300">
                                 <Briefcase size={16} />
                             </div>
-                            <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Growth Over Time</h3>
+                            <h3 className="text-[16px] font-normal text-slate-800 dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Growth Over Time</h3>
                         </div>
                         <div className={`flex items-center gap-1 px-2 py-1 rounded-[4px] text-[12px] font-normal font-inter leading-[16px] tracking-[0%]`} style={{ backgroundColor: 'rgba(242, 255, 250, 1)', color: 'rgba(44, 172, 104, 1)' }}>
                             <ArrowUpRight size={12} style={{ color: 'rgba(44, 172, 104, 1)' }} />
@@ -376,90 +381,94 @@ export default function GrowthOverview() {
                     </div>
 
                     {/* Chart Body - 412px */}
-                    <div className="h-[412px] flex-1 w-full border border-[rgba(26,21,83,0.08)] relative py-[12px] px-[16px] flex flex-col gap-[12px]">
-                        <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] bg-slate-50/30 flex flex-col overflow-hidden">
-                            <div className="flex-1 w-full relative p-2">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={growthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                                            </linearGradient>
-                                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#ffcc99" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#ffcc99" stopOpacity={0} />
-                                            </linearGradient>
-                                            <linearGradient id="colorClient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={10} />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 11, fill: '#94a3b8' }}
-                                            tickFormatter={(value) => `${value}%`}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                            itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="monthly"
-                                            stroke="#2563eb"
-                                            strokeWidth={3}
-                                            fillOpacity={1}
-                                            fill="url(#colorMonthly)"
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="revenue"
-                                            stroke="#ffcc99"
-                                            strokeWidth={3}
-                                            fillOpacity={1}
-                                            fill="url(#colorRevenue)"
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="client"
-                                            stroke="#f97316"
-                                            strokeWidth={3}
-                                            fillOpacity={1}
-                                            fill="url(#colorClient)"
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="target"
-                                            stroke="#94a3b8"
-                                            strokeWidth={2}
-                                            strokeDasharray="5 5"
-                                            fill="none"
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                    <div className="h-[412px] flex-1 w-full border border-[rgba(26,21,83,0.08)] dark:border-slate-700 relative py-[12px] px-[16px] flex flex-col gap-[12px]">
+                        <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50 flex flex-col overflow-hidden">
+                            <div className="flex-1 w-full relative min-h-0 min-w-0">
+                                {isMounted && (
+                                    <div className="absolute inset-2 min-h-0 min-w-0">
+                                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                            <AreaChart data={growthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <defs>
+                                                    <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1} />
+                                                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                                    </linearGradient>
+                                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#ffcc99" stopOpacity={0.1} />
+                                                        <stop offset="95%" stopColor="#ffcc99" stopOpacity={0} />
+                                                    </linearGradient>
+                                                    <linearGradient id="colorClient" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.1} />
+                                                        <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} dy={10} />
+                                                <YAxis
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tick={{ fontSize: 11, fill: '#94a3b8' }}
+                                                    tickFormatter={(value) => `${value}%`}
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                                    itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="monthly"
+                                                    stroke="#2563eb"
+                                                    strokeWidth={3}
+                                                    fillOpacity={1}
+                                                    fill="url(#colorMonthly)"
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="revenue"
+                                                    stroke="#ffcc99"
+                                                    strokeWidth={3}
+                                                    fillOpacity={1}
+                                                    fill="url(#colorRevenue)"
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="client"
+                                                    stroke="#f97316"
+                                                    strokeWidth={3}
+                                                    fillOpacity={1}
+                                                    fill="url(#colorClient)"
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="target"
+                                                    stroke="#94a3b8"
+                                                    strokeWidth={2}
+                                                    strokeDasharray="5 5"
+                                                    fill="none"
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Chart Legend - Styled inside the inner box */}
-                            <div className="flex items-center justify-center gap-6 py-3 bg-white border-t border-[rgba(26,21,83,0.08)]">
+                            <div className="flex items-center justify-center gap-6 py-3 bg-white dark:bg-slate-800 border-t border-[rgba(26,21,83,0.08)] dark:border-slate-700">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#2563eb]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Monthly Growth %</span>
+                                    <span className="text-[14px] font-normal text-slate-500 dark:text-slate-400 font-inter tracking-[0%]">Monthly Growth %</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#ffcc99]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Revenue Growth %</span>
+                                    <span className="text-[14px] font-normal text-slate-500 dark:text-slate-400 font-inter tracking-[0%]">Revenue Growth %</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#f97316]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Client Growth %</span>
+                                    <span className="text-[14px] font-normal text-slate-500 dark:text-slate-400 font-inter tracking-[0%]">Client Growth %</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#94a3b8]" />
-                                    <span className="text-[14px] font-normal text-slate-500 font-inter tracking-[0%]">Target (8%)</span>
+                                    <span className="text-[14px] font-normal text-slate-500 dark:text-slate-400 font-inter tracking-[0%]">Target (8%)</span>
                                 </div>
                             </div>
                         </div>
@@ -471,70 +480,72 @@ export default function GrowthOverview() {
                 <div className="space-y-4">
                     {/* Company Health Meter */}
 
-                    <div className="h-[380px] bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+                    <div className="h-[380px] bg-white dark:bg-slate-800 rounded-[12px] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
                         {/* Header - 54px */}
-                        <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50">
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                        <div className="h-[54px] flex items-center p-[12px] gap-[12px] border-b border-slate-50 dark:border-slate-700">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-300">
                                 <Pin size={16} />
                             </div>
-                            <h3 className="text-[16px] font-normal text-slate-800 font-inter leading-[24px] tracking-[0%]">Growth Health</h3>
+                            <h3 className="text-[16px] font-normal text-slate-800 dark:text-slate-100 font-inter leading-[24px] tracking-[0%]">Growth Health</h3>
                         </div>
 
                         {/* Body */}
                         <div className="flex-1 flex flex-col">
-                            <div className="relative h-[180px] w-full flex items-center justify-center">
-                                <div className="w-[260px] h-[180px] relative mx-auto">
+                            <div className="relative h-[180px] w-full flex items-center justify-center min-h-0 min-w-0">
+                                <div className="w-[260px] h-[180px] relative mx-auto min-h-0 min-w-0">
                                     {/* Compact Gauge Chart with ZERO Gaps */}
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <defs>
-                                                {gaugeGradients.map((grad) => (
-                                                    <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
-                                                        {grad.stops.map((stop, i) => (
-                                                            <stop key={i} offset={stop.offset} stopColor={stop.color} />
-                                                        ))}
-                                                    </linearGradient>
-                                                ))}
-                                            </defs>
-                                            {/* Outer Arc - Touching the inner arc (No Gap) */}
-                                            <Pie
-                                                data={outerHealthData}
-                                                cx={130}
-                                                cy={140}
-                                                startAngle={180}
-                                                endAngle={0}
-                                                innerRadius={85}
-                                                outerRadius={115}
-                                                paddingAngle={0}
-                                                dataKey="value"
-                                                stroke="none"
-                                                labelLine={false}
-                                                label={renderOuterLabel}
-                                            >
-                                                {outerHealthData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
-                                            <Pie
-                                                data={healthData}
-                                                cx={130}
-                                                cy={140}
-                                                startAngle={180}
-                                                endAngle={0}
-                                                innerRadius={30}
-                                                outerRadius={85}
-                                                paddingAngle={0}
-                                                dataKey="value"
-                                                stroke="none"
-                                            >
-                                                {healthData.map((entry, index) => {
-                                                    const gradientIds = ['gradPoor', 'gradFair', 'gradGood', 'gradExcellent'];
-                                                    return <Cell key={`cell-${index}`} fill={`url(#${gradientIds[index]})`} />;
-                                                })}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                    {isMounted && (
+                                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                            <PieChart>
+                                                <defs>
+                                                    {gaugeGradients.map((grad) => (
+                                                        <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
+                                                            {grad.stops.map((stop, i) => (
+                                                                <stop key={i} offset={stop.offset} stopColor={stop.color} />
+                                                            ))}
+                                                        </linearGradient>
+                                                    ))}
+                                                </defs>
+                                                {/* Outer Arc - Touching the inner arc (No Gap) */}
+                                                <Pie
+                                                    data={outerHealthData}
+                                                    cx={130}
+                                                    cy={140}
+                                                    startAngle={180}
+                                                    endAngle={0}
+                                                    innerRadius={85}
+                                                    outerRadius={115}
+                                                    paddingAngle={0}
+                                                    dataKey="value"
+                                                    stroke="none"
+                                                    labelLine={false}
+                                                    label={renderOuterLabel}
+                                                >
+                                                    {outerHealthData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                                {/* Compact Inner Arc - Still 60px Thick (40 to 100) */}
+                                                <Pie
+                                                    data={healthData}
+                                                    cx={130}
+                                                    cy={140}
+                                                    startAngle={180}
+                                                    endAngle={0}
+                                                    innerRadius={30}
+                                                    outerRadius={85}
+                                                    paddingAngle={0}
+                                                    dataKey="value"
+                                                    stroke="none"
+                                                >
+                                                    {healthData.map((entry, index) => {
+                                                        const gradientIds = ['gradPoor', 'gradFair', 'gradGood', 'gradExcellent'];
+                                                        return <Cell key={`cell-${index}`} fill={`url(#${gradientIds[index]})`} />;
+                                                    })}
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    )}
 
                                     {/* Independent Needle Layer */}
                                     <NeedleLayer value={growthHealth.score} cx={130} cy={140} iR={30} oR={85} />
@@ -542,19 +553,19 @@ export default function GrowthOverview() {
                             </div>
 
                             <div className="text-center mt-[-10px] mb-2">
-                                <p className="text-[11px] font-normal text-slate-600 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
+                                <p className="text-[11px] font-normal text-slate-600 dark:text-slate-400 mb-0.5 font-inter leading-none tracking-[0%]">Today Health</p>
                                 <div className="flex items-center justify-center gap-2">
-                                    <span className="text-[9px] font-normal text-slate-400 uppercase tracking-[0%] font-inter leading-none text-center">{growthHealth.status}</span>
-                                    <span className="text-[14px] font-semibold text-slate-900 font-inter leading-none tracking-[0%]">{growthHealth.score}</span>
+                                    <span className="text-[9px] font-normal text-slate-400 dark:text-slate-500 uppercase tracking-[0%] font-inter leading-none text-center">{growthHealth.status}</span>
+                                    <span className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-none tracking-[0%]">{growthHealth.score}</span>
                                 </div>
                             </div>
 
                             {/* Health Metrics Details */}
-                            <div className="px-5 space-y-6 border-t border-slate-50 pt-2">
+                            <div className="px-5 space-y-6 border-t border-slate-50 dark:border-slate-700 pt-2">
                                 {growthHealth.metrics.map((item: any, i: number) => (
                                     <div key={i} className="flex items-center justify-between">
-                                        <span className="text-[12px] font-normal text-slate-700 font-inter leading-none">{item.label}</span>
-                                        <span className="text-[12px] font-semibold text-slate-900 font-inter leading-none">{item.value}</span>
+                                        <span className="text-[12px] font-normal text-slate-700 dark:text-slate-300 font-inter leading-none">{item.label}</span>
+                                        <span className="text-[12px] font-semibold text-slate-900 dark:text-slate-100 font-inter leading-none">{item.value}</span>
                                     </div>
                                 ))}
                             </div>

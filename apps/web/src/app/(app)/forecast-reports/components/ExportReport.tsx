@@ -38,6 +38,11 @@ interface ExportReportProps {
 export default function ExportReport({ reportName, onFinalize, onTriggerToast }: ExportReportProps) {
     const [exportFormat, setExportFormat] = useState<'pdf' | 'csv' | 'excel'>('pdf');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
     const [includeSections, setIncludeSections] = useState({
         kpiSummary: true,
         visualCharts: true,
@@ -217,16 +222,18 @@ export default function ExportReport({ reportName, onFinalize, onTriggerToast }:
                             </div>
                         </div>
 
-                        <ResponsiveContainer width="100%" height="100%">
-                            <ReLineChart data={doubleSeriesChartData} margin={{ top: 15, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                                <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                                <Tooltip cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '3 3' }} />
-                                <Line type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 5, fill: '#fff', stroke: '#8b5cf6', strokeWidth: 2 }} activeDot={{ r: 7 }} />
-                                <Line type="monotone" dataKey="netProfit" stroke="#f97316" strokeWidth={2.5} dot={{ r: 5, fill: '#fff', stroke: '#f97316', strokeWidth: 2 }} activeDot={{ r: 7 }} />
-                            </ReLineChart>
-                        </ResponsiveContainer>
+                        {isMounted && (
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                <ReLineChart data={doubleSeriesChartData} margin={{ top: 15, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                                    <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 1000}k`} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                                    <Tooltip cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '3 3' }} />
+                                    <Line type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 5, fill: '#fff', stroke: '#8b5cf6', strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                                    <Line type="monotone" dataKey="netProfit" stroke="#f97316" strokeWidth={2.5} dot={{ r: 5, fill: '#fff', stroke: '#f97316', strokeWidth: 2 }} activeDot={{ r: 7 }} />
+                                </ReLineChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
 
                     {/* Chart Custom Legend matching mockup perfectly */}
