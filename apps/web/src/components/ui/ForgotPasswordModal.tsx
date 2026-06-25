@@ -166,13 +166,13 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
   const { width, height } = getModalDimensions();
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} height={height} width={width} className="!bg-white dark:!bg-white !border-slate-200 dark:!border-slate-200">
+    <Modal isOpen={isOpen} onClose={handleClose} height={height} width={width} className="!bg-white dark:!bg-slate-900 !border-slate-200 dark:!border-slate-800">
       <div className="px-8 h-full flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
 
         {/* Success Icon */}
         {mode === 'success' && (
           <div className="flex justify-center mb-6 ">
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 overflow-hidden shadow-sm">
+            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/30 rounded-2xl flex items-center justify-center border border-blue-100 dark:border-blue-900 overflow-hidden shadow-sm">
               <Image
                 src="/Logomark.png"
                 alt="Success"
@@ -186,7 +186,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <h2 className="text-[#0f172a] font-inter font-medium text-[24px] leading-[32px] text-center">
+          <h2 className="text-[#0f172a] dark:text-white font-inter font-medium text-[24px] leading-[32px] text-center">
             {mode === 'email' ? "Forgot password" : mode === 'otp' ? "Verify OTP" : mode === 'reset' ? "Create New password" : "Reset Password Successfully"}
           </h2>
           <p className="font-inter font-normal text-[14px] leading-[20px] text-slate-400 mt-2 text-center">
@@ -201,7 +201,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
         <div className="space-y-6 flex-1">
           {mode === 'email' && (
             <div>
-              <label className="block font-inter font-normal text-[12px] text-slate-600 mb-1.5 ml-0.5">Email</label>
+              <label className="block font-inter font-normal text-[12px] text-slate-600 dark:text-slate-300 mb-1.5 ml-0.5">Email</label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><AtSign size={18} strokeWidth={1.8} /></div>
                 <input
@@ -210,7 +210,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Ahmad.account@gmail.com"
-                  className={`w-full h-[38px] border rounded-[8px] pl-11 pr-4 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                  className={`w-full h-[38px] border rounded-[8px] pl-11 pr-4 text-[14px] focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white shadow-sm autofill-light ${validationErrors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
                 />
               </div>
               {validationErrors.email && (
@@ -221,7 +221,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
 
           {mode === 'otp' && (
             <div className="flex flex-col items-center">
-              <label className="block font-inter font-normal text-[12px] text-slate-600 mb-3 self-start ml-0.5">Enter 4-digit OTP</label>
+              <label className="block font-inter font-normal text-[12px] text-slate-600 dark:text-slate-300 mb-3 self-start ml-0.5">Enter 4-digit OTP</label>
               <div className="flex gap-3 justify-center mb-1">
                 {[0, 1, 2, 3].map((index) => (
                   <input
@@ -232,7 +232,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     value={otp[index]}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                    className={`w-12 h-12 text-center text-lg font-semibold border rounded-lg focus:outline-none focus:border-blue-500 text-slate-900 shadow-sm ${validationErrors.otp ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`w-12 h-12 text-center text-lg font-semibold border rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ${validationErrors.otp ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
                   />
                 ))}
               </div>
@@ -245,7 +245,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
           {mode === 'reset' && (
             <div className="space-y-4">
               <div>
-                <label className="block font-inter font-normal text-[12px] text-slate-600 mb-1.5 ml-0.5">Password *</label>
+                <label className="block font-inter font-normal text-[12px] text-slate-600 dark:text-slate-300 mb-1.5 ml-0.5">Password *</label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Key size={18} strokeWidth={1.8} /></div>
                   <input
@@ -254,9 +254,9 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white shadow-sm autofill-light ${validationErrors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
                   />
-                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer">
                     {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
                   </button>
                 </div>
@@ -265,7 +265,7 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                 )}
               </div>
               <div>
-                <label className="block font-inter font-normal text-[12px] text-slate-600 mb-1.5 ml-0.5">Confirm Password *</label>
+                <label className="block font-inter font-normal text-[12px] text-slate-600 dark:text-slate-300 mb-1.5 ml-0.5">Confirm Password *</label>
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Key size={18} strokeWidth={1.8} /></div>
                   <input
@@ -274,9 +274,9 @@ export default function ForgotPasswordModal({ }: ForgotPasswordModalProps) {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 placeholder:text-slate-400 text-slate-900 shadow-sm autofill-light ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200'}`}
+                    className={`w-full h-[38px] border rounded-[8px] pl-11 pr-12 text-[14px] focus:outline-none focus:border-blue-500 bg-white dark:bg-slate-800 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white shadow-sm autofill-light ${validationErrors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
                   />
-                  <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+                  <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer">
                     {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
                   </button>
                 </div>

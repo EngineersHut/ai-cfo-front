@@ -23,8 +23,7 @@ export default function Hero() {
 
 
   return (
-    <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden"
-      style={{ background: 'linear-gradient(270deg, #E5F0FF 0%, #EFF6FF 100%)' }}>
+    <section className="relative min-h-screen flex items-center pt-48 pb-16 overflow-hidden bg-gradient-to-r from-[#E5F0FF] to-[#EFF6FF] dark:from-[#0b0f19] dark:to-[#111827]">
       <div className="max-w-[1200px] mx-auto px-6 w-full">
         <div className="grid lg:grid-cols-[1fr_1.4fr] items-center gap-12 lg:gap-20">
           {/* Left */}
@@ -58,7 +57,7 @@ export default function Hero() {
                 Get Started Free
               </button>
               <a href="#" onClick={e => e.preventDefault()}
-                className="inline-flex items-center justify-center w-[138px] h-[36px] border border-border-subtle bg-white hover:bg-slate-50 text-text-primary font-medium text-[14px] leading-[20px] rounded-[10px] transition-all active:scale-95 gap-[10px]">
+                className="inline-flex items-center justify-center w-[138px] h-[36px] border border-border-subtle dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-text-primary dark:text-slate-100 font-medium text-[14px] leading-[20px] rounded-[10px] transition-all active:scale-95 gap-[10px]">
                 View Demo
                 <svg width="12" height="12" viewBox="0 0 24 24" className="shrink-0">
                   <path d="M5 3l14 9-14 9V3z" fill="currentColor" />
@@ -67,8 +66,8 @@ export default function Hero() {
             </motion.div>
 
             <motion.p {...fadeUp(0.5)}
-              className="text-[12px] leading-[16px] "
-              style={{ color: 'rgba(148, 163, 184, 1)', fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
+              className="text-[12px] leading-[16px] text-text-muted"
+              style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
               No credit card required • Setup in 2 minutes
             </motion.p>
           </div>

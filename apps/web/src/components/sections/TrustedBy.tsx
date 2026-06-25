@@ -15,12 +15,12 @@ const logos = [
 
 export default function TrustedBy() {
   return (
-    <section className="py-12 border-y border-gray-100 bg-white">
+    <section className="py-12 border-y border-border-subtle bg-bg-primary">
       <div className="max-w-7xl mx-auto px-6">
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           className="text-center text-[12px] font-medium mb-12 text-slate-400"
           style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
-          Trusted by <span className="font-bold text-slate-900">10,000+</span> founders & business owners
+          Trusted by <span className="font-bold text-text-primary">10,000+</span> founders & business owners
         </motion.p>
         <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-8">
           {logos.map((logo, i) => (
@@ -32,7 +32,7 @@ export default function TrustedBy() {
                 alt={`Partner Logo ${i + 1}`}
                 width={120}
                 height={32}
-                className="object-contain"
+                className="object-contain dark:invert"
               />
             </motion.div>
           ))}
