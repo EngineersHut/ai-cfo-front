@@ -37,8 +37,45 @@ export class UpdateBudgetDto {
   @IsNumber()
   year!: number;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => LineItemDto)
-  lineItems!: LineItemDto[];
+  lineItems?: LineItemDto[];
+
+  @IsOptional()
+  @IsNumber()
+  totalRevenueBudget?: number;
+
+  @IsOptional()
+  @IsNumber()
+  totalDirectCostsBudget?: number;
+
+  @IsOptional()
+  @IsNumber()
+  totalOperatingExpensesBudget?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BudgetSummaryItemDto)
+  summaryItems?: BudgetSummaryItemDto[];
+}
+
+export class BudgetSummaryItemDto {
+  @IsNotEmpty()
+  @IsString()
+  name!: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  budget!: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  actual!: number;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

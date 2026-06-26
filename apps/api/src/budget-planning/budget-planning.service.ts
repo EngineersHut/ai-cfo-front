@@ -103,6 +103,34 @@ export class BudgetPlanningService {
         }
       }
 
+      const customItemsMap = new Map<string, { budget: number; actual: number; notes: string }>();
+      for (const b of budgetPlans) {
+        for (const item of b.summaryItems || []) {
+          const key = item.name;
+          if (!customItemsMap.has(key)) {
+            customItemsMap.set(key, { budget: 0, actual: 0, notes: "" });
+          }
+          const curr = customItemsMap.get(key)!;
+          curr.budget += item.budget || 0;
+          curr.actual += item.actual || 0;
+          if (item.notes) {
+            curr.notes = item.notes;
+          }
+        }
+      }
+
+      const yearlyCustomItems = Array.from(customItemsMap.entries()).map(([name, val]) => {
+        const variance = calcVariance(val.actual, val.budget);
+        return {
+          name,
+          budget: val.budget,
+          actual: val.actual,
+          variancePercent: variance.percent,
+          notes: val.notes,
+          isCustom: true,
+        };
+      });
+
       const planningTable = Array.from(lineItemMap.values());
       const revVariance = calcVariance(actualRevenue, budgetRevenue);
 
@@ -170,6 +198,7 @@ export class BudgetPlanningService {
               .percent,
             notes: "(Net Profit ÷ Revenue) × 100",
           },
+          customItems: yearlyCustomItems,
         },
         planningTable: groupLineItems(planningTable),
       };
@@ -358,37 +387,167 @@ export class BudgetPlanningService {
             .percent,
           notes: "(Net Profit ÷ Revenue) × 100",
         },
+        customItems: (budgetPlan.summaryItems || []).map((item: any) => {
+          const variance = calcVariance(item.actual || 0, item.budget || 0);
+          return {
+            name: item.name,
+            budget: item.budget || 0,
+            actual: item.actual || 0,
+            variancePercent: variance.percent,
+            notes: item.notes || "",
+            isCustom: true,
+          };
+        }),
       },
       planningTable: groupLineItems(budgetPlan.lineItems),
     };
   }
 
   async upsertBudget(updateDto: UpdateBudgetDto) {
-    const { companyId, month, year, lineItems } = updateDto;
+    const {
+      companyId,
+      month,
+      year,
+      lineItems,
+      summaryItems,
+      totalRevenueBudget,
+      totalDirectCostsBudget,
+      totalOperatingExpensesBudget,
+    } = updateDto;
 
-    const totalRevenueBudget = lineItems
-      .filter((i) => i.category === BudgetCategory.REVENUE)
-      .reduce((sum, i) => sum + i.amount, 0);
-    const totalDirectCostsBudget = lineItems
-      .filter((i) => i.category === BudgetCategory.DIRECT_COSTS)
-      .reduce((sum, i) => sum + i.amount, 0);
-    const totalOperatingExpensesBudget = lineItems
-      .filter((i) => i.category === BudgetCategory.OPERATING_EXPENSES)
-      .reduce((sum, i) => sum + i.amount, 0);
+    const updateFields: any = {};
+
+    if (lineItems !== undefined) {
+      updateFields.lineItems = lineItems;
+      if (totalRevenueBudget === undefined) {
+        updateFields.totalRevenueBudget = lineItems
+          .filter((i) => i.category === BudgetCategory.REVENUE)
+          .reduce((sum, i) => sum + i.amount, 0);
+      }
+      if (totalDirectCostsBudget === undefined) {
+        updateFields.totalDirectCostsBudget = lineItems
+          .filter((i) => i.category === BudgetCategory.DIRECT_COSTS)
+          .reduce((sum, i) => sum + i.amount, 0);
+      }
+      if (totalOperatingExpensesBudget === undefined) {
+        updateFields.totalOperatingExpensesBudget = lineItems
+          .filter((i) => i.category === BudgetCategory.OPERATING_EXPENSES)
+          .reduce((sum, i) => sum + i.amount, 0);
+      }
+    }
+
+    if (totalRevenueBudget !== undefined) {
+      updateFields.totalRevenueBudget = totalRevenueBudget;
+    }
+    if (totalDirectCostsBudget !== undefined) {
+      updateFields.totalDirectCostsBudget = totalDirectCostsBudget;
+    }
+    if (totalOperatingExpensesBudget !== undefined) {
+      updateFields.totalOperatingExpensesBudget = totalOperatingExpensesBudget;
+    }
+    if (summaryItems !== undefined) {
+      updateFields.summaryItems = summaryItems;
+    }
 
     const updatedBudget = await this.budgetModel.findOneAndUpdate(
       { companyId, month, year },
-      {
-        $set: {
-          lineItems,
-          totalRevenueBudget,
-          totalDirectCostsBudget,
-          totalOperatingExpensesBudget,
-        },
-      },
+      { $set: updateFields },
       { returnDocument: 'after', upsert: true },
     );
 
     return updatedBudget;
   }
+
+  async exportBudgetOverviewCsv(
+    company: any,
+    queryDto: GetBudgetDto,
+  ): Promise<string> {
+    if (!company) {
+      return "Metric,Budget,Actual,Variance (%),Favorable?\n";
+    }
+    const data = await this.getBudgetOverview(queryDto);
+
+    const formatCurrency = (val: any) =>
+      val !== undefined && val !== null ? `$${val.toLocaleString()}` : "N/A";
+    const formatPercent = (val: any) =>
+      val !== undefined && val !== null ? `${val}%` : "N/A";
+    const formatVariancePercent = (val: any) =>
+      val !== undefined && val !== null ? `${val >= 0 ? "+" : ""}${val}%` : "N/A";
+
+    const formatIndustry = (industryStr: string) => {
+      if (!industryStr) return "N/A";
+      return industryStr
+        .replace(/[-_]/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    };
+
+    let csv = `\n`;
+    csv += `"**************************************************"\n`;
+    csv += `"               AI-CFO BUDGET VS ACTUAL            "\n`;
+    csv += `"             COMPLETE BUDGET COMPARISON           "\n`;
+    csv += `"**************************************************"\n`;
+    csv += `\n`;
+    csv += `Workspace:,${company.name || "N/A"}\n`;
+    csv += `Industry:,${formatIndustry(company.industry)}\n`;
+    csv += `Period:,${queryDto.period || "monthly"} (${queryDto.month ? `${queryDto.month}/` : ""}${queryDto.year || new Date().getFullYear()})\n`;
+    csv += `Generated On:,${new Date().toLocaleString()}\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 1: FINANCIAL OVERVIEW
+    csv += `"SECTION 1: FINANCIAL OVERVIEW"\n`;
+    csv += `Metric,Budget,Actual,Variance (%),Favorable?\n`;
+    const summaryCards = data.summaryCards || {};
+    csv += `"Revenue","${formatCurrency(summaryCards.budgetRevenue)}","${formatCurrency(summaryCards.actualRevenue)}","${formatVariancePercent(summaryCards.revenueVariance?.percent)}","${summaryCards.revenueVariance?.isFavorable ? "Yes" : "No"}"\n`;
+    csv += `"Over Budget Expenditures","N/A","${formatCurrency(summaryCards.overBudgetItems)}","N/A","N/A"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 2: BUDGET VS ACTUAL SUMMARY TABLE
+    csv += `"SECTION 2: BUDGET VS ACTUAL SUMMARY TABLE"\n`;
+    csv += `Metric,Budget,Actual,Variance (%),Notes\n`;
+    const summaryTable = data.summaryTable || {};
+    for (const [key, item] of Object.entries(summaryTable) as any) {
+      const label = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str: any) => str.toUpperCase());
+      
+      let budgetVal = "";
+      let actualVal = "";
+      if (key === "netMargin") {
+        budgetVal = formatPercent(item.budget);
+        actualVal = formatPercent(item.actual);
+      } else {
+        budgetVal = formatCurrency(item.budget);
+        actualVal = formatCurrency(item.actual);
+      }
+      
+      csv += `"${label}","${budgetVal}","${actualVal}","${formatVariancePercent(item.variancePercent)}","${item.notes || ""}"\n`;
+    }
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 3: BUDGET PLANNING LINE ITEMS
+    csv += `"SECTION 3: BUDGET PLANNING LINE ITEMS"\n`;
+    csv += `Category,Item Name,Budgeted Amount\n`;
+    const planningTable = data.planningTable || [];
+    for (const group of planningTable) {
+      const categoryLabel = group.category
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str: any) => str.toUpperCase());
+      for (const item of group.items || []) {
+        csv += `"${categoryLabel}","${item.name || ""}","${formatCurrency(item.amount)}"\n`;
+      }
+    }
+
+    return csv;
+  }
 }
+

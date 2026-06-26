@@ -19,6 +19,23 @@ export class BudgetLineItem {
 
 const BudgetLineItemSchema = SchemaFactory.createForClass(BudgetLineItem);
 
+@Schema({ _id: false })
+export class BudgetSummaryItem {
+  @Prop({ required: true })
+  name!: string;
+
+  @Prop({ required: true, default: 0 })
+  budget!: number;
+
+  @Prop({ required: true, default: 0 })
+  actual!: number;
+
+  @Prop({ type: String, default: '' })
+  notes?: string;
+}
+
+const BudgetSummaryItemSchema = SchemaFactory.createForClass(BudgetSummaryItem);
+
 @Schema({ timestamps: true })
 export class BudgetPlanning extends BaseDocument {
   @Prop({ required: true, type: String, ref: 'Company', index: true })
@@ -33,6 +50,10 @@ export class BudgetPlanning extends BaseDocument {
   // Array of custom line items the user adds from the spreadsheet
   @Prop({ type: [BudgetLineItemSchema], default: [] })
   lineItems!: BudgetLineItem[];
+
+  // Array of custom summary items
+  @Prop({ type: [BudgetSummaryItemSchema], default: [] })
+  summaryItems!: BudgetSummaryItem[];
 
   // Aggregated Totals (for quick card and table loading without recalculating)
   @Prop({ type: Number, default: 0 })

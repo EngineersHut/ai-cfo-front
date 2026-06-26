@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Query, UseGuards, Res } from "@nestjs/common";
+import { Response } from "express";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -54,6 +55,27 @@ export class BudgetPlanningController {
     return this.budgetPlanningService.getBudgetOverview(queryDto);
   }
 
+  // || ---------------------- Export Budget vs Actual CSV API ---------------------|| //
+  @Get('export')
+  @CompanyOptional()
+  @ApiOperation({ summary: 'Export budget vs actual data as CSV' })
+  async exportBudgetOverview(
+    @CurrentCompany() company: any,
+    @Query() queryDto: GetBudgetDto,
+    @Res() res: Response,
+  ) {
+    if (!queryDto.companyId && company?._id) {
+      queryDto.companyId = company._id.toString();
+    }
+    const csvData = await this.budgetPlanningService.exportBudgetOverviewCsv(company, queryDto);
+    
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=budget_actual_export_${timestamp}.csv`);
+    
+    return res.status(200).send(csvData);
+  }
+
   // || ---------------------- Upsert Budget Plan API ----------------------|| //
   @Post()
   @ApiOperation({ summary: "Update or Create Budget Plan Line Items" })
@@ -67,3 +89,4 @@ export class BudgetPlanningController {
     return this.budgetPlanningService.upsertBudget(updateDto);
   }
 }
+
