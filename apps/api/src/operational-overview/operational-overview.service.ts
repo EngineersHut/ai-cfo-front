@@ -347,4 +347,109 @@ export class OperationalOverviewService {
       driverPerformance: driverPerformanceBlock,
     };
   }
+
+  async exportOperationalOverviewCsv(
+    company: any,
+    queryDto: GetOperationalOverviewDto,
+  ): Promise<string> {
+    if (!company) {
+      return "Metric,Value,Trend\n";
+    }
+    const data = await this.getOperationalOverview(company, queryDto);
+
+    const formatCurrency = (val: any) =>
+      val !== undefined && val !== null ? `$${val.toLocaleString()}` : "N/A";
+    const formatPercent = (val: any) =>
+      val !== undefined && val !== null ? `${val}%` : "N/A";
+    const formatTrend = (trend: any) => (trend ? trend : "N/A");
+    const formatChange = (val: number) => {
+      if (val === undefined || val === null) return "N/A";
+      return `${val >= 0 ? "+" : ""}${val}%`;
+    };
+
+    const formatIndustry = (industryStr: string) => {
+      if (!industryStr) return "N/A";
+      return industryStr
+        .replace(/[-_]/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    };
+
+    let csv = `\n`;
+    csv += `"**************************************************"\n`;
+    csv += `"          AI-CFO OPERATIONAL OVERVIEW             "\n`;
+    csv += `"            COMPLETE OPERATIONS EXPORT            "\n`;
+    csv += `"**************************************************"\n`;
+    csv += `\n`;
+    csv += `Workspace:,${company.name || "N/A"}\n`;
+    csv += `Industry:,${formatIndustry(company.industry)}\n`;
+    csv += `Period:,${queryDto.month ? `${queryDto.month}/${queryDto.year}` : "Latest"}\n`;
+    csv += `Generated On:,${new Date().toLocaleString()}\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 1: KPI SUMMARY CARDS
+    csv += `"SECTION 1: KEY PERFORMANCE INDICATORS"\n`;
+    csv += `Metric,Value,Trend\n`;
+    const summaryCards = data.summaryCards || {};
+    csv += `"Total Deliveries / Trips","${summaryCards.totalDeliveriesTrips?.value || 0}","${formatTrend(summaryCards.totalDeliveriesTrips?.trend)}"\n`;
+    csv += `"Deliveries Per Vehicle","${summaryCards.deliveriesPerVehicle?.value || 0}","${formatTrend(summaryCards.deliveriesPerVehicle?.trend)}"\n`;
+    csv += `"Fleet Utilization","${formatPercent(summaryCards.fleetUtilizationPercent?.value)}","${formatTrend(summaryCards.fleetUtilizationPercent?.trend)}"\n`;
+    csv += `"Driver Efficiency","${formatPercent(summaryCards.driverEfficiency?.value)}","${formatTrend(summaryCards.driverEfficiency?.trend)}"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 2: CORE OPERATIONS & DRIVER PERFORMANCE
+    csv += `"SECTION 2: CORE OPERATIONS & DRIVER PERFORMANCE"\n`;
+    csv += `Metric,Value,vs Prior Month (%),Distribution (%)\n`;
+    const coreOps = data.coreOperations || {};
+    csv += `"Total Deliveries / Trips","${coreOps.totalDeliveriesTrips?.value || 0}","${formatChange(coreOps.totalDeliveriesTrips?.vsPrior)}","${coreOps.totalDeliveriesTrips?.distribution || 100}%"\n`;
+    csv += `"Deliveries Per Vehicle","${coreOps.deliveriesPerVehicle?.value || 0}","${formatChange(coreOps.deliveriesPerVehicle?.vsPrior)}","${coreOps.deliveriesPerVehicle?.distribution || 100}%"\n`;
+    csv += `"On-time Delivery Rate","${formatPercent(coreOps.onTimeDeliveryPercent?.value)}","${formatChange(coreOps.onTimeDeliveryPercent?.vsPrior)}","${coreOps.onTimeDeliveryPercent?.distribution || 0}%"\n`;
+    csv += `"Failed Delivery Rate","${formatPercent(coreOps.failedDeliveryPercent?.value)}","${formatChange(coreOps.failedDeliveryPercent?.vsPrior)}","${coreOps.failedDeliveryPercent?.distribution || 0}%"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 3: OPERATIONAL HEALTH SCORES
+    csv += `"SECTION 3: OPERATIONAL HEALTH SCORES"\n`;
+    csv += `Metric,Score\n`;
+    const health = data.operationalHealth || {};
+    csv += `"Overall Health Score","${health.healthScore || 0}/100"\n`;
+    csv += `"Fleet Efficiency","${health.fleetEfficiency || 0}%"\n`;
+    csv += `"Delivery Success Rate","${health.deliverySuccessRate || 0}%"\n`;
+    csv += `"Cost Efficiency","${health.costEfficiency || 0}%"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 4: FLEET & DRIVER UTILIZATION
+    csv += `"SECTION 4: FLEET & DRIVER UTILIZATION"\n`;
+    csv += `Metric,Count,vs Prior Month (%),Distribution (%)\n`;
+    const fdu = data.fleetDriverUtilization || {};
+    csv += `"Total Vehicles","${fdu.totalVehicles?.value || 0}","${formatChange(fdu.totalVehicles?.vsPrior)}","100%"\n`;
+    csv += `"Active Vehicles","${fdu.activeVehicles?.value || 0}","${formatChange(fdu.activeVehicles?.vsPrior)}","${fdu.activeVehicles?.distribution || 0}%"\n`;
+    csv += `"Inactive Vehicles","${fdu.inactiveVehicles?.value || 0}","${formatChange(fdu.inactiveVehicles?.vsPrior)}","${fdu.inactiveVehicles?.distribution || 0}%"\n`;
+    csv += `"Fleet Utilization Rate","${formatPercent(fdu.fleetUtilizationPercent?.value)}","${formatChange(fdu.fleetUtilizationPercent?.vsPrior)}","${fdu.fleetUtilizationPercent?.distribution || 0}%"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 5: OPERATIONAL COST EFFICIENCY
+    csv += `"SECTION 5: OPERATIONAL COST EFFICIENCY"\n`;
+    csv += `Metric,Value,vs Prior Month (%)\n`;
+    const costEff = data.costEfficiency || {};
+    csv += `"Fuel Cost","${formatCurrency(costEff.fuelCost?.value)}","${formatChange(costEff.fuelCost?.vsPrior)}"\n`;
+    csv += `"Maintenance Cost","${formatCurrency(costEff.maintenanceCost?.value)}","${formatChange(costEff.maintenanceCost?.vsPrior)}"\n`;
+    csv += `"Cost Per Trip","${formatCurrency(costEff.costPerTrip?.value)}","${formatChange(costEff.costPerTrip?.vsPrior)}"\n`;
+    csv += `"Cost Per Km","${formatCurrency(costEff.costPerKm?.value)}","${formatChange(costEff.costPerKm?.vsPrior)}"\n`;
+
+    return csv;
+  }
 }
+

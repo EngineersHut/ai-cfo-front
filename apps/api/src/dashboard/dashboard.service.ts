@@ -69,7 +69,11 @@ export class DashboardService {
       },
       aiInsights: [],
       cfoInsights: [],
-      forecastVsReality: { percentageAchieved: 0, currentValue: 0, targetValue: 0 },
+      forecastVsReality: {
+        percentageAchieved: 0,
+        currentValue: 0,
+        targetValue: 0,
+      },
     };
   }
 
@@ -114,14 +118,21 @@ export class DashboardService {
         .exec(),
     ]);
 
-    const targetYear = year || (dashboardData[0]?.year as number) || new Date().getFullYear();
-    const targetMonth = month || (dashboardData[0]?.month as number) || (new Date().getMonth() + 1);
+    const targetYear =
+      year || (dashboardData[0]?.year as number) || new Date().getFullYear();
+    const targetMonth =
+      month || (dashboardData[0]?.month as number) || new Date().getMonth() + 1;
 
     const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
     const prevYear = targetMonth === 1 ? targetYear - 1 : targetYear;
 
-    const currentDashboard = dashboardData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
-    const previousDashboard = dashboardData.find(d => d.year === prevYear && d.month === prevMonth) || ({} as any);
+    const currentDashboard =
+      dashboardData.find(
+        (d) => d.year === targetYear && d.month === targetMonth,
+      ) || ({} as any);
+    const previousDashboard =
+      dashboardData.find((d) => d.year === prevYear && d.month === prevMonth) ||
+      ({} as any);
 
     const summary = {
       revenue: currentDashboard.revenue || 0,
@@ -133,7 +144,9 @@ export class DashboardService {
       financialHealthScore: currentDashboard.financialHealthScore || 0,
     };
 
-    const currentFleet = fleetData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
+    const currentFleet =
+      fleetData.find((d) => d.year === targetYear && d.month === targetMonth) ||
+      ({} as any);
 
     const fleetSummary = {
       totalDeliveries: currentFleet.totalDeliveries || 0,
@@ -146,7 +159,10 @@ export class DashboardService {
       cancelledTrips: currentFleet.cancelledTrips || 0,
     };
 
-    const currentGrowth = growthData.find(d => d.year === targetYear && d.month === targetMonth) || ({} as any);
+    const currentGrowth =
+      growthData.find(
+        (d) => d.year === targetYear && d.month === targetMonth,
+      ) || ({} as any);
     const clientCount = currentGrowth.clientCount || 0;
 
     // Derived Calculations
@@ -200,7 +216,12 @@ export class DashboardService {
       currentDashboard.financialHealthScore > 0
         ? currentDashboard.financialHealthScore
         : (() => {
-            if (summary.revenue === 0 && summary.totalExpenses === 0 && summary.cashBalance === 0) return 0;
+            if (
+              summary.revenue === 0 &&
+              summary.totalExpenses === 0 &&
+              summary.cashBalance === 0
+            )
+              return 0;
             let score = 0;
             if (summary.revenue > 0) {
               const margin = summary.grossProfit / summary.revenue;
@@ -552,6 +573,142 @@ export class DashboardService {
     csv += `Cost per Client,"${formatCurrency(costPerClient?.value)}","${formatTrend(costPerClient?.trend)}"\n`;
     csv += `Cost per Employee,"${formatCurrency(costPerEmployee?.value)}","${formatTrend(costPerEmployee?.trend)}"\n`;
     csv += `Operating Expense Ratio,"${formatPercent(operatingExpenseRatio?.value)}","${formatTrend(operatingExpenseRatio?.trend)}"\n`;
+
+    return csv;
+  }
+
+  // || ---------------------- Export Entire Dashboard CSV ---------------------|| //
+  async exportDashboardCsv(
+    company: any,
+    queryDto: GetDashboardDto,
+  ): Promise<string> {
+    if (!company) {
+      return "Metric,Value,Trend (vs Prior)\n";
+    }
+    const dashboardData = await this.getDashboard(company, queryDto);
+
+    const {
+      summaryCards = {},
+      costEfficiency = {},
+      healthMeter = {},
+      revenueTrend = [],
+      aiInsights = [],
+    } = dashboardData as any;
+
+    const formatCurrency = (val: any) =>
+      val !== undefined && val !== null ? `$${val.toLocaleString()}` : "N/A";
+    const formatPercent = (val: any) =>
+      val !== undefined && val !== null ? `${val}%` : "N/A";
+    const formatTrend = (trend: any) => (trend ? trend : "N/A");
+
+    const formatIndustry = (industryStr: string) => {
+      if (!industryStr) return "N/A";
+      return industryStr
+        .replace(/[-_]/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    };
+
+    let csv = `\n`;
+    csv += `"**************************************************"\n`;
+    csv += `"              AI-CFO DASHBOARD REPORT             "\n`;
+    csv += `"               COMPLETE FINANCIAL EXPORT          "\n`;
+    csv += `"**************************************************"\n`;
+    csv += `\n`;
+    csv += `Workspace:,${company.name || "N/A"}\n`;
+    csv += `Industry:,${formatIndustry(company.industry)}\n`;
+    csv += `Period:,${queryDto.month ? `${queryDto.month}/${queryDto.year}` : "Latest"}\n`;
+    csv += `Generated On:,${new Date().toLocaleString()}\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 1: KPI SUMMARY CARDS
+    csv += `"SECTION 1: KEY PERFORMANCE INDICATORS"\n`;
+    csv += `Metric,Value,Trend (vs Prior)\n`;
+    for (const [key, card] of Object.entries(summaryCards) as any) {
+      const label = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str: any) => str.toUpperCase());
+      const value =
+        card.value !== undefined && card.value !== null ? card.value : "N/A";
+      let formattedVal = String(value);
+      if (typeof value === "number") {
+        if (key === "ebitda" || key === "operatingCashFlow") {
+          formattedVal = formatCurrency(value);
+        } else if (
+          key === "growthPercent" ||
+          key === "fleetUtilization" ||
+          key === "driverEfficiency" ||
+          key === "deliveriesPerVehicle"
+        ) {
+          formattedVal = String(value);
+        }
+      }
+      csv += `"${label}","${formattedVal}","${formatTrend(card.trend)}"\n`;
+    }
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 2: COST & EFFICIENCY METRICS
+    csv += `"SECTION 2: COST & EFFICIENCY METRICS"\n`;
+    csv += `Metric,Value,Trend (vs Prior)\n`;
+    for (const [key, card] of Object.entries(costEfficiency) as any) {
+      const label = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str: any) => str.toUpperCase());
+      const value =
+        card.value !== undefined && card.value !== null ? card.value : "N/A";
+      let formattedVal = String(value);
+      if (typeof value === "number") {
+        if (
+          key === "totalExpenses" ||
+          key === "fixedCost" ||
+          key === "variableCost" ||
+          key === "costPerClient" ||
+          key === "costPerEmployee"
+        ) {
+          formattedVal = formatCurrency(value);
+        } else if (key === "costOfRevenue" || key === "operatingExpenseRatio") {
+          formattedVal = formatPercent(value);
+        }
+      }
+      csv += `"${label}","${formattedVal}","${formatTrend(card.trend)}"\n`;
+    }
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 3: HEALTH METER
+    csv += `"SECTION 3: FINANCIAL HEALTH SCORES"\n`;
+    csv += `Metric,Score\n`;
+    csv += `Financial Health Score,"${healthMeter.score || 0}/100"\n`;
+    csv += `Equity Health Score,"${healthMeter.equityHealth || 0}%"\n`;
+    csv += `Audit Compliance Score,"${healthMeter.auditCompliance || 0}%"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 4: REVENUE & PROFIT TRENDS
+    csv += `"SECTION 4: REVENUE & PROFIT TRENDS (12 MONTHS)"\n`;
+    csv += `Month,Revenue,Net Profit\n`;
+    for (const item of revenueTrend) {
+      csv += `"${item.month}","${formatCurrency(item.revenue)}","${formatCurrency(item.profit)}"\n`;
+    }
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 5: AI INSIGHTS
+    csv += `"SECTION 5: AI-GENERATED FINANCIAL INSIGHTS"\n`;
+    csv += `Title,Insight Description\n`;
+    for (const insight of aiInsights) {
+      csv += `"${insight.title || "Insight"}","${insight.description || ""}"\n`;
+    }
 
     return csv;
   }

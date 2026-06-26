@@ -39,4 +39,22 @@ export class DashboardController {
     
     return res.status(200).send(csvData);
   }
+
+  // || ---------------------- Export Entire Dashboard CSV API ---------------------|| //
+  @Get('export')
+  @CompanyOptional()
+  @ApiOperation({ summary: 'Export entire dashboard data as CSV' })
+  async exportDashboard(
+    @CurrentCompany() company: any,
+    @Query() queryDto: GetDashboardDto,
+    @Res() res: Response,
+  ) {
+    const csvData = await this.dashboardService.exportDashboardCsv(company, queryDto);
+    
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=dashboard_export_${timestamp}.csv`);
+    
+    return res.status(200).send(csvData);
+  }
 }

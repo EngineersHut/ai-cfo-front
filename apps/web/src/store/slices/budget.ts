@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { DefaultRootStateProps } from '@/types';
-import { getData } from '@/utils/apiHelper';
+import { getData, postData } from '@/utils/apiHelper';
 import { dispatch } from '../index';
 import { budgetSummaryData, budgetPlanningData } from '@/data/budgetData';
 
@@ -73,6 +73,38 @@ export const fetchBudgetData = (month?: number, year?: number, period?: string) 
       }
     } catch (error) {
       console.error("Failed to fetch budget data from API", error);
+      dispatch(slice.actions.hasError(error));
+    } finally {
+      dispatch(slice.actions.getBudgetLoading(false));
+    }
+  };
+};
+
+export const updateBudgetData = (
+  month: number,
+  year: number,
+  updatePayload: {
+    lineItems?: any[];
+    summaryItems?: any[];
+    totalRevenueBudget?: number;
+    totalDirectCostsBudget?: number;
+    totalOperatingExpensesBudget?: number;
+  }
+) => {
+  return async () => {
+    dispatch(slice.actions.getBudgetLoading(true));
+    try {
+      const companyId = localStorage.getItem('selectedCompany');
+      const payload = {
+        companyId,
+        month,
+        year,
+        ...updatePayload
+      };
+      await postData('/api/budget-planning', payload);
+      dispatch(fetchBudgetData(month, year));
+    } catch (error) {
+      console.error("Failed to update budget data from API", error);
       dispatch(slice.actions.hasError(error));
     } finally {
       dispatch(slice.actions.getBudgetLoading(false));

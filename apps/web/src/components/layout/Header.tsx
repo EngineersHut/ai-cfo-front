@@ -19,6 +19,8 @@ import { dispatch, useSelector } from "@/store";
 import { getAllCompanies } from "@/store/slices/company";
 import { getAllNotifications } from "@/store/slices/realtimeNotification";
 import NotificationModal from "./NotificationModal";
+import { usePersistentDate } from "@/hooks/usePersistentDate";
+import { getData } from "@/utils/apiHelper";
 
 interface HeaderProps {
   onToggleMenu?: () => void;
@@ -36,6 +38,54 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
   useEffect(() => setMounted(true), []);
   const pathname = usePathname();
   const router = useRouter();
+
+  const { selectedMonth, selectedYear } = usePersistentDate();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+
+      let exportUrl = "";
+      let filePrefix = "export";
+
+      if (pathname.includes("growth-overview")) {
+        exportUrl = `/api/growth-overview/export?month=${selectedMonth}&year=${selectedYear}`;
+        filePrefix = "growth_export";
+      } else if (pathname.includes("operational-overview")) {
+        exportUrl = `/api/operational-overview/export?month=${selectedMonth}&year=${selectedYear}`;
+        filePrefix = "operational_export";
+      } else if (pathname.includes("budget-vs-actual")) {
+        exportUrl = `/api/budget-planning/export?month=${selectedMonth}&year=${selectedYear}`;
+        filePrefix = "budget_actual_export";
+      } else {
+        exportUrl = `/api/dashboard/export?month=${selectedMonth}&year=${selectedYear}`;
+        filePrefix = "dashboard_export";
+      }
+
+      const response = await getData(exportUrl, {
+        responseType: "blob",
+      });
+
+      // Create download link
+      const blob = new Blob([response], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.setAttribute("download", `${filePrefix}_${timestamp}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export data", error);
+      alert("Failed to export data. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const { companies } = useSelector((state) => state.company);
   const { unreadCount } = useSelector((state) => state.realtimeNotification);
@@ -347,7 +397,11 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
           </button>
 
           <button
+            onClick={handleExport}
+            disabled={isExporting}
             className={`h-[36px] px-3 md:w-[120px] flex items-center gap-[6px] md:px-[12px] md:pr-[16px] py-[4px] border rounded-[8px] transition-all group whitespace-nowrap cursor-pointer ${
+              isExporting ? "opacity-60 cursor-not-allowed" : ""
+            } ${
               isDark
                 ? "bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-100"
                 : "bg-white border-slate-200 hover:bg-slate-50 text-slate-900"
@@ -355,7 +409,7 @@ export default function Header({ onToggleMenu, onOpenCustomize }: HeaderProps) {
           >
             <DownloadIcon isDark={isDark} />
             <span className="text-[13px] md:text-[14px] font-normal leading-[20px] font-inter hidden md:inline">
-              Export
+              {isExporting ? "Exporting..." : "Export"}
             </span>
           </button>
 

@@ -201,4 +201,94 @@ export class GrowthOverviewService {
       insights: [],
     };
   }
+
+  async exportGrowthOverviewCsv(
+    company: any,
+    queryDto: GetGrowthOverviewDto,
+  ): Promise<string> {
+    if (!company) {
+      return "Metric,Value,Trend\n";
+    }
+    const data = await this.getGrowthOverview(company, queryDto);
+
+    const formatCurrency = (val: any) =>
+      val !== undefined && val !== null ? `$${val.toLocaleString()}` : "N/A";
+    const formatPercent = (val: any) =>
+      val !== undefined && val !== null ? `${val}%` : "N/A";
+    const formatTrend = (trend: any) => (trend ? trend : "N/A");
+
+    const formatIndustry = (industryStr: string) => {
+      if (!industryStr) return "N/A";
+      return industryStr
+        .replace(/[-_]/g, " ")
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    };
+
+    let csv = `\n`;
+    csv += `"**************************************************"\n`;
+    csv += `"               AI-CFO GROWTH OVERVIEW            "\n`;
+    csv += `"             COMPLETE GROWTH EXPORT              "\n`;
+    csv += `"**************************************************"\n`;
+    csv += `\n`;
+    csv += `Workspace:,${company.name || "N/A"}\n`;
+    csv += `Industry:,${formatIndustry(company.industry)}\n`;
+    csv += `Period:,${queryDto.month ? `${queryDto.month}/${queryDto.year}` : "Latest"}\n`;
+    csv += `Generated On:,${new Date().toLocaleString()}\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 1: KPI CARDS
+    csv += `"SECTION 1: KEY PERFORMANCE INDICATORS"\n`;
+    csv += `Metric,Value,Trend\n`;
+    const cards = data.cards || {};
+    csv += `"Monthly Growth","${formatPercent(cards.monthlyGrowthPercent?.value)}","${formatTrend(cards.monthlyGrowthPercent?.trend)}"\n`;
+    csv += `"Quarterly Growth","${formatPercent(cards.quarterlyGrowthPercent?.value)}","${formatTrend(cards.quarterlyGrowthPercent?.trend)}"\n`;
+    csv += `"Yearly Growth","${formatPercent(cards.yearlyGrowthPercent?.value)}","${formatTrend(cards.yearlyGrowthPercent?.trend)}"\n`;
+    csv += `"Revenue Per Client","${formatCurrency(cards.revenuePerClient?.value)}","${formatTrend(cards.revenuePerClient?.trend)}"\n`;
+    csv += `"Revenue Per Employee","${formatCurrency(cards.revenuePerEmployee?.value)}","${formatTrend(cards.revenuePerEmployee?.trend)}"\n`;
+    csv += `"Employee Growth","${formatPercent(cards.employeeGrowthPercent?.value)}","${formatTrend(cards.employeeGrowthPercent?.trend)}"\n`;
+    csv += `"Client Growth","${formatPercent(cards.clientGrowthPercent?.value)}","${formatTrend(cards.clientGrowthPercent?.trend)}"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 2: GROWTH HEALTH SCORES
+    csv += `"SECTION 2: GROWTH HEALTH SCORES"\n`;
+    csv += `Metric,Score\n`;
+    const growthHealth = data.growthHealth || {};
+    csv += `"Growth Health Score","${growthHealth.growthHealthScore || 0}/100"\n`;
+    csv += `"Revenue Growth Score","${growthHealth.revenueGrowthScore || 0}/100"\n`;
+    csv += `"Client Retention Score","${growthHealth.clientRetentionScore || 0}/100"\n`;
+    csv += `"Scaling Efficiency Score","${growthHealth.scalingEfficiencyScore || 0}/100"\n`;
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 3: GROWTH TRENDS (12 MONTHS)
+    csv += `"SECTION 3: GROWTH TRENDS (12 MONTHS)"\n`;
+    csv += `Month,Client Growth (%),Monthly Growth (%),Revenue Growth Score (%),Target (%)\n`;
+    const trend = data.growthTrend || [];
+    for (const item of trend) {
+      csv += `"${item.month}","${item.client}%","${item.monthly}%","${item.revenue}%","${item.target}%"\n`;
+    }
+    csv += `\n`;
+    csv += `--------------------------------------------------\n`;
+    csv += `\n`;
+
+    // Section 4: GROWTH INSIGHTS
+    csv += `"SECTION 4: GROWTH INSIGHTS"\n`;
+    csv += `Title,Insight Description\n`;
+    const insights = data.insights || [];
+    for (const insight of insights) {
+      csv += `"${insight.title || "Insight"}","${insight.description || ""}"\n`;
+    }
+
+    return csv;
+  }
 }
+

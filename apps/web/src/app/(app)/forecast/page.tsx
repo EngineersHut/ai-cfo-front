@@ -556,7 +556,12 @@ export default function ForecastPage() {
             <div className="flex-1 w-full relative rounded-[10px] border border-[rgba(26,21,83,0.08)] dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/50 dark:bg-slate-800/50 flex flex-col overflow-hidden">
               <div className="flex-1 w-full relative p-2 flex items-center justify-center min-h-0 min-w-0">
                 {reduxRevenueData && reduxRevenueData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    minHeight={0}
+                    minWidth={0}
+                  >
                     <AreaChart
                       data={reduxRevenueData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
@@ -705,7 +710,12 @@ export default function ForecastPage() {
               <div className="relative h-[180px] w-full flex items-center justify-center min-h-0 min-w-0">
                 <div className="w-[260px] h-[180px] relative mx-auto min-h-0 min-w-0">
                   {/* Compact Gauge Chart with ZERO Gaps */}
-                  <ResponsiveContainer width="100%" height="100%" minHeight={0} minWidth={0}>
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    minHeight={0}
+                    minWidth={0}
+                  >
                     <RePieChart>
                       <defs>
                         {gaugeGradients.map((grad: any) => (
@@ -914,7 +924,12 @@ export default function ForecastPage() {
           <div className="p-6 flex flex-col items-center justify-center h-[340px] min-h-0 min-w-0">
             {dynamicExpenseData.length > 0 ? (
               <div className="relative w-full h-full flex items-center justify-center min-h-0 min-w-0">
-                <ResponsiveContainer width="100%" height={240} minHeight={0} minWidth={0}>
+                <ResponsiveContainer
+                  width="100%"
+                  height={240}
+                  minHeight={0}
+                  minWidth={0}
+                >
                   <RePieChart>
                     <Pie
                       data={dynamicExpenseData}
