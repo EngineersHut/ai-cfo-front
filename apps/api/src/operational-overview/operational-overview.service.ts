@@ -39,9 +39,9 @@ export class OperationalOverviewService {
       return this.getEmptyOverview();
     }
     const companyId = company._id.toString();
-    const { month, year } = queryDto;
+    const { month, year, period } = queryDto;
 
-    return this.getFleetOperationalOverview(companyId, month, year);
+    return this.getFleetOperationalOverview(companyId, month, year, period);
   }
 
   private getEmptyOverview() {
@@ -90,24 +90,155 @@ export class OperationalOverviewService {
     companyId: string,
     month?: number,
     year?: number,
+    period?: string,
   ) {
-    const query: any = { companyId };
-    if (year && month) {
-      query.year = year;
-      query.month = month;
-    }
-
-    const [dashboardData, fleetData] = await Promise.all([
-      this.dashboardModel
-        .find(query)
+    const [allFleetData] = await Promise.all([
+      this.fleetModel
+        .find({ companyId })
         .sort({ year: -1, month: -1 })
-        .limit(2)
         .exec(),
-      this.fleetModel.find(query).sort({ year: -1, month: -1 }).limit(2).exec(),
     ]);
 
-    const currentFleet = fleetData[0] || ({} as any);
-    const previousFleet = fleetData[1] || ({} as any);
+    const targetYear =
+      year || (allFleetData[0]?.year as number) || new Date().getFullYear();
+    const targetMonth =
+      month || (allFleetData[0]?.month as number) || new Date().getMonth() + 1;
+
+    let currentMonths: number[] = [];
+    let prevMonths: number[] = [];
+    let currentYears: number[] = [];
+    let prevYears: number[] = [];
+
+    if (period === "yearly") {
+      currentMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      prevMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      currentYears = [new Date().getFullYear()];
+      prevYears = [new Date().getFullYear() - 1];
+    } else if (period === "quarterly") {
+      const currentMonthVal = new Date().getMonth() + 1;
+      const q = Math.ceil(currentMonthVal / 3);
+      currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
+      currentYears = [new Date().getFullYear()];
+
+      if (q === 1) {
+        prevMonths = [10, 11, 12];
+        prevYears = [new Date().getFullYear() - 1];
+      } else {
+        prevMonths = [(q - 2) * 3 + 1, (q - 2) * 3 + 2, (q - 2) * 3 + 3];
+        prevYears = [new Date().getFullYear()];
+      }
+    } else {
+      // Monthly (default)
+      currentMonths = [targetMonth];
+      currentYears = [targetYear];
+
+      if (targetMonth === 1) {
+        prevMonths = [12];
+        prevYears = [targetYear - 1];
+      } else {
+        prevMonths = [targetMonth - 1];
+        prevYears = [targetYear];
+      }
+    }
+
+    const round2 = (val: number | null | undefined) =>
+      val != null ? parseFloat(Number(val).toFixed(2)) : 0;
+
+    const currentFleetDocs = allFleetData.filter(d => 
+      d.year !== null && d.year !== undefined && currentYears.includes(d.year) &&
+      d.month !== null && d.month !== undefined && currentMonths.includes(d.month)
+    );
+    const previousFleetDocs = allFleetData.filter(d => 
+      d.year !== null && d.year !== undefined && prevYears.includes(d.year) &&
+      d.month !== null && d.month !== undefined && prevMonths.includes(d.month)
+    );
+
+    let currentFleet: any = {};
+    let previousFleet: any = {};
+
+    if (period === "quarterly" || period === "yearly") {
+      if (currentFleetDocs.length > 0) {
+        let totalDeliveries = 0, totalTrips = 0, fleetUtil = 0, totalVehicles = 0, activeVehicles = 0, inactiveVehicles = 0;
+        let driverEff = 0, onTimePercentSum = 0, costEfficiencySum = 0;
+        let fuelCostSum = 0, maintenanceCostSum = 0, costPerTripSum = 0, costPerKmSum = 0;
+
+        for (const doc of currentFleetDocs) {
+          totalDeliveries += doc.totalDeliveries || 0;
+          totalTrips += doc.totalTrips || 0;
+          fleetUtil += doc.fleetUtilizationPercent || 0;
+          totalVehicles += doc.totalVehicles || 0;
+          activeVehicles += doc.activeVehicles || 0;
+          inactiveVehicles += doc.inactiveVehicles || 0;
+          driverEff += doc.driverEfficiencyOverall || doc.onTimePercent || 0;
+          onTimePercentSum += doc.onTimePercent || 0;
+          costEfficiencySum += doc.costEfficiency || 0;
+          fuelCostSum += doc.fuelCost || 0;
+          maintenanceCostSum += doc.maintenanceCost || 0;
+          costPerTripSum += doc.costPerTrip || 0;
+          costPerKmSum += doc.costPerKm || 0;
+        }
+
+        const len = currentFleetDocs.length;
+        currentFleet = {
+          totalDeliveries,
+          totalTrips,
+          fleetUtilizationPercent: round2(fleetUtil / len),
+          totalVehicles: round2(totalVehicles / len),
+          activeVehicles: round2(activeVehicles / len),
+          inactiveVehicles: round2(inactiveVehicles / len),
+          driverEfficiencyOverall: round2(driverEff / len),
+          onTimePercent: round2(onTimePercentSum / len),
+          costEfficiency: round2(costEfficiencySum / len),
+          fuelCost: fuelCostSum,
+          maintenanceCost: maintenanceCostSum,
+          costPerTrip: round2(costPerTripSum / len),
+          costPerKm: round2(costPerKmSum / len),
+        };
+      }
+
+      if (previousFleetDocs.length > 0) {
+        let totalDeliveries = 0, totalTrips = 0, fleetUtil = 0, totalVehicles = 0, activeVehicles = 0, inactiveVehicles = 0;
+        let driverEff = 0, onTimePercentSum = 0, costEfficiencySum = 0;
+        let fuelCostSum = 0, maintenanceCostSum = 0, costPerTripSum = 0, costPerKmSum = 0;
+
+        for (const doc of previousFleetDocs) {
+          totalDeliveries += doc.totalDeliveries || 0;
+          totalTrips += doc.totalTrips || 0;
+          fleetUtil += doc.fleetUtilizationPercent || 0;
+          totalVehicles += doc.totalVehicles || 0;
+          activeVehicles += doc.activeVehicles || 0;
+          inactiveVehicles += doc.inactiveVehicles || 0;
+          driverEff += doc.driverEfficiencyOverall || doc.onTimePercent || 0;
+          onTimePercentSum += doc.onTimePercent || 0;
+          costEfficiencySum += doc.costEfficiency || 0;
+          fuelCostSum += doc.fuelCost || 0;
+          maintenanceCostSum += doc.maintenanceCost || 0;
+          costPerTripSum += doc.costPerTrip || 0;
+          costPerKmSum += doc.costPerKm || 0;
+        }
+
+        const prevLen = previousFleetDocs.length;
+        previousFleet = {
+          totalDeliveries,
+          totalTrips,
+          fleetUtilizationPercent: round2(fleetUtil / prevLen),
+          totalVehicles: round2(totalVehicles / prevLen),
+          activeVehicles: round2(activeVehicles / prevLen),
+          inactiveVehicles: round2(inactiveVehicles / prevLen),
+          driverEfficiencyOverall: round2(driverEff / prevLen),
+          onTimePercent: round2(onTimePercentSum / prevLen),
+          costEfficiency: round2(costEfficiencySum / prevLen),
+          fuelCost: fuelCostSum,
+          maintenanceCost: maintenanceCostSum,
+          costPerTrip: round2(costPerTripSum / prevLen),
+          costPerKm: round2(costPerKmSum / prevLen),
+        };
+      }
+    } else {
+      // Monthly (standard match)
+      currentFleet = allFleetData.find(d => d.year === targetYear && d.month === targetMonth) || allFleetData[0] || ({} as any);
+      previousFleet = allFleetData.find(d => d.year === (prevYears[0] || targetYear) && d.month === (prevMonths[0] || targetMonth)) || allFleetData[1] || ({} as any);
+    }
 
     const fleetSummary = {
       totalDeliveriesTrips:

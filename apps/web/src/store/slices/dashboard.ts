@@ -1,16 +1,21 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { dispatch } from '../index';
-import { AppDispatch } from '..';
-import { getData, patchData } from '@/utils/apiHelper';
-import { drawerGroups } from '@/data/drawerData';
-import { revenueData, healthData, aiInsightsData, detailedCostData } from '@/data/dashboardData';
+import { createSlice } from "@reduxjs/toolkit";
+import { dispatch } from "../index";
+import { AppDispatch } from "..";
+import { getData, patchData } from "@/utils/apiHelper";
+import { drawerGroups } from "@/data/drawerData";
+import {
+  revenueData,
+  healthData,
+  aiInsightsData,
+  detailedCostData,
+} from "@/data/dashboardData";
 
 // Generate initial state from drawerData IDs
 export const getInitialVisibility = () => {
   const initial: Record<string, boolean> = {};
-  drawerGroups.forEach(group => {
-    group.sections.forEach(section => {
-      section.items.forEach(item => {
+  drawerGroups.forEach((group) => {
+    group.sections.forEach((section) => {
+      section.items.forEach((item) => {
         initial[item.id] = true; // By default all are visible
       });
     });
@@ -21,38 +26,38 @@ export const getInitialVisibility = () => {
 // Maps frontend kebab-case IDs to backend camelCase properties
 export const mapToApiKeys = (visibility: Record<string, boolean>) => {
   return {
-    totalTrips: !!visibility['total-trips'],
-    delPerVeh: !!visibility['del-per-veh'],
-    fleetUtil: !!visibility['fleet-util'],
-    driverEff: !!visibility['driver-eff'],
-    runway: !!visibility['runway'],
-    growth: !!visibility['growth'],
-    ebitda: !!visibility['ebitda'],
-    cashflow: !!visibility['cashflow'],
-    revTime: !!visibility['rev-time'],
-    health: !!visibility['health'],
-    expenseBreakdown: !!visibility['expenseBreakdown'],
-    aiInsights: !!visibility['aiInsights'],
-    costAnalysis: !!visibility['costAnalysis'],
+    totalTrips: !!visibility["total-trips"],
+    delPerVeh: !!visibility["del-per-veh"],
+    fleetUtil: !!visibility["fleet-util"],
+    driverEff: !!visibility["driver-eff"],
+    runway: !!visibility["runway"],
+    growth: !!visibility["growth"],
+    ebitda: !!visibility["ebitda"],
+    cashflow: !!visibility["cashflow"],
+    revTime: !!visibility["rev-time"],
+    health: !!visibility["health"],
+    expenseBreakdown: !!visibility["expenseBreakdown"],
+    aiInsights: !!visibility["aiInsights"],
+    costAnalysis: !!visibility["costAnalysis"],
   };
 };
 
 // Maps backend camelCase properties to frontend kebab-case IDs
 export const mapFromApiKeys = (data: any) => {
   return {
-    'total-trips': !!data.totalTrips,
-    'del-per-veh': !!data.delPerVeh,
-    'fleet-util': !!data.fleetUtil,
-    'driver-eff': !!data.driverEff,
-    'runway': !!data.runway,
-    'growth': !!data.growth,
-    'ebitda': !!data.ebitda,
-    'cashflow': !!data.cashflow,
-    'rev-time': !!data.revTime,
-    'health': !!data.health,
-    'expenseBreakdown': !!data.expenseBreakdown,
-    'aiInsights': !!data.aiInsights,
-    'costAnalysis': !!data.costAnalysis,
+    "total-trips": !!data.totalTrips,
+    "del-per-veh": !!data.delPerVeh,
+    "fleet-util": !!data.fleetUtil,
+    "driver-eff": !!data.driverEff,
+    runway: !!data.runway,
+    growth: !!data.growth,
+    ebitda: !!data.ebitda,
+    cashflow: !!data.cashflow,
+    "rev-time": !!data.revTime,
+    health: !!data.health,
+    expenseBreakdown: !!data.expenseBreakdown,
+    aiInsights: !!data.aiInsights,
+    costAnalysis: !!data.costAnalysis,
   };
 };
 
@@ -86,7 +91,7 @@ interface DashboardState {
 }
 
 const initialState: DashboardState = {
-  timeframe: 'Monthly',
+  timeframe: "Monthly",
   revenueData: [],
   healthData: healthData,
   healthScore: 0,
@@ -97,7 +102,7 @@ const initialState: DashboardState = {
   forecastVsReality: {
     percentageAchieved: 0,
     currentValue: 0,
-    targetValue: 0
+    targetValue: 0,
   },
   costEfficiency: {},
   kpiStats: {
@@ -108,14 +113,14 @@ const initialState: DashboardState = {
     cashRunway: { value: "N/A", trend: "", sub: "" },
     growth: { value: "N/A", trend: "", sub: "" },
     ebitda: { value: "N/A", trend: "", isDown: false, sub: "" },
-    cashflow: { value: "N/A", unit: "", trend: "", sub: "" }
+    cashflow: { value: "N/A", unit: "", trend: "", sub: "" },
   },
   rawSummary: {},
-  visibility: getInitialVisibility()
+  visibility: getInitialVisibility(),
 };
 
 const slice = createSlice({
-  name: 'dashboard',
+  name: "dashboard",
   initialState,
   reducers: {
     setTimeframe(state, action) {
@@ -150,8 +155,8 @@ const slice = createSlice({
       state.cfoInsights = apiData.cfoInsights || [];
       state.forecastVsReality = apiData.forecastVsReality || {};
       state.aiInsights = apiData.aiInsights || [];
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -160,13 +165,13 @@ export const {
   toggleDashboardVisibilityState,
   setDashboardVisibilityBulkState,
   resetDashboardConfigState,
-  getDashboardDataSuccess
+  getDashboardDataSuccess,
 } = slice.actions;
 
 export const fetchDashboardConfig = () => {
   return async () => {
     try {
-      const response = await getData('/api/dashboard-config');
+      const response = await getData("/api/dashboard-config");
       const configData = response?.data || response;
       if (configData) {
         dispatch(getDashboardConfigSuccess(mapFromApiKeys(configData)));
@@ -177,7 +182,10 @@ export const fetchDashboardConfig = () => {
   };
 };
 
-export const toggleDashboardVisibility = (id: string, currentVisibility: Record<string, boolean>) => {
+export const toggleDashboardVisibility = (
+  id: string,
+  currentVisibility: Record<string, boolean>,
+) => {
   return async () => {
     // Optimistically update local Redux state
     dispatch(toggleDashboardVisibilityState(id));
@@ -185,10 +193,10 @@ export const toggleDashboardVisibility = (id: string, currentVisibility: Record<
     try {
       const updated = {
         ...currentVisibility,
-        [id]: !currentVisibility[id]
+        [id]: !currentVisibility[id],
       };
       const payload = mapToApiKeys(updated);
-      await patchData('/api/dashboard-config', payload);
+      await patchData("/api/dashboard-config", payload);
     } catch (error) {
       console.error("Failed to toggle dashboard config via API", error);
     }
@@ -202,40 +210,56 @@ export const resetDashboardConfig = () => {
     try {
       const defaults = getInitialVisibility();
       const payload = mapToApiKeys(defaults);
-      await patchData('/api/dashboard-config', payload);
+      await patchData("/api/dashboard-config", payload);
     } catch (error) {
       console.error("Failed to reset dashboard config via API", error);
     }
   };
 };
 
-export const toggleDashboardVisibilityBulk = (ids: string[], visible: boolean, currentVisibility: Record<string, boolean>) => {
+export const toggleDashboardVisibilityBulk = (
+  ids: string[],
+  visible: boolean,
+  currentVisibility: Record<string, boolean>,
+) => {
   return async () => {
     // Optimistically update local Redux state
     dispatch(setDashboardVisibilityBulkState({ ids, visible }));
 
     try {
       const updated = {
-        ...currentVisibility
+        ...currentVisibility,
       };
       ids.forEach((id) => {
         updated[id] = visible;
       });
       const payload = mapToApiKeys(updated);
-      await patchData('/api/dashboard-config', payload);
+      await patchData("/api/dashboard-config", payload);
     } catch (error) {
       console.error("Failed to update bulk dashboard config via API", error);
     }
   };
 };
 
-export const fetchDashboardData = (companyId: string, month?: number, year?: number) => {
+export const fetchDashboardData = (
+  companyId: string,
+  month?: number,
+  year?: number,
+  period?: string,
+) => {
   return async () => {
     try {
-      let url = '/api/dashboard';
-      if (month !== undefined && year !== undefined) {
-        url += `?month=${month}&year=${year}`;
+      const queryParts: string[] = [];
+      if (period && period !== "monthly") {
+        queryParts.push(`period=${period}`);
+      } else {
+        if (month !== undefined) queryParts.push(`month=${month}`);
+        if (year !== undefined) queryParts.push(`year=${year}`);
       }
+
+      const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+      const url = `/api/dashboard${queryString}`;
+
       const response = await getData(url);
       const data = response?.data || response;
       if (data) {

@@ -202,6 +202,157 @@ export class BudgetPlanningService {
         },
         planningTable: groupLineItems(planningTable),
       };
+    } else if (period === "quarterly") {
+      if (!resolvedMonth) resolvedMonth = new Date().getMonth() + 1;
+      if (!resolvedYear) resolvedYear = new Date().getFullYear();
+
+      const q = Math.ceil(resolvedMonth / 3);
+      const currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
+
+      // Fetch all actuals for the quarter
+      const dashboardData = await this.dashboardModel
+        .find({ companyId, year: resolvedYear, month: { $in: currentMonths } })
+        .exec();
+
+      // Fetch all budgets for the quarter
+      const budgetPlans = await this.budgetModel
+        .find({ companyId, year: resolvedYear, month: { $in: currentMonths } })
+        .exec();
+
+      let actualRevenue = 0;
+      let actualGrossProfit = 0;
+      let actualNetProfit = 0;
+      let actualTotalExpenses = 0;
+
+      for (const d of dashboardData) {
+        actualRevenue += d.revenue || 0;
+        actualGrossProfit += d.grossProfit || 0;
+        actualNetProfit += d.netProfit || 0;
+        actualTotalExpenses += d.totalExpenses || 0;
+      }
+
+      let budgetRevenue = 0;
+      let budgetDirectCosts = 0;
+      let budgetOpEx = 0;
+      const lineItemMap = new Map<string, any>();
+
+      for (const b of budgetPlans) {
+        budgetRevenue += b.totalRevenueBudget || 0;
+        budgetDirectCosts += b.totalDirectCostsBudget || 0;
+        budgetOpEx += b.totalOperatingExpensesBudget || 0;
+
+        for (const item of b.lineItems) {
+          const key = `${item.category}_${item.name}`;
+          if (!lineItemMap.has(key)) {
+            lineItemMap.set(key, {
+              category: item.category,
+              name: item.name,
+              amount: 0,
+            });
+          }
+          lineItemMap.get(key).amount += item.amount;
+        }
+      }
+
+      const customItemsMap = new Map<string, { budget: number; actual: number; notes: string }>();
+      for (const b of budgetPlans) {
+        for (const item of b.summaryItems || []) {
+          const key = item.name;
+          if (!customItemsMap.has(key)) {
+            customItemsMap.set(key, { budget: 0, actual: 0, notes: "" });
+          }
+          const curr = customItemsMap.get(key)!;
+          curr.budget += item.budget || 0;
+          curr.actual += item.actual || 0;
+          if (item.notes) {
+            curr.notes = item.notes;
+          }
+        }
+      }
+
+      const quarterlyCustomItems = Array.from(customItemsMap.entries()).map(([name, val]) => {
+        const variance = calcVariance(val.actual, val.budget);
+        return {
+          name,
+          budget: val.budget,
+          actual: val.actual,
+          variancePercent: variance.percent,
+          notes: val.notes,
+          isCustom: true,
+        };
+      });
+
+      const planningTable = Array.from(lineItemMap.values());
+      const revVariance = calcVariance(actualRevenue, budgetRevenue);
+
+      const budgetGrossProfit = budgetRevenue - budgetDirectCosts;
+      const grossProfitVariance = calcVariance(
+        actualGrossProfit,
+        budgetGrossProfit,
+      );
+
+      const budgetNetProfit = budgetGrossProfit - budgetOpEx;
+      const actualNetMargin =
+        actualRevenue > 0 ? (actualNetProfit / actualRevenue) * 100 : 0;
+      const budgetNetMargin =
+        budgetRevenue > 0 ? (budgetNetProfit / budgetRevenue) * 100 : 0;
+
+      let overBudgetAmount = 0;
+      if (actualTotalExpenses > budgetOpEx) {
+        overBudgetAmount = actualTotalExpenses - budgetOpEx;
+      }
+
+      return {
+        summaryCards: {
+          budgetRevenue,
+          actualRevenue,
+          revenueVariance: {
+            percent: revVariance.percent,
+            absolute: revVariance.absolute,
+            isFavorable: revVariance.absolute >= 0,
+          },
+          overBudgetItems: overBudgetAmount,
+        },
+        summaryTable: {
+          revenue: {
+            budget: budgetRevenue,
+            actual: actualRevenue,
+            variancePercent: revVariance.percent,
+            notes: "Total Revenue generated",
+          },
+          directCosts: {
+            budget: budgetDirectCosts,
+            actual: actualRevenue - actualGrossProfit,
+            variancePercent: calcVariance(
+              actualRevenue - actualGrossProfit,
+              budgetDirectCosts,
+            ).percent,
+            notes: "Revenue - Gross Profit",
+          },
+          operatingExpenses: {
+            budget: budgetOpEx,
+            actual: actualTotalExpenses,
+            variancePercent: calcVariance(actualTotalExpenses, budgetOpEx)
+              .percent,
+            notes: "Total Operating Expenses",
+          },
+          grossProfit: {
+            budget: budgetGrossProfit,
+            actual: actualGrossProfit,
+            variancePercent: grossProfitVariance.percent,
+            notes: "Revenue - Direct Costs",
+          },
+          netMargin: {
+            budget: parseFloat(budgetNetMargin.toFixed(1)),
+            actual: parseFloat(actualNetMargin.toFixed(1)),
+            variancePercent: calcVariance(actualNetMargin, budgetNetMargin)
+              .percent,
+            notes: "(Net Profit ÷ Revenue) × 100",
+          },
+          customItems: quarterlyCustomItems,
+        },
+        planningTable: groupLineItems(planningTable),
+      };
     }
 
     // --- MONTHLY LOGIC ---
