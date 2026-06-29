@@ -25,8 +25,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Ai-CFO | Intelligent Finance Management",
-  description: "Master your finances with AI-powered insights and real-time tracking.",
+  description:
+    "Master your finances with AI-powered insights and real-time tracking.",
 };
+
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -40,9 +43,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ProviderWrapper>
-          {children}
-        </ProviderWrapper>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          <ProviderWrapper>{children}</ProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

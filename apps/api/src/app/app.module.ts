@@ -5,6 +5,15 @@ import { UserModule } from '../user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { DashboardConfigModule } from '../dashboard-config/dashboard-config.module';
+import { CompanyModule } from '../company/company.module';
+import { NotificationSettingsModule } from '../notification-settings/notification-settings.module';
+import { ReportModule } from '../report/report.module';
+import { DashboardModule } from '../dashboard/dashboard.module';
+import { OperationalOverviewModule } from '../operational-overview/operational-overview.module';
+import { GrowthOverviewModule } from '../growth-overview/growth-overview.module';
+import { BudgetPlanningModule } from '../budget-planning/budget-planning.module';
+import { NotificationModule } from '../notification/notification.module';
 
 let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
 
@@ -27,6 +36,15 @@ let url = process.env.MONGODBURL || 'mongodb://127.0.0.1:27017/cfo';
     }),
     UserModule,
     AuthModule,
+    DashboardConfigModule,
+    CompanyModule,
+    NotificationSettingsModule,
+    ReportModule,
+    DashboardModule,
+    OperationalOverviewModule,
+    GrowthOverviewModule,
+    BudgetPlanningModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

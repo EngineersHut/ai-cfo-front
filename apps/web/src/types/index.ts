@@ -5,9 +5,17 @@ import React, { FunctionComponent, ReactElement } from 'react';
 // import { TablerIcon } from '@tabler/icons';
 
 import { AuthStateProps } from './auth';
+import { UserStateProps } from './user';
+import { DashboardStateProps } from './dashboard';
+import { CompanyStateProps } from './company';
+import { ReportStateProps, ReportTypeEnum, Report } from './report';
+import { OperationalStateProps } from './operational';
+import { GrowthStateProps } from './growth';
+import { BudgetStateProps } from './budget';
 
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
+
 
 export type DateRange = { start: number | Date; end: number | Date };
 
@@ -55,10 +63,40 @@ export interface ColorPaletteProps {
   value: string;
 }
 
-export interface DefaultRootStateProps {
- 
-  auth: AuthStateProps;
+export interface NotificationStateProps {
+  settings: {
+    emailNotifications: boolean;
+    alertsForFinancialRisks: boolean;
+    weeklySummaryReports: boolean;
+  };
+  loading: boolean;
+  actionLoading: boolean;
+  error: any;
+  actionError: any;
+}
 
+export interface UserRoleStateProps {
+  error: any;
+  allUserRole: any[];
+  loading: boolean;
+  deleteActionError: any;
+  createError: any;
+  count: number;
+  actionLoading: boolean;
+}
+
+export interface DefaultRootStateProps {
+  auth: AuthStateProps;
+  user: UserStateProps;
+  dashboard: DashboardStateProps;
+  company: CompanyStateProps;
+  notification: NotificationStateProps;
+  realtimeNotification: any; // Type handled by slice
+  report: ReportStateProps;
+  operational: OperationalStateProps;
+  growth: GrowthStateProps;
+  budget: BudgetStateProps;
+  userRole: UserRoleStateProps;
 }
 
 export interface ColorProps {
@@ -100,3 +138,6 @@ export type ChangeEventFunc = (e: React.ChangeEvent<HTMLInputElement>) => void;
 export type KeyedObject = {
   [key: string]: string | number | KeyedObject | any;
 };
+
+export { ReportTypeEnum };
+export type { Report };

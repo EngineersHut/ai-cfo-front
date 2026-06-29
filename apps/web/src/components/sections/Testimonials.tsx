@@ -15,14 +15,14 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-28" style={{ background: 'rgba(248, 250, 252, 1)' }}>
+    <section className="py-28 bg-bg-alt">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <h2 className="text-[32px] font-semibold leading-[40px] text-[#0f172a] mb-4"
+          <h2 className="text-[32px] font-semibold leading-[40px] text-text-primary mb-4"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Commanding Trust
           </h2>
-          <p className="text-[16px] font-normal leading-[24px] text-slate-500 max-w-2xl mx-auto"
+          <p className="text-[16px] font-normal leading-[24px] text-text-secondary max-w-2xl mx-auto"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             See how visionary financial leaders are utilizing Sovereign to gain unprecedented control over their operations.
           </p>
@@ -32,10 +32,10 @@ export default function Testimonials() {
             <motion.div key={t.name}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center"
+              className="bg-bg-card rounded-2xl p-8 border border-border-subtle shadow-sm flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom duration-500"
             >
               {/* Avatar */}
-              <div className="w-16 h-16 rounded-full bg-[#0f172a] mb-4 flex items-center justify-center overflow-hidden border-2 border-slate-50 shadow-sm relative">
+              <div className="w-16 h-16 rounded-full bg-[#0f172a] mb-4 flex items-center justify-center overflow-hidden border-2 border-border-subtle shadow-sm relative">
                 <Image 
                   src="/client-portrait.png" 
                   alt={t.name}
@@ -45,10 +45,10 @@ export default function Testimonials() {
               </div>
 
               {/* User Info */}
-              <h4 className="text-[16px] font-bold text-[#0f172a] mb-0.5" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+              <h4 className="text-[16px] font-bold text-text-primary mb-0.5" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 {t.name}
               </h4>
-              <p className="text-[12px] text-slate-400 mb-4" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+              <p className="text-[12px] text-text-muted mb-4" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 {t.title}
               </p>
 
@@ -60,7 +60,7 @@ export default function Testimonials() {
               </div>
 
               {/* Quote */}
-              <p className="text-[14px] leading-[22px] text-slate-600 font-normal" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+              <p className="text-[14px] leading-[22px] text-text-secondary font-normal" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 "{t.quote}"
               </p>
             </motion.div>

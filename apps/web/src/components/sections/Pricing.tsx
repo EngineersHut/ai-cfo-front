@@ -39,17 +39,28 @@ export default function Pricing() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+
   const openModal = (mode: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('modal', mode)
-    router.push(`?${params.toString()}`)
+    setAuthMode(mode as "login" | "register");
+    setAuthOpen(true);
   }
 
-
-  function ModalHandler() {
+  function ModalHandler({
+    isOpen,
+    onClose,
+    mode,
+    setMode,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
+    mode: "login" | "register";
+    setMode: (mode: "login" | "register") => void;
+  }) {
     return (
       <>
-        <AuthModal />
+        <AuthModal isOpen={isOpen} onClose={onClose} mode={mode} setMode={setMode} />
         <ForgotPasswordModal />
       </>
     )
@@ -59,21 +70,21 @@ export default function Pricing() {
     <section id="pricing" className="py-20 bg-bg-alt">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-4">
-          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
+          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-text-primary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Pricing
           </h2>
-          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-slate-500"
+          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-text-secondary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Simple, powerful, and built for clarity
           </p>
           <div className="flex items-center justify-center pt-8 gap-4 ">
-            <span className={`text-sm font-medium transition-colors ${!yearly ? 'text-[#0f172a]' : 'text-slate-400'}`}
+            <span className={`text-sm font-medium transition-colors ${!yearly ? 'text-text-primary' : 'text-slate-400'}`}
               style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Monthly</span>
 
             <button
               onClick={() => setYearly(!yearly)}
-              className="relative w-[44px] h-[24px] rounded-full bg-[#dbeafe] transition-colors focus:outline-none"
+              className="relative w-[44px] h-[24px] rounded-full bg-[#dbeafe] dark:bg-slate-800 transition-colors focus:outline-none cursor-pointer"
             >
               <motion.div
                 animate={{ x: yearly ? 22 : 2 }}
@@ -83,7 +94,7 @@ export default function Pricing() {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className={`text-sm font-medium transition-colors ${yearly ? 'text-[#0f172a]' : 'text-slate-400'}`}
+              <span className={`text-sm font-medium transition-colors ${yearly ? 'text-text-primary' : 'text-slate-400'}`}
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Yearly</span>
 
             </div>
@@ -95,9 +106,9 @@ export default function Pricing() {
             <motion.div key={plan.name}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className={`relative bg-white rounded-[16px] flex flex-col transition-all duration-300 w-full md:w-[384px] overflow-hidden ${plan.popular
+              className={`relative bg-white dark:bg-slate-900 rounded-[16px] flex flex-col transition-all duration-300 w-full md:w-[384px] overflow-hidden ${plan.popular
                 ? 'border-[4px] border-[#2563eb] shadow-xl h-[588px] z-10'
-                : 'border border-slate-100 shadow-sm hover:shadow-md h-[546px]'
+                : 'border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md h-[546px]'
                 }`}
             >
               {plan.popular && (
@@ -109,7 +120,7 @@ export default function Pricing() {
 
               <div className="p-6 flex flex-col h-full">
                 {/* Icon Container */}
-                <div className="w-10 h-10 rounded-xl bg-[#eff6ff] flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[#eff6ff] dark:bg-blue-950/40 flex items-center justify-center mb-3">
                   {plan.name === 'Starter' && <Sparkles size={20} className="text-[#2563eb]" />}
                   {plan.name === 'Professional' && <User size={20} className="text-[#2563eb]" />}
                   {plan.name === 'Enterprise' && <Building2 size={20} className="text-[#2563eb]" />}
@@ -120,23 +131,23 @@ export default function Pricing() {
                 </h3>
 
                 <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-[24px] font-medium leading-[32px] text-[#0f172a]" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+                  <span className="text-[24px] font-medium leading-[32px] text-text-primary" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                     ${yearly ? plan.yearlyPrice : plan.monthlyPrice}
                   </span>
                   <span className="text-[14px] text-slate-400">/month</span>
                 </div>
 
-                <div className="w-full h-[1px] bg-slate-100 mb-4" />
+                <div className="w-full h-[1px] bg-border-subtle mb-4" />
 
                 <p className="text-[14px] font-medium leading-[20px] text-slate-400 mb-3" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Features:</p>
 
-                <ul className="space-y-2 mb-6 flex-1">
+                <ul className="space-y-2 mb-6 flex-1 text-left">
                   {plan.features.map(feat => (
                     <li key={feat} className="flex items-start gap-3">
                       <div className="w-5 h-5 rounded-full bg-[#2563eb] flex items-center justify-center shrink-0 mt-0.5">
                         <Check size={12} strokeWidth={3} className="text-white" />
                       </div>
-                      <span className="text-[14px] font-normal leading-[20px] text-slate-600" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+                      <span className="text-[14px] font-normal leading-[20px] text-text-secondary" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                         {feat}
                       </span>
                     </li>
@@ -144,9 +155,9 @@ export default function Pricing() {
                 </ul>
 
                 <div className="mt-auto flex justify-center">
-                  <button onClick={() => { openModal('register'); setMobileOpen(false) }} className={`w-[336px] h-[40px] px-[16px] py-[10px] rounded-[10px] font-medium text-[14px] leading-[20px] transition-all flex items-center justify-center ${plan.popular
-                    ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-200'
-                    : 'bg-[#e0ebff] text-[#2563eb] hover:bg-[#d1e3ff]'
+                  <button onClick={() => { openModal('register'); setMobileOpen(false) }} className={`w-[336px] h-[40px] px-[16px] py-[10px] rounded-[10px] font-medium text-[14px] leading-[20px] transition-all flex items-center justify-center cursor-pointer ${plan.popular
+                    ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-200 dark:shadow-none'
+                    : 'bg-[#e0ebff] dark:bg-slate-800 text-[#2563eb] dark:text-blue-400 hover:bg-[#d1e3ff] dark:hover:bg-slate-700'
                     }`} style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                     {plan.cta}
                   </button>
@@ -158,7 +169,7 @@ export default function Pricing() {
       </div>
     </section>
     <Suspense fallback={null}>
-      <ModalHandler />
+      <ModalHandler isOpen={authOpen} onClose={() => setAuthOpen(false)} mode={authMode} setMode={setAuthMode} />
     </Suspense>
   </>
   )

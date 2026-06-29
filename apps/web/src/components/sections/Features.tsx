@@ -11,26 +11,26 @@ const features = [
     render: () => (
       <div
         style={{ width: 344, height: 294, borderRadius: 12 }}
-        className="bg-white shadow-sm border border-slate-100 p-6 flex flex-col scale-[0.75] sm:scale-[0.85] origin-center">
+        className="bg-bg-card shadow-sm border border-border-subtle p-6 flex flex-col scale-[0.75] sm:scale-[0.85] origin-center">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-6 h-6 rounded bg-blue-50 flex items-center justify-center">
+          <div className="w-6 h-6 rounded bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center">
             <span className="text-[12px]">✨</span>
           </div>
-          <span className="text-[13px] font-bold text-slate-700" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>AI Insights</span>
+          <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>AI Insights</span>
         </div>
         <div className="space-y-6 flex-1 flex flex-col justify-center">
           {[
-            { label: 'Bank statements', pct: '40%', color: '#3b82f6', bg: '#eff6ff' },
-            { label: 'Income statements', pct: '40%', color: '#f59e0b', bg: '#fffbeb' },
-            { label: 'Tax Document', pct: '10%', color: '#10b981', bg: '#f0fdf4' },
+            { label: 'Bank statements', pct: '40%', border: 'border-l-[#3b82f6]', text: 'text-[#3b82f6] dark:text-blue-400', bg: 'bg-[#eff6ff] dark:bg-blue-950/30' },
+            { label: 'Income statements', pct: '40%', border: 'border-l-[#f59e0b]', text: 'text-[#f59e0b] dark:text-amber-400', bg: 'bg-[#fffbeb] dark:bg-amber-950/30' },
+            { label: 'Tax Document', pct: '10%', border: 'border-l-[#10b981]', text: 'text-[#10b981] dark:text-emerald-400', bg: 'bg-[#f0fdf4] dark:bg-emerald-950/30' },
           ].map((item, i) => (
-            <div key={i} className="pl-4 border-l-[3px]" style={{ borderColor: item.color }}>
+            <div key={i} className={`pl-4 border-l-[3px] ${item.border}`}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded" style={{ color: item.color, background: item.bg, fontFamily: 'var(--font-inter), sans-serif' }}>
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${item.text} ${item.bg}`} style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                   {item.label} ({item.pct})
                 </span>
               </div>
-              <p className="text-[10.28px] leading-[14.69px] text-slate-500 font-normal"
+              <p className="text-[10.28px] leading-[14.69px] text-text-secondary font-normal"
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
                 Revenue growth driven by increased customer retention and reduced churn in the enterprise segment.
               </p>
@@ -82,12 +82,12 @@ const features = [
     render: () => (
       <div
         style={{ width: 311, height: 210, borderRadius: 12, padding: 16 }}
-        className="bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-slate-100 flex flex-col scale-90 sm:scale-[0.95] origin-center">
+        className="bg-bg-card shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-border-subtle flex flex-col scale-90 sm:scale-[0.95] origin-center">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-[36px] h-[36px] rounded-[10px] bg-[#eff6ff] flex items-center justify-center">
+          <div className="w-[36px] h-[36px] rounded-[10px] bg-[#eff6ff] dark:bg-slate-900 flex items-center justify-center">
             <Shield size={18} strokeWidth={1.5} className="text-[#2563eb]" />
           </div>
-          <span className="text-[14px] font-bold text-[#1e3a8a]" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Cost Optimization Opportunities</span>
+          <span className="text-[14px] font-bold text-[#1e3a8a] dark:text-blue-400" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>Cost Optimization Opportunities</span>
         </div>
         <div className="space-y-4 px-1 flex-1 flex flex-col justify-center">
           {[
@@ -97,7 +97,7 @@ const features = [
           ].map((item, i) => (
             <div key={i} className="flex gap-4 items-start">
               <div className="w-[6px] h-[6px] rounded-full mt-[5px] shrink-0" style={{ background: item.dot }} />
-              <p className="text-[11.5px] leading-[17.25px] text-[#334155] font-normal" style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0px' }}>
+              <p className="text-[11.5px] leading-[17.25px] text-[#334155] dark:text-slate-300 font-normal" style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0px' }}>
                 {item.text}
               </p>
             </div>
@@ -110,15 +110,15 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-[#f8fafc]">
+    <section id="features" className="py-24 bg-bg-alt">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="text-center mb-16">
-          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-[#0f172a]"
+          <h2 className="text-[32px] font-semibold leading-[40px] mb-4 text-text-primary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Powerful Features for Smarter<br />Financial Decisions
           </h2>
-          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-slate-500"
+          <p className="text-[16px] font-normal leading-[24px] max-w-xl mx-auto text-text-secondary"
             style={{ fontFamily: 'var(--font-inter), sans-serif', letterSpacing: '0%' }}>
             Everything you need to analyze, predict, and optimize your finances.
           </p>
@@ -130,15 +130,15 @@ export default function Features() {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
               style={{ width: 384, height: 460, borderRadius: 16, padding: 20 }}
-              className="flex flex-col group border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
+              className="flex flex-col group border border-border-subtle bg-bg-card shadow-sm transition-all duration-300 hover:shadow-md">
               {/* Graphic Header */}
-              <div className="h-[320px] rounded-[12px] bg-[#eff6ff] border border-blue-50 mb-6 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:-translate-y-1">
+              <div className="h-[320px] rounded-[12px] bg-[#eff6ff] dark:bg-slate-900 border border-blue-50 dark:border-slate-800 mb-6 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:-translate-y-1">
                 {f.render()}
               </div>
               {/* Text Footer */}
-              <h3 className="text-[18px] font-normal leading-[24px] text-[#0f172a] mb-2 px-1"
+              <h3 className="text-[18px] font-normal leading-[24px] text-text-primary mb-2 px-1"
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}>{f.title}</h3>
-              <p className="text-[14px] font-normal leading-[20px] text-slate-500 px-1"
+              <p className="text-[14px] font-normal leading-[20px] text-text-secondary px-1"
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}>{f.desc}</p>
             </motion.div>
           ))}

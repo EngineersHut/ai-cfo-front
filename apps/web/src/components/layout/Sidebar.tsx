@@ -6,26 +6,41 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import Link from 'next/link';
+import { getImageUrl } from '@/utils/common';
 
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  onLogout?: () => void;
 }
 
-function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" }: { icon: React.ReactNode, label: string, active?: boolean, isCollapsed?: boolean, href?: string }) {
-  return (
-    <Link
-      href={href}
-      className={`flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border-transparent tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
-        } h-[40px] ${active
-          ? 'bg-[#2563eb] text-white shadow-sm font-medium'
-          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-        }`}
-    >
-      <span className={`shrink-0 transition-all duration-300 ${active ? 'text-white' : 'text-slate-400'}`}>
+function NavItem({
+  icon,
+  label,
+  active = false,
+  isCollapsed = false,
+  href = "#",
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  isCollapsed?: boolean;
+  href?: string;
+  onClick?: (e: React.MouseEvent) => void;
+}) {
+  const className = `group flex items-center cursor-pointer transition-all duration-300 ease-in-out mb-[8px] last:mb-0 rounded-[8px] border tracking-[-0.045em] ${isCollapsed ? 'w-[44px] justify-center px-0' : 'w-[180px] px-3 gap-3'
+    } h-[40px] ${active
+      ? 'border-transparent bg-[#2563eb] text-white shadow-sm font-medium dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700'
+      : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+    }`;
+
+  const content = (
+    <>
+      <span className={`shrink-0 transition-all duration-300 ${active ? 'text-white dark:text-blue-400' : 'text-slate-400 dark:group-hover:text-slate-300'}`}>
         {icon}
       </span>
       <span
@@ -34,34 +49,82 @@ function NavItem({ icon, label, active = false, isCollapsed = false, href = "#" 
       >
         {label}
       </span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button onClick={onClick} className={`${className} text-left w-full`}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
     </Link>
   );
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+const isValidSrc = (src: any): boolean => {
+  if (typeof src !== 'string') return false;
+  const trimmed = src.trim();
+  return trimmed !== '' && trimmed !== 'null' && trimmed !== 'undefined' && trimmed !== '{}';
+};
+
+export default function Sidebar({ isCollapsed, onToggle, onLogout }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [userProfile, setUserProfile] = React.useState<{ name: string; profilePic: string | null }>({
+    name: 'Michale',
+    profilePic: null
+  });
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedName = localStorage.getItem('name');
+        const storedPic = localStorage.getItem('profilePic');
+
+        const nameVal = storedName ? JSON.parse(storedName) : 'Michale';
+        const picVal = storedPic ? JSON.parse(storedPic) : null;
+
+        setUserProfile({
+          name: nameVal || 'Michale',
+          profilePic: picVal
+        });
+      } catch (err) {
+        console.error('Error reading sidebar profile from localStorage', err);
+      }
+    }
+  }, []);
+
+  const firstLetter = userProfile.name ? userProfile.name.trim().charAt(0).toUpperCase() : 'M';
 
   return (
     <aside
-      className={`bg-white flex flex-col h-full  transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
+      className={`bg-white border-r border-slate-100 dark:bg-slate-900 dark:border-slate-700 flex flex-col h-full transition-all duration-500 ease-in-out overflow-hidden ${isCollapsed ? 'w-[80px]' : 'w-[220px]'
         }`}
     >
       {/* Branding & Toggle Section */}
       <div className={`flex flex-col transition-all duration-300 ${isCollapsed ? 'items-center pt-8 pb-4' : 'px-[20px] pt-[14px] pb-[14px]'}`}>
-        <div className="flex items-center justify-between w-full">
-          <div className={`relative transition-all duration-300 ${isCollapsed ? 'w-11 h-11' : 'w-auto h-11'}`}>
-            <img
-              src="/logo.png"
-              alt="Logo"
-              className={`h-full object-contain transition-all duration-300 ${isCollapsed ? 'scale-125' : 'w-auto'
-                }`}
-            />
-          </div>
+        <div className={`flex items-center w-full ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <Link href="/dashboard" className="flex items-center gap-2 group cursor-pointer min-w-0">
+            <div className={`shrink-0 flex items-center justify-center rounded-lg font-bold text-xl transition-all duration-300 bg-[#0f172a] text-white dark:bg-white dark:text-[#0f172a] ${isCollapsed ? 'w-11 h-11' : 'w-10 h-10'}`}>
+              N
+            </div>
+            <div className={`flex flex-col leading-none transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+              <span className="text-[14px] font-bold text-[#0f172a] dark:text-white whitespace-nowrap">North Quest</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">Solutions</span>
+            </div>
+          </Link>
 
           {!isCollapsed && (
             <button
               onClick={onToggle}
-              className="w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
+              className="w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
               title="Collapse"
             >
               <LayoutToggleButton isCollapsed={false} />
@@ -72,7 +135,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         {isCollapsed && (
           <button
             onClick={onToggle}
-            className="mt-6 w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95"
+            className="mt-6 w-9 h-9 flex items-center justify-center bg-white rounded-xl border border-slate-100 shadow-sm hover:bg-slate-50 transition-all text-slate-400 hover:text-blue-600 active:scale-95 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
             title="Expand"
           >
             <LayoutToggleButton isCollapsed={true} />
@@ -82,87 +145,100 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* Indented Separator Line */}
       <div className={`px-5 mb-2 ${isCollapsed ? 'px-4' : 'px-5'}`}>
-        <div className="h-px bg-slate-100 w-full" />
+        <div className="h-px bg-slate-100 w-full dark:bg-slate-700" />
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-[20px] py-2">
-        <p className={`text-[12px] font-normal leading-4 text-slate-400 tracking-normal mb-[12px] transition-all duration-300 overflow-hidden font-inter ${isCollapsed ? 'opacity-0 h-0' : 'opacity-100 h-auto px-1'
+        <p className={`text-[12px] font-normal leading-4 text-slate-400 tracking-normal mb-[12px] transition-all duration-300 overflow-hidden font-inter dark:text-slate-500 ${isCollapsed ? 'opacity-0 h-0' : 'opacity-100 h-auto px-1'
           }`}>
           Main
         </p>
-        <NavItem 
-          icon={<DashboardIcon />} 
-          label="Dashboard" 
-          isCollapsed={isCollapsed} 
-          href="/dashboard" 
-          active={pathname === '/dashboard'} 
+        <NavItem
+          icon={<DashboardIcon />}
+          label="Dashboard"
+          isCollapsed={isCollapsed}
+          href="/dashboard"
+          active={pathname === '/dashboard'}
         />
-        <NavItem 
-          icon={<OperationalIcon />} 
-          label="Operational Overview" 
-          isCollapsed={isCollapsed} 
-          href="/operational-overview" 
-          active={pathname === '/operational-overview'} 
+        <NavItem
+          icon={<OperationalIcon />}
+          label="Operational Overview"
+          isCollapsed={isCollapsed}
+          href="/operational-overview"
+          active={pathname === '/operational-overview'}
         />
-        <NavItem 
-          icon={<ReportIcon />} 
-          label="Reports" 
-          isCollapsed={isCollapsed} 
-          href="/reports" 
-          active={pathname === '/reports'} 
+        <NavItem
+          icon={<ReportIcon />}
+          label="Reports"
+          isCollapsed={isCollapsed}
+          href="/reports"
+          active={pathname === '/reports'}
         />
-        <NavItem 
-          icon={<GrowthIcon />} 
-          label="Growth Overview" 
-          isCollapsed={isCollapsed} 
-          href="/growth-overview" 
-          active={pathname === '/growth-overview'} 
+        <NavItem
+          icon={<GrowthIcon />}
+          label="Growth Overview"
+          isCollapsed={isCollapsed}
+          href="/growth-overview"
+          active={pathname === '/growth-overview'}
         />
-        <NavItem 
-          icon={<BudgetIcon />} 
-          label="Budget vs Actual" 
-          isCollapsed={isCollapsed} 
-          href="/budget-vs-actual" 
-          active={pathname === '/budget-vs-actual'} 
+        <NavItem
+          icon={<BudgetIcon />}
+          label="Budget vs Actual"
+          isCollapsed={isCollapsed}
+          href="/budget-vs-actual"
+          active={pathname === '/budget-vs-actual'}
         />
-        <NavItem 
-          icon={<ForcastIcon />} 
-          label="Forcast" 
-          isCollapsed={isCollapsed} 
-          href="/forecast" 
-          active={pathname === '/forecast'} 
+        <NavItem
+          icon={<ForcastIcon />}
+          label="Forcast"
+          isCollapsed={isCollapsed}
+          href="/forecast"
+          active={pathname === '/forecast'}
         />
-        <NavItem 
-          icon={<ForcastReportIcon />} 
-          label="Forcast Reports" 
-          isCollapsed={isCollapsed} 
-          href="/forecast-reports" 
-          active={pathname === '/forecast-reports'} 
-        />
+        {/* <NavItem
+          icon={<ForcastReportIcon />}
+          label="Forcast Reports"
+          isCollapsed={isCollapsed}
+          href="/forecast-reports"
+          active={pathname === '/forecast-reports'}
+        /> */}
       </nav>
 
       {/* User Section - Restoring sequence while maintaining size parity */}
-      <div className={`p-[20px] border-t border-slate-50 flex flex-col ${isCollapsed ? 'items-center' : ''}`}>
-        <NavItem 
-          icon={<SettingsIcon />} 
-          label="Settings" 
-          isCollapsed={isCollapsed} 
+      <div className={`p-[20px] border-t border-slate-50 flex flex-col dark:border-slate-700 ${isCollapsed ? 'items-center' : ''}`}>
+        <NavItem
+          icon={<SettingsIcon />}
+          label="Settings"
+          isCollapsed={isCollapsed}
           href="/settings"
           active={pathname === '/settings'}
         />
-        <NavItem icon={<LogoutIcon />} label="Logout" isCollapsed={isCollapsed} />
+        <NavItem
+          icon={<LogoutIcon />}
+          label="Logout"
+          isCollapsed={isCollapsed}
+          onClick={onLogout}
+        />
 
-        <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
+        <div className={`bg-[#2563eb] border border-blue-400/50 flex items-center text-white shadow-lg shadow-blue-200 transition-all duration-300 overflow-hidden dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:shadow-none ${isCollapsed ? 'w-[44px] h-[44px] justify-center p-0 rounded-xl' : 'w-[180px] h-[40px] px-[12px] py-[4px] gap-[12px] rounded-[8px]'
           }`}>
-          <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[12px] border border-white/20 shrink-0">M</div>
+          {isValidSrc(userProfile.profilePic) ? (
+            <img
+              src={getImageUrl(userProfile.profilePic) as string}
+              alt={userProfile.name}
+              className="w-7 h-7 rounded-full object-cover border border-white/20 shrink-0 dark:border-slate-600"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[12px] border border-white/20 shrink-0 dark:bg-slate-700 dark:border-slate-600">
+              {firstLetter}
+            </div>
+          )}
           {!isCollapsed && (
             <div className="flex items-center flex-1 transition-all duration-300 min-w-0">
               <div className="flex-1 overflow-hidden">
-                <p className="text-[12px] font-semibold truncate leading-none mb-0.5">Michale</p>
-                <p className="text-[9px] opacity-70 truncate uppercase tracking-tighter leading-none">Admin Account</p>
+                <p className="text-[12px] font-semibold truncate leading-none mb-0.5">{userProfile.name}</p>
               </div>
-              <ChevronDown size={14} className="opacity-70 ml-1 shrink-0" />
             </div>
           )}
         </div>

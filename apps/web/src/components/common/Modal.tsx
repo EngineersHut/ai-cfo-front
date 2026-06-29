@@ -65,8 +65,8 @@ const Modal: React.FC<ModalProps> = ({
         className={`
         relative z-10 flex flex-col
         w-full
-        bg-white
-        border border-gray-400
+        bg-white dark:bg-slate-900
+        border border-gray-400 dark:border-slate-700
         
         rounded-[12px] 
         transition-all duration-300
@@ -77,17 +77,16 @@ const Modal: React.FC<ModalProps> = ({
           maxWidth: width || '420px',
           width: '95%',
           height: height || 'auto',
-          maxHeight: height ? 'none' : '92dvh',
-          background: 'rgba(255, 255, 255, 1)'
+          maxHeight: height ? 'none' : '92dvh'
         }}
       >
         {/* Top Header / Close Button Area */}
         <div className="flex justify-end px-2 pt-2 flex-shrink-0">
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-50"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
           >
-            <X size={20} strokeWidth={2.5} className="text-black" />
+            <X size={20} strokeWidth={2.5} className="text-black dark:text-slate-400" />
           </button>
         </div>
 

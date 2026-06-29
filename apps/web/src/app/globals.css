@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4: class-based dark mode (used by next-themes) ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-plus-jakarta-sans), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -95,6 +98,22 @@
     --hero-glow: rgba(59,130,246,0.12);
     --showcase-bg: #f8faff;
   }
+
+  .dark {
+    --bg-primary: #0b0f19;
+    --bg-secondary: #111827;
+    --bg-card: #1f2937;
+    --bg-alt: #111827;
+    --border-rgba: rgba(255,255,255,0.08);
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --nav-bg: rgba(11,15,25,0.92);
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.3);
+    --card-hover: 0 8px 40px rgba(37,99,235,0.25);
+    --hero-glow: rgba(59,130,246,0.15);
+    --showcase-bg: #111827;
+  }
 }
 
 @layer base {
@@ -107,6 +126,14 @@
     font-family: var(--font-plus-jakarta-sans), sans-serif;
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .autofill-light:-webkit-autofill,
+  .autofill-light:-webkit-autofill:hover, 
+  .autofill-light:-webkit-autofill:focus, 
+  .autofill-light:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px white inset !important;
+      -webkit-text-fill-color: #0f172a !important;
   }
 }
 

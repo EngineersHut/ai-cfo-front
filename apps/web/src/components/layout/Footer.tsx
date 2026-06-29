@@ -16,7 +16,7 @@ const GithubIcon = ({ size = 20 }) => (
 
 export default function Footer() {
   return (
-    <footer className="py-8 bg-white border-t border-slate-100">
+    <footer className="py-8 bg-bg-primary border-t border-border-subtle">
       <div className="max-w-[1200px] mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
           {/* Logo */}
@@ -26,7 +26,7 @@ export default function Footer() {
               alt="North Quest Solutions Logo"
               width={160}
               height={48}
-              className="h-12 w-auto object-contain"
+              className="h-12 w-auto object-contain dark:invert"
               priority
             />
           </div>
@@ -37,7 +37,7 @@ export default function Footer() {
               <a
                 key={l}
                 href="#"
-                className="text-[16px] font-normal leading-[24px] text-slate-600 hover:text-blue-600 transition-colors"
+                className="text-[16px] font-normal leading-[24px] text-text-secondary hover:text-blue-600 transition-colors"
                 style={{ fontFamily: 'var(--font-inter), sans-serif' }}
               >
                 {l}
@@ -46,7 +46,7 @@ export default function Footer() {
           </nav>
 
           {/* Social */}
-          <div className="flex items-center gap-6 text-slate-900">
+          <div className="flex items-center gap-6 text-text-primary">
             <a href="#" className="hover:text-blue-600 transition-all hover:scale-110">
               <TwitterIcon size={20} />
             </a>
@@ -57,8 +57,8 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className=" border-t border-slate-50">
-          <p className="text-center text-[14px] text-slate-400 font-normal leading-[20px]"
+        <div className="border-t border-border-subtle">
+          <p className="text-center text-[14px] text-text-muted font-normal leading-[20px] pt-4"
             style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
             © 2026 North Quest Solution. All rights reserved.
           </p>
