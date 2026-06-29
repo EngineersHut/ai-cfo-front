@@ -421,19 +421,19 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                             </button>
                         </div>
                     </div>
-                    <div className="p-6 flex flex-col items-center justify-center h-[340px]">
+                    <div className="p-6 flex flex-col items-center justify-between h-[360px]">
                         {mappedExpenses.length > 0 ? (
                             <>
-                                <div className="relative w-full h-full flex items-center justify-center">
+                                <div className="relative w-full h-[200px] flex items-center justify-center">
                                     {isMounted && (
-                                        <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0}>
+                                        <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0}>
                                             <RePieChart>
                                                 <Pie
                                                     data={mappedExpenses}
                                                     cx="50%"
                                                     cy="50%"
-                                                    innerRadius={60}
-                                                    outerRadius={85}
+                                                    innerRadius={50}
+                                                    outerRadius={75}
                                                     paddingAngle={5}
                                                     dataKey="value"
                                                     stroke="none"
@@ -449,16 +449,16 @@ export default function ReportDetail({ reportId, onBack }: ReportDetailProps) {
                                             </RePieChart>
                                         </ResponsiveContainer>
                                     )}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-5px]">
                                         <span className="text-[12px] text-slate-400 font-medium font-inter">Total</span>
-                                        <span className="text-[24px] font-bold text-slate-800 dark:text-slate-100 font-inter leading-none">
+                                        <span className="text-[22px] font-bold text-slate-800 dark:text-slate-100 font-inter leading-none">
                                             {formatCurrency(displayTotalExpenses)}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Custom Legend */}
-                                <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full max-h-[100px] overflow-y-auto no-scrollbar">
+                                <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full max-h-[140px] overflow-y-auto no-scrollbar mt-2">
                                     {mappedExpenses.map((item: any, idx: number) => (
                                         <div key={idx} className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />

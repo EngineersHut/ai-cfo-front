@@ -123,7 +123,14 @@ const MONTHS = [
 const YEARS = [2024, 2025, 2026];
 
 export default function GrowthOverview() {
-    const { selectedMonth, setSelectedMonth, selectedYear, setSelectedYear } = usePersistentDate();
+    const {
+        selectedMonth,
+        setSelectedMonth,
+        selectedYear,
+        setSelectedYear,
+        selectedPeriod,
+        setSelectedPeriod,
+    } = usePersistentDate();
     const [activeChart, setActiveChart] = useState('line');
     const [isMounted, setIsMounted] = useState(false);
 
@@ -162,9 +169,9 @@ export default function GrowthOverview() {
 
     useEffect(() => {
         if (currentCompanyId) {
-            dispatch(fetchGrowthData(currentCompanyId, 'monthly', selectedMonth, selectedYear));
+            dispatch(fetchGrowthData(currentCompanyId, selectedPeriod, selectedMonth, selectedYear));
         }
-    }, [currentCompanyId, selectedMonth, selectedYear, dispatch]);
+    }, [currentCompanyId, selectedPeriod, selectedMonth, selectedYear, dispatch]);
 
     const activeHeader = GROWTH_HEADER_CONFIGS[companyType as IndustryEnum] ?? GROWTH_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Growth Overview', subtitle: '' };
     const currentKPIs = GROWTH_KPI_CONFIGS[companyType as IndustryEnum] ?? GROWTH_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
@@ -276,48 +283,87 @@ export default function GrowthOverview() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="w-full h-auto sm:h-[64px] flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
+            <div className="w-full h-auto flex flex-col sm:flex-row sm:items-center justify-between gap-[10px] pt-[4px] pb-[4px]">
                 <div className="space-y-1">
                     <h1 className="text-[24px] font-medium text-slate-800 dark:text-slate-100 font-inter leading-[32px] tracking-[0%]">{activeHeader.title}</h1>
                     <p className="text-[14px] font-normal text-slate-400 dark:text-slate-500 font-inter leading-[20px] tracking-[0%]">{activeHeader.subtitle}</p>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  {/* Month Dropdown */}
-                  <div className="relative">
-                    <select
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                <div className="flex flex-col items-start sm:items-end gap-3 shrink-0">
+                  {/* Period Selection Tabs Container */}
+                  <div className="flex bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[10px] p-1 h-[45px] items-center gap-1 shadow-sm font-inter">
+                    <button
+                      onClick={() => setSelectedPeriod("monthly")}
+                      className={`h-full px-4 rounded-[8px] text-[13px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center ${
+                        selectedPeriod === "monthly"
+                          ? "bg-[#2563eb] text-[#f8fafc] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)]"
+                          : "text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200 hover:bg-slate-50/50 dark:hover:bg-slate-700/30"
+                      }`}
                     >
-                      {MONTHS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <ChevronDown size={14} className="stroke-[2.5]" />
-                    </div>
+                      Monthly
+                    </button>
+                    <button
+                      onClick={() => setSelectedPeriod("quarterly")}
+                      className={`h-full px-4 rounded-[8px] text-[13px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center ${
+                        selectedPeriod === "quarterly"
+                          ? "bg-[#2563eb] text-[#f8fafc] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)]"
+                          : "text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200 hover:bg-slate-50/50 dark:hover:bg-slate-700/30"
+                      }`}
+                    >
+                      Quarterly
+                    </button>
+                    <button
+                      onClick={() => setSelectedPeriod("yearly")}
+                      className={`h-full px-4 rounded-[8px] text-[13px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center ${
+                        selectedPeriod === "yearly"
+                          ? "bg-[#2563eb] text-[#f8fafc] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08),inset_-2px_-2px_6px_0px_rgba(255,255,255,0.4)]"
+                          : "text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-200 hover:bg-slate-50/50 dark:hover:bg-slate-700/30"
+                      }`}
+                    >
+                      Yearly
+                    </button>
                   </div>
 
-                  {/* Year Dropdown */}
-                  <div className="relative">
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(Number(e.target.value))}
-                      className="h-[40px] pl-[16px] pr-[36px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[10px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563eb] cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
-                    >
-                      {YEARS.map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <ChevronDown size={14} className="stroke-[2.5]" />
+                  {/* Month & Year Selectors (Only for Monthly, rendered below) */}
+                  {selectedPeriod === "monthly" && (
+                    <div className="flex items-center gap-2">
+                      {/* Month Dropdown */}
+                      <div className="relative">
+                        <select
+                          value={selectedMonth}
+                          onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                          className="h-[38px] pl-[10px] pr-[36px] py-[8px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-200 shadow-sm hover:border-[#cbd5e1] dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 cursor-pointer appearance-none transition-all duration-200 min-w-[130px] font-inter"
+                        >
+                          {MONTHS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={14} className="stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Year Dropdown */}
+                      <div className="relative">
+                        <select
+                          value={selectedYear}
+                          onChange={(e) => setSelectedYear(Number(e.target.value))}
+                          className="h-[38px] pl-[10px] pr-[36px] py-[8px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-200 shadow-sm hover:border-[#cbd5e1] dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                        >
+                          {YEARS.map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={14} className="stroke-[2.5]" />
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
             </div>
 

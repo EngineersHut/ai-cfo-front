@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsNotEmpty, IsOptional, IsNumber } from "class-validator";
+import { Type } from "class-transformer";
 
 export enum DashboardPeriodEnum {
-  MONTHLY = 'monthly',
-  QUARTERLY = 'quarterly',
-  YEARLY = 'yearly',
+  MONTHLY = "monthly",
+  QUARTERLY = "quarterly",
+  YEARLY = "yearly",
 }
 
 export class GetDashboardDto {

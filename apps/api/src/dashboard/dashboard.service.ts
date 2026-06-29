@@ -39,9 +39,9 @@ export class DashboardService {
       return this.getEmptyDashboard();
     }
     const companyId = company._id.toString();
-    const { month, year } = queryDto;
+    const { month, year, period } = queryDto;
 
-    return this.getFleetDashboard(companyId, month, year);
+    return this.getFleetDashboard(companyId, month, year, period);
   }
 
   private getEmptyDashboard() {
@@ -82,57 +82,384 @@ export class DashboardService {
     companyId: string,
     month?: number,
     year?: number,
+    period?: DashboardPeriodEnum,
   ) {
-    // 1. Query for the single selected month / latest month
-    const currentQuery: any = { companyId };
-    if (year && month) {
-      currentQuery.year = year;
-      currentQuery.month = month;
-    }
-
-    // 2. Query for the trend (up to 12 months, ending at selected month/year)
-    const trendQuery: any = { companyId };
-    if (year && month) {
-      trendQuery.$or = [
-        { year: { $lt: year } },
-        { year: year, month: { $lte: month } },
-      ];
-    }
-
-    // Inject Growth model locally for this function since we need client count
-    const [dashboardData, fleetData, growthData] = await Promise.all([
+    // 1. Fetch all documents for the company from MongoDB
+    const [allDashboardData, allFleetData, allGrowthData] = await Promise.all([
       this.dashboardModel
-        .find(trendQuery)
+        .find({ companyId })
         .sort({ year: -1, month: -1 })
-        .limit(12)
         .exec(),
-      this.fleetModel
-        .find(trendQuery)
-        .sort({ year: -1, month: -1 })
-        .limit(2)
-        .exec(),
-      this.growthModel
-        .find(trendQuery)
-        .sort({ year: -1, month: -1 })
-        .limit(2)
-        .exec(),
+      this.fleetModel.find({ companyId }).sort({ year: -1, month: -1 }).exec(),
+      this.growthModel.find({ companyId }).sort({ year: -1, month: -1 }).exec(),
     ]);
 
     const targetYear =
-      year || (dashboardData[0]?.year as number) || new Date().getFullYear();
+      year || (allDashboardData[0]?.year as number) || new Date().getFullYear();
     const targetMonth =
-      month || (dashboardData[0]?.month as number) || new Date().getMonth() + 1;
+      month ||
+      (allDashboardData[0]?.month as number) ||
+      new Date().getMonth() + 1;
 
-    const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
-    const prevYear = targetMonth === 1 ? targetYear - 1 : targetYear;
+    let currentMonths: number[] = [];
+    let prevMonths: number[] = [];
+    let currentYears: number[] = [];
+    let prevYears: number[] = [];
+    let monthsInPeriod = 1;
 
-    const currentDashboard =
-      dashboardData.find(
-        (d) => d.year === targetYear && d.month === targetMonth,
-      ) || ({} as any);
-    const previousDashboard =
-      dashboardData.find((d) => d.year === prevYear && d.month === prevMonth) ||
-      ({} as any);
+    if (period === DashboardPeriodEnum.YEARLY) {
+      monthsInPeriod = 12;
+      currentMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      prevMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      currentYears = [new Date().getFullYear()];
+      prevYears = [new Date().getFullYear() - 1];
+    } else if (period === DashboardPeriodEnum.QUARTERLY) {
+      monthsInPeriod = 3;
+      const currentMonthVal = new Date().getMonth() + 1;
+      const q = Math.ceil(currentMonthVal / 3);
+      currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
+      currentYears = [new Date().getFullYear()];
+
+      if (q === 1) {
+        prevMonths = [10, 11, 12];
+        prevYears = [new Date().getFullYear() - 1];
+      } else {
+        prevMonths = [(q - 2) * 3 + 1, (q - 2) * 3 + 2, (q - 2) * 3 + 3];
+        prevYears = [new Date().getFullYear()];
+      }
+    } else {
+      // Monthly (default)
+      monthsInPeriod = 1;
+      currentMonths = [targetMonth];
+      currentYears = [targetYear];
+
+      if (targetMonth === 1) {
+        prevMonths = [12];
+        prevYears = [targetYear - 1];
+      } else {
+        prevMonths = [targetMonth - 1];
+        prevYears = [targetYear];
+      }
+    }
+
+    // Filter current and previous periods from all fetched documents
+    const currentDashboardDocs = allDashboardData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        currentYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        currentMonths.includes(d.month),
+    );
+    const previousDashboardDocs = allDashboardData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        prevYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        prevMonths.includes(d.month),
+    );
+
+    const currentFleetDocs = allFleetData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        currentYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        currentMonths.includes(d.month),
+    );
+    const previousFleetDocs = allFleetData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        prevYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        prevMonths.includes(d.month),
+    );
+
+    const currentGrowthDocs = allGrowthData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        currentYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        currentMonths.includes(d.month),
+    );
+    const previousGrowthDocs = allGrowthData.filter(
+      (d) =>
+        d.year !== null &&
+        d.year !== undefined &&
+        prevYears.includes(d.year) &&
+        d.month !== null &&
+        d.month !== undefined &&
+        prevMonths.includes(d.month),
+    );
+
+    const round2 = (val: number | null | undefined) =>
+      val != null ? parseFloat(Number(val).toFixed(2)) : 0;
+
+    // Inline Aggregation Logic
+    let currentDashboard: any = {};
+    let previousDashboard: any = {};
+    let currentFleet: any = {};
+    let prevFleet: any = {};
+    let currentGrowth: any = {};
+    let previousGrowth: any = {};
+
+    if (
+      period === DashboardPeriodEnum.QUARTERLY ||
+      period === DashboardPeriodEnum.YEARLY
+    ) {
+      // 1. Dashboard summary aggregation
+      if (currentDashboardDocs.length > 0) {
+        let revenue = 0,
+          grossProfit = 0,
+          netProfit = 0,
+          ebitda = 0,
+          totalExpenses = 0,
+          netCashFlow = 0;
+        let healthScoreSum = 0,
+          growthSum = 0,
+          equitySum = 0,
+          complianceSum = 0;
+
+        for (const doc of currentDashboardDocs) {
+          revenue += doc.revenue || 0;
+          grossProfit += doc.grossProfit || 0;
+          netProfit += doc.netProfit || 0;
+          ebitda += doc.ebitda || 0;
+          totalExpenses += doc.totalExpenses || 0;
+          netCashFlow += doc.netCashFlow || 0;
+          healthScoreSum += doc.financialHealthScore || 0;
+          growthSum += doc.growthPercent || 0;
+          equitySum += doc.equityHealth || 0;
+          complianceSum += doc.auditCompliance || 0;
+        }
+
+        const sorted = [...currentDashboardDocs].sort(
+          (a, b) => (a.month || 0) - (b.month || 0),
+        );
+        const cashBalance = sorted[sorted.length - 1]?.cashBalance || 0;
+
+        currentDashboard = {
+          revenue,
+          grossProfit,
+          netProfit,
+          ebitda,
+          totalExpenses,
+          netCashFlow,
+          cashBalance,
+          financialHealthScore: round2(
+            healthScoreSum / currentDashboardDocs.length,
+          ),
+          growthPercent: round2(growthSum / currentDashboardDocs.length),
+          equityHealth: round2(equitySum / currentDashboardDocs.length),
+          auditCompliance: round2(complianceSum / currentDashboardDocs.length),
+        };
+      }
+
+      if (previousDashboardDocs.length > 0) {
+        let revenue = 0,
+          grossProfit = 0,
+          netProfit = 0,
+          ebitda = 0,
+          totalExpenses = 0,
+          netCashFlow = 0;
+        let healthScoreSum = 0,
+          growthSum = 0,
+          equitySum = 0,
+          complianceSum = 0;
+
+        for (const doc of previousDashboardDocs) {
+          revenue += doc.revenue || 0;
+          grossProfit += doc.grossProfit || 0;
+          netProfit += doc.netProfit || 0;
+          ebitda += doc.ebitda || 0;
+          totalExpenses += doc.totalExpenses || 0;
+          netCashFlow += doc.netCashFlow || 0;
+          healthScoreSum += doc.financialHealthScore || 0;
+          growthSum += doc.growthPercent || 0;
+          equitySum += doc.equityHealth || 0;
+          complianceSum += doc.auditCompliance || 0;
+        }
+
+        const sorted = [...previousDashboardDocs].sort(
+          (a, b) => (a.month || 0) - (b.month || 0),
+        );
+        const cashBalance = sorted[sorted.length - 1]?.cashBalance || 0;
+
+        previousDashboard = {
+          revenue,
+          grossProfit,
+          netProfit,
+          ebitda,
+          totalExpenses,
+          netCashFlow,
+          cashBalance,
+          financialHealthScore: round2(
+            healthScoreSum / previousDashboardDocs.length,
+          ),
+          growthPercent: round2(growthSum / previousDashboardDocs.length),
+          equityHealth: round2(equitySum / previousDashboardDocs.length),
+          auditCompliance: round2(complianceSum / previousDashboardDocs.length),
+        };
+      }
+
+      // 2. Fleet analytics aggregation
+      if (currentFleetDocs.length > 0) {
+        let totalDeliveries = 0,
+          fleetUtil = 0,
+          totalVehicles = 0,
+          activeVehicles = 0,
+          inactiveVehicles = 0;
+        let totalTrips = 0,
+          completedTrips = 0,
+          cancelledTrips = 0,
+          driverEff = 0;
+
+        for (const doc of currentFleetDocs) {
+          totalDeliveries += doc.totalDeliveries || 0;
+          fleetUtil += doc.fleetUtilizationPercent || 0;
+          totalVehicles += doc.totalVehicles || 0;
+          activeVehicles += doc.activeVehicles || 0;
+          inactiveVehicles += doc.inactiveVehicles || 0;
+          totalTrips += doc.totalTrips || 0;
+          completedTrips += doc.completedTrips || 0;
+          cancelledTrips += doc.cancelledTrips || 0;
+          driverEff += doc.driverEfficiencyOverall || 0;
+        }
+
+        currentFleet = {
+          totalDeliveries,
+          fleetUtilizationPercent: round2(fleetUtil / currentFleetDocs.length),
+          totalVehicles: round2(totalVehicles / currentFleetDocs.length),
+          activeVehicles: round2(activeVehicles / currentFleetDocs.length),
+          inactiveVehicles: round2(inactiveVehicles / currentFleetDocs.length),
+          totalTrips,
+          completedTrips,
+          cancelledTrips,
+          driverEfficiencyOverall: round2(driverEff / currentFleetDocs.length),
+        };
+      }
+
+      if (previousFleetDocs.length > 0) {
+        let totalDeliveries = 0,
+          fleetUtil = 0,
+          totalVehicles = 0,
+          activeVehicles = 0,
+          inactiveVehicles = 0;
+        let totalTrips = 0,
+          completedTrips = 0,
+          cancelledTrips = 0,
+          driverEff = 0;
+
+        for (const doc of previousFleetDocs) {
+          totalDeliveries += doc.totalDeliveries || 0;
+          fleetUtil += doc.fleetUtilizationPercent || 0;
+          totalVehicles += doc.totalVehicles || 0;
+          activeVehicles += doc.activeVehicles || 0;
+          inactiveVehicles += doc.inactiveVehicles || 0;
+          totalTrips += doc.totalTrips || 0;
+          completedTrips += doc.completedTrips || 0;
+          cancelledTrips += doc.cancelledTrips || 0;
+          driverEff += doc.driverEfficiencyOverall || 0;
+        }
+
+        prevFleet = {
+          totalDeliveries,
+          fleetUtilizationPercent: round2(fleetUtil / previousFleetDocs.length),
+          totalVehicles: round2(totalVehicles / previousFleetDocs.length),
+          activeVehicles: round2(activeVehicles / previousFleetDocs.length),
+          inactiveVehicles: round2(inactiveVehicles / previousFleetDocs.length),
+          totalTrips,
+          completedTrips,
+          cancelledTrips,
+          driverEfficiencyOverall: round2(driverEff / previousFleetDocs.length),
+        };
+      }
+
+      // 3. Growth analytics aggregation
+      if (currentGrowthDocs.length > 0) {
+        let clientCount = 0,
+          employeeCount = 0;
+        const insights: any[] = [];
+        const seen = new Set();
+
+        for (const doc of currentGrowthDocs) {
+          clientCount += doc.clientCount || 0;
+          employeeCount += doc.employeeCount || 0;
+          if (doc.insights && Array.isArray(doc.insights)) {
+            for (const ins of doc.insights) {
+              if (ins.title && !seen.has(ins.title)) {
+                seen.add(ins.title);
+                insights.push(ins);
+              }
+            }
+          }
+        }
+
+        currentGrowth = {
+          clientCount: round2(clientCount / currentGrowthDocs.length),
+          employeeCount: round2(employeeCount / currentGrowthDocs.length),
+          insights,
+        };
+      }
+
+      if (previousGrowthDocs.length > 0) {
+        let clientCount = 0,
+          employeeCount = 0;
+        const insights: any[] = [];
+        const seen = new Set();
+
+        for (const doc of previousGrowthDocs) {
+          clientCount += doc.clientCount || 0;
+          employeeCount += doc.employeeCount || 0;
+          if (doc.insights && Array.isArray(doc.insights)) {
+            for (const ins of doc.insights) {
+              if (ins.title && !seen.has(ins.title)) {
+                seen.add(ins.title);
+                insights.push(ins);
+              }
+            }
+          }
+        }
+
+        previousGrowth = {
+          clientCount: round2(clientCount / previousGrowthDocs.length),
+          employeeCount: round2(employeeCount / previousGrowthDocs.length),
+          insights,
+        };
+      }
+    } else {
+      // Monthly (standard match)
+      currentDashboard =
+        allDashboardData.find(
+          (d) => d.year === targetYear && d.month === targetMonth,
+        ) || ({} as any);
+      previousDashboard =
+        allDashboardData.find(
+          (d) =>
+            d.year === (prevYears[0] || targetYear) &&
+            d.month === (prevMonths[0] || targetMonth),
+        ) || ({} as any);
+
+      currentFleet =
+        allFleetData.find(
+          (d) => d.year === targetYear && d.month === targetMonth,
+        ) || ({} as any);
+      prevFleet = allFleetData[1] || ({} as any);
+
+      currentGrowth =
+        allGrowthData.find(
+          (d) => d.year === targetYear && d.month === targetMonth,
+        ) || ({} as any);
+      previousGrowth = allGrowthData[1] || ({} as any);
+    }
 
     const summary = {
       revenue: currentDashboard.revenue || 0,
@@ -143,10 +470,6 @@ export class DashboardService {
       cashBalance: currentDashboard.cashBalance || 0,
       financialHealthScore: currentDashboard.financialHealthScore || 0,
     };
-
-    const currentFleet =
-      fleetData.find((d) => d.year === targetYear && d.month === targetMonth) ||
-      ({} as any);
 
     const fleetSummary = {
       totalDeliveries: currentFleet.totalDeliveries || 0,
@@ -159,16 +482,17 @@ export class DashboardService {
       cancelledTrips: currentFleet.cancelledTrips || 0,
     };
 
-    const currentGrowth =
-      growthData.find(
-        (d) => d.year === targetYear && d.month === targetMonth,
-      ) || ({} as any);
     const clientCount = currentGrowth.clientCount || 0;
 
     // Derived Calculations
     const cashRunway =
       summary.totalExpenses > 0
-        ? parseFloat((summary.cashBalance / summary.totalExpenses).toFixed(2))
+        ? parseFloat(
+            (
+              summary.cashBalance /
+              (summary.totalExpenses / monthsInPeriod)
+            ).toFixed(2),
+          )
         : 0;
 
     const growthPercent =
@@ -260,30 +584,29 @@ export class DashboardService {
         ? parseFloat(((prevCostOfRevenue / prevRevenue) * 100).toFixed(2))
         : 0;
 
-    const previousFleet = fleetData[1] || ({} as any);
-    const prevTotalDeliveries = previousFleet.totalDeliveries || 0;
-    const prevTotalVehicles = previousFleet.totalVehicles || 0;
+    const prevTotalDeliveries = prevFleet.totalDeliveries || 0;
+    const prevTotalVehicles = prevFleet.totalVehicles || 0;
     const prevDeliveriesPerVehicle =
       prevTotalVehicles > 0
         ? parseFloat((prevTotalDeliveries / prevTotalVehicles).toFixed(2))
         : 0;
-    const prevFleetUtilization = previousFleet.fleetUtilizationPercent || 0;
-    const prevDriverEfficiency = previousFleet.driverEfficiencyOverall || 0;
+    const prevFleetUtilization = prevFleet.fleetUtilizationPercent || 0;
+    const prevDriverEfficiency = prevFleet.driverEfficiencyOverall || 0;
 
     const prevTotalExpenses = previousDashboard.totalExpenses || 0;
     const prevCashRunway =
       prevTotalExpenses > 0
         ? parseFloat(
-            ((previousDashboard.cashBalance || 0) / prevTotalExpenses).toFixed(
-              2,
-            ),
+            (
+              (previousDashboard.cashBalance || 0) /
+              (prevTotalExpenses / monthsInPeriod)
+            ).toFixed(2),
           )
         : 0;
     const prevGrowthPercent = previousDashboard.growthPercent || 0;
     const prevEbitda = previousDashboard.ebitda || 0;
     const prevOperatingCashFlow = previousDashboard.netCashFlow || 0;
 
-    const previousGrowth = growthData[1] || ({} as any);
     const prevClientCount = previousGrowth.clientCount || 0;
     const prevCostPerClient =
       prevClientCount > 0
@@ -341,14 +664,21 @@ export class DashboardService {
     const collection = this.dashboardModel.db.collection(
       `company_${companyId}`,
     );
-    const activeReports = await collection
-      .find({
-        collectionType: "report",
-        deletedAt: null,
-        month: resolvedMonth,
-        year: resolvedYear,
-      })
-      .toArray();
+
+    const reportsQuery: any = {
+      collectionType: "report",
+      deletedAt: null,
+      year: resolvedYear,
+    };
+    if (period === DashboardPeriodEnum.QUARTERLY) {
+      reportsQuery.month = { $in: currentMonths };
+    } else if (period === DashboardPeriodEnum.YEARLY) {
+      // Fetch all reports for that year
+    } else {
+      reportsQuery.month = resolvedMonth;
+    }
+
+    const activeReports = await collection.find(reportsQuery).toArray();
 
     const aiInsightsList = activeReports.flatMap((report: any) => {
       const insights = report.aiInsights || [];
@@ -376,7 +706,94 @@ export class DashboardService {
       description: ins.description,
     }));
 
-    const growthTrendValues = dashboardData
+    // Historical Trend Data Logic
+    let trendData: any[] = [];
+    if (period === DashboardPeriodEnum.YEARLY) {
+      const yearlyGroups: Record<number, { revenue: number; profit: number }> =
+        {};
+      for (const doc of allDashboardData) {
+        if (doc.year) {
+          if (!yearlyGroups[doc.year]) {
+            yearlyGroups[doc.year] = { revenue: 0, profit: 0 };
+          }
+          yearlyGroups[doc.year].revenue += doc.revenue || 0;
+          yearlyGroups[doc.year].profit += doc.netProfit || 0;
+        }
+      }
+      const sortedYears = Object.keys(yearlyGroups)
+        .map(Number)
+        .sort((a, b) => a - b);
+      trendData = sortedYears.map((yr) => ({
+        name: String(yr),
+        date: new Date(yr, 0, 1),
+        revenue: yearlyGroups[yr].revenue,
+        profit: yearlyGroups[yr].profit,
+      }));
+    } else if (period === DashboardPeriodEnum.QUARTERLY) {
+      const quarterGroups: Record<
+        string,
+        { year: number; quarter: number; revenue: number; profit: number }
+      > = {};
+      for (const doc of allDashboardData) {
+        if (doc.year && doc.month) {
+          const q = Math.ceil(doc.month / 3);
+          const key = `${doc.year}-Q${q}`;
+          if (!quarterGroups[key]) {
+            quarterGroups[key] = {
+              year: doc.year,
+              quarter: q,
+              revenue: 0,
+              profit: 0,
+            };
+          }
+          quarterGroups[key].revenue += doc.revenue || 0;
+          quarterGroups[key].profit += doc.netProfit || 0;
+        }
+      }
+      const sortedKeys = Object.keys(quarterGroups).sort((a, b) => {
+        const [aYear, aQ] = a.split("-Q").map(Number);
+        const [bYear, bQ] = b.split("-Q").map(Number);
+        if (aYear !== bYear) return aYear - bYear;
+        return aQ - bQ;
+      });
+      const lastKeys = sortedKeys.slice(-6);
+      trendData = lastKeys.map((key) => {
+        const item = quarterGroups[key];
+        const dateObj = new Date(item.year, (item.quarter - 1) * 3, 1);
+        return {
+          name: `${item.year} Q${item.quarter}`,
+          date: dateObj,
+          revenue: item.revenue,
+          profit: item.profit,
+        };
+      });
+    } else {
+      const filteredMonthlyDocs = allDashboardData.filter(
+        (d) =>
+          d.year !== null &&
+          d.year !== undefined &&
+          d.month !== null &&
+          d.month !== undefined &&
+          (d.year < targetYear ||
+            (d.year === targetYear && d.month <= targetMonth)),
+      );
+      const sortedMonthlyDocs = [...filteredMonthlyDocs].sort((a, b) => {
+        if (a.year !== b.year) return a.year! - b.year!;
+        return a.month! - b.month!;
+      });
+      const last12Docs = sortedMonthlyDocs.slice(-12);
+      trendData = last12Docs.map((curr) => {
+        const dateObj = new Date(curr.year!, curr.month! - 1, 1);
+        return {
+          name: dateObj.toLocaleString("default", { month: "short" }),
+          date: dateObj,
+          revenue: curr.revenue || 0,
+          profit: curr.netProfit || 0,
+        };
+      });
+    }
+
+    const growthTrendValues = allDashboardData
       .map((d: any) => d.growthPercent || 0)
       .filter((g: number) => g > 0);
     const avgGrowth =
@@ -443,18 +860,7 @@ export class DashboardService {
           trend: getTrend(summary.operatingCashFlow, prevOperatingCashFlow),
         },
       },
-      revenueTrend: dashboardData.reverse().map((curr) => {
-        const dateObj =
-          curr.year && curr.month
-            ? new Date(curr.year, curr.month - 1, 1)
-            : new Date();
-        return {
-          month: dateObj.toLocaleString("default", { month: "short" }),
-          date: dateObj,
-          revenue: curr.revenue || 0,
-          profit: curr.netProfit || 0,
-        };
-      }),
+      revenueTrend: trendData,
       healthMeter: {
         score: financialHealthScore,
         equityHealth: equityHealth,
