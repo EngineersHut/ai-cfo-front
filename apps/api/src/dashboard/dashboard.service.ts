@@ -39,9 +39,11 @@ export class DashboardService {
       return this.getEmptyDashboard();
     }
     const companyId = company._id.toString();
-    const { month, year, period } = queryDto;
+    const { month, year, period, quarter } = queryDto;
 
-    return this.getFleetDashboard(companyId, month, year, period);
+    const financialYearType = company.financialYearType || "apr_to_mar";
+
+    return this.getFleetDashboard(companyId, month, year, period, quarter, financialYearType);
   }
 
   private getEmptyDashboard() {
@@ -83,6 +85,8 @@ export class DashboardService {
     month?: number,
     year?: number,
     period?: DashboardPeriodEnum,
+    quarter?: number,
+    financialYearType: string = "apr_to_mar"
   ) {
     // 1. Fetch all documents for the company from MongoDB
     const [allDashboardData, allFleetData, allGrowthData] = await Promise.all([
@@ -101,103 +105,112 @@ export class DashboardService {
       (allDashboardData[0]?.month as number) ||
       new Date().getMonth() + 1;
 
-    let currentMonths: number[] = [];
-    let prevMonths: number[] = [];
-    let currentYears: number[] = [];
-    let prevYears: number[] = [];
+    let currentPeriodMonths: { year: number; month: number }[] = [];
+    let prevPeriodMonths: { year: number; month: number }[] = [];
     let monthsInPeriod = 1;
 
     if (period === DashboardPeriodEnum.YEARLY) {
       monthsInPeriod = 12;
-      currentMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-      prevMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-      currentYears = [new Date().getFullYear()];
-      prevYears = [new Date().getFullYear() - 1];
+      if (financialYearType === "jan_to_dec") {
+        currentPeriodMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => ({ year: targetYear, month: m }));
+        prevPeriodMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => ({ year: targetYear - 1, month: m }));
+      } else {
+        currentPeriodMonths = [
+          ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => ({ year: targetYear, month: m })),
+          ...[1, 2, 3].map((m) => ({ year: targetYear + 1, month: m })),
+        ];
+        prevPeriodMonths = [
+          ...[4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => ({ year: targetYear - 1, month: m })),
+          ...[1, 2, 3].map((m) => ({ year: targetYear, month: m })),
+        ];
+      }
     } else if (period === DashboardPeriodEnum.QUARTERLY) {
       monthsInPeriod = 3;
-      const currentMonthVal = new Date().getMonth() + 1;
-      const q = Math.ceil(currentMonthVal / 3);
-      currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
-      currentYears = [new Date().getFullYear()];
+      let currentMonth = new Date().getMonth() + 1;
+      let defaultQ = 1;
+      
+      if (financialYearType === "jan_to_dec") {
+        if (currentMonth >= 1 && currentMonth <= 3) defaultQ = 1;
+        else if (currentMonth >= 4 && currentMonth <= 6) defaultQ = 2;
+        else if (currentMonth >= 7 && currentMonth <= 9) defaultQ = 3;
+        else defaultQ = 4;
+      } else {
+        if (currentMonth >= 4 && currentMonth <= 6) defaultQ = 1;
+        else if (currentMonth >= 7 && currentMonth <= 9) defaultQ = 2;
+        else if (currentMonth >= 10 && currentMonth <= 12) defaultQ = 3;
+        else defaultQ = 4;
+      }
+      
+      const q = quarter || defaultQ;
+
+      const getQuarterMonths = (qNum: number, baseYear: number) => {
+        if (financialYearType === "jan_to_dec") {
+          if (qNum === 1) return [1, 2, 3].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 2) return [4, 5, 6].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 3) return [7, 8, 9].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 4) return [10, 11, 12].map((m) => ({ year: baseYear, month: m }));
+        } else {
+          if (qNum === 1) return [4, 5, 6].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 2) return [7, 8, 9].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 3) return [10, 11, 12].map((m) => ({ year: baseYear, month: m }));
+          if (qNum === 4) return [1, 2, 3].map((m) => ({ year: baseYear + 1, month: m }));
+        }
+        return [];
+      };
+
+      currentPeriodMonths = getQuarterMonths(q, targetYear);
 
       if (q === 1) {
-        prevMonths = [10, 11, 12];
-        prevYears = [new Date().getFullYear() - 1];
+        prevPeriodMonths = getQuarterMonths(4, targetYear - 1);
       } else {
-        prevMonths = [(q - 2) * 3 + 1, (q - 2) * 3 + 2, (q - 2) * 3 + 3];
-        prevYears = [new Date().getFullYear()];
+        prevPeriodMonths = getQuarterMonths(q - 1, targetYear);
       }
     } else {
       // Monthly (default)
       monthsInPeriod = 1;
-      currentMonths = [targetMonth];
-      currentYears = [targetYear];
+      let actualYear = targetYear;
+      if (financialYearType === "apr_to_mar" && targetMonth <= 3) {
+        actualYear = targetYear + 1;
+      }
+      currentPeriodMonths = [{ year: actualYear, month: targetMonth }];
 
       if (targetMonth === 1) {
-        prevMonths = [12];
-        prevYears = [targetYear - 1];
+        prevPeriodMonths = [{ year: actualYear - 1, month: 12 }];
+      } else if (financialYearType === "apr_to_mar" && targetMonth === 4) {
+        prevPeriodMonths = [{ year: actualYear - 1, month: 3 }];
       } else {
-        prevMonths = [targetMonth - 1];
-        prevYears = [targetYear];
+        prevPeriodMonths = [{ year: actualYear, month: targetMonth - 1 }];
       }
     }
 
+    const isDocInPeriod = (
+      d: any,
+      periodMonths: { year: number; month: number }[],
+    ) => {
+      if (d.year == null || d.month == null) return false;
+      return periodMonths.some((pm) => pm.year === d.year && pm.month === d.month);
+    };
+
     // Filter current and previous periods from all fetched documents
-    const currentDashboardDocs = allDashboardData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        currentYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        currentMonths.includes(d.month),
+    const currentDashboardDocs = allDashboardData.filter((d) =>
+      isDocInPeriod(d, currentPeriodMonths),
     );
-    const previousDashboardDocs = allDashboardData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        prevYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        prevMonths.includes(d.month),
+    const previousDashboardDocs = allDashboardData.filter((d) =>
+      isDocInPeriod(d, prevPeriodMonths),
     );
 
-    const currentFleetDocs = allFleetData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        currentYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        currentMonths.includes(d.month),
+    const currentFleetDocs = allFleetData.filter((d) =>
+      isDocInPeriod(d, currentPeriodMonths),
     );
-    const previousFleetDocs = allFleetData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        prevYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        prevMonths.includes(d.month),
+    const previousFleetDocs = allFleetData.filter((d) =>
+      isDocInPeriod(d, prevPeriodMonths),
     );
 
-    const currentGrowthDocs = allGrowthData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        currentYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        currentMonths.includes(d.month),
+    const currentGrowthDocs = allGrowthData.filter((d) =>
+      isDocInPeriod(d, currentPeriodMonths),
     );
-    const previousGrowthDocs = allGrowthData.filter(
-      (d) =>
-        d.year !== null &&
-        d.year !== undefined &&
-        prevYears.includes(d.year) &&
-        d.month !== null &&
-        d.month !== undefined &&
-        prevMonths.includes(d.month),
+    const previousGrowthDocs = allGrowthData.filter((d) =>
+      isDocInPeriod(d, prevPeriodMonths),
     );
 
     const round2 = (val: number | null | undefined) =>
@@ -444,8 +457,8 @@ export class DashboardService {
       previousDashboard =
         allDashboardData.find(
           (d) =>
-            d.year === (prevYears[0] || targetYear) &&
-            d.month === (prevMonths[0] || targetMonth),
+            d.year === (prevPeriodMonths[0]?.year || targetYear) &&
+            d.month === (prevPeriodMonths[0]?.month || targetMonth),
         ) || ({} as any);
 
       currentFleet =
@@ -668,15 +681,8 @@ export class DashboardService {
     const reportsQuery: any = {
       collectionType: "report",
       deletedAt: null,
-      year: resolvedYear,
+      $or: currentPeriodMonths.map((pm) => ({ year: pm.year, month: pm.month })),
     };
-    if (period === DashboardPeriodEnum.QUARTERLY) {
-      reportsQuery.month = { $in: currentMonths };
-    } else if (period === DashboardPeriodEnum.YEARLY) {
-      // Fetch all reports for that year
-    } else {
-      reportsQuery.month = resolvedMonth;
-    }
 
     const activeReports = await collection.find(reportsQuery).toArray();
 

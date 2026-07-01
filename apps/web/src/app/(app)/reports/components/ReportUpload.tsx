@@ -84,10 +84,16 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
   const currentMonthNum = new Date().getMonth() + 1;
   const currentYearNum = new Date().getFullYear();
 
+  const [uploadType, setUploadType] = useState<"single" | "range">("single");
+
   const [formData, setFormData] = useState({
     reportName: "",
     month: String(currentMonthNum),
     year: String(currentYearNum),
+    startMonth: String(currentMonthNum),
+    startYear: String(currentYearNum),
+    endMonth: String(currentMonthNum),
+    endYear: String(currentYearNum),
     reportType: "" as ReportTypeEnum | "",
     file: [] as any[],
   });
@@ -153,9 +159,17 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
 
       const payload = new FormData();
       payload.append("reportName", formData.reportName);
-      payload.append("month", formData.month);
-      payload.append("year", formData.year);
       payload.append("reportType", formData.reportType);
+
+      if (uploadType === "single") {
+        payload.append("month", formData.month);
+        payload.append("year", formData.year);
+      } else {
+        const startDate = new Date(parseInt(formData.startYear), parseInt(formData.startMonth) - 1, 1);
+        const endDate = new Date(parseInt(formData.endYear), parseInt(formData.endMonth), 0); // last day of the month
+        payload.append("periodStartDate", startDate.toISOString());
+        payload.append("periodEndDate", endDate.toISOString());
+      }
 
       formData.file.forEach((f: any) => {
         payload.append("file", f);
@@ -368,7 +382,34 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 max-w-[648px] w-full">
+            <div className="flex flex-col gap-4 max-w-[648px] w-full mt-2">
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="uploadType"
+                    value="single"
+                    checked={uploadType === "single"}
+                    onChange={() => setUploadType("single")}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-[14px] text-slate-700 dark:text-slate-300">Single Period (Month / Year)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="uploadType"
+                    value="range"
+                    checked={uploadType === "range"}
+                    onChange={() => setUploadType("range")}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-[14px] text-slate-700 dark:text-slate-300">Custom Date Range</span>
+                </label>
+              </div>
+
+              {uploadType === "single" ? (
+                <div className="flex flex-col sm:flex-row gap-4 w-full">
               <div className="flex-1 flex flex-col gap-2">
                 <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
                   Month <span className="text-red-500">*</span>
@@ -439,6 +480,102 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                   </span>
                 )}
               </div>
+            </div>
+            ) : (
+              <div className="flex flex-col gap-4 w-full">
+                {/* Starting Period */}
+                <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
+                      Starting Period (Month) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative group w-full">
+                      <select
+                        value={formData.startMonth}
+                        onChange={(e) => handleInputChange("startMonth", e.target.value)}
+                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer border-[#e2e8f0] dark:border-slate-600`}
+                      >
+                        {monthOptions.filter(opt => opt.value !== "0").map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <ChevronDown size={18} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
+                      Starting Period (Year) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative group w-full">
+                      <select
+                        value={formData.startYear}
+                        onChange={(e) => handleInputChange("startYear", e.target.value)}
+                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer border-[#e2e8f0] dark:border-slate-600`}
+                      >
+                        {yearOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <ChevronDown size={18} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ending Period */}
+                <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
+                      Ending Period (Month) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative group w-full">
+                      <select
+                        value={formData.endMonth}
+                        onChange={(e) => handleInputChange("endMonth", e.target.value)}
+                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer border-[#e2e8f0] dark:border-slate-600`}
+                      >
+                        {monthOptions.filter(opt => opt.value !== "0").map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <ChevronDown size={18} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <label className="text-[14px] font-medium text-slate-600 dark:text-slate-300 font-inter flex items-center gap-1">
+                      Ending Period (Year) <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative group w-full">
+                      <select
+                        value={formData.endYear}
+                        onChange={(e) => handleInputChange("endYear", e.target.value)}
+                        className={`w-full h-[38px] pl-[10px] pr-[36px] py-[8px] rounded-[8px] border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/30 transition-all text-[14px] font-inter shadow-sm appearance-none cursor-pointer border-[#e2e8f0] dark:border-slate-600`}
+                      >
+                        {yearOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <ChevronDown size={18} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             </div>
           </div>
         </div>

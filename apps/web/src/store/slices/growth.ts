@@ -37,14 +37,23 @@ export const {
   getGrowthDataSuccess
 } = slice.actions;
 
-export const fetchGrowthData = (companyId: string, period: string, month?: number, year?: number) => {
+export const fetchGrowthData = (companyId: string, period: string, month?: number, year?: number, quarter?: number) => {
   return async () => {
     dispatch(getGrowthLoading(true));
     try {
-      let url = `/api/growth-overview?period=${period.toLowerCase()}`;
-      if (month !== undefined && year !== undefined) {
-        url += `&month=${month}&year=${year}`;
+      const queryParts: string[] = [];
+      if (period) queryParts.push(`period=${period}`);
+      if (year !== undefined) queryParts.push(`year=${year}`);
+      if (period === "quarterly" && quarter !== undefined) {
+        queryParts.push(`quarter=${quarter}`);
       }
+      if (period === "monthly" && month !== undefined) {
+        queryParts.push(`month=${month}`);
+      }
+
+      const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+      const url = `/api/growth-overview${queryString}`;
+
       const response = await getData(url);
       const data = response?.data || response;
       if (data) {

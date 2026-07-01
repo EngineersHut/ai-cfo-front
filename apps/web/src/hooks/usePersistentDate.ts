@@ -28,6 +28,14 @@ export function usePersistentDate() {
     return "monthly";
   });
 
+  const [selectedQuarter, setSelectedQuarter] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("selectedQuarter");
+      if (saved) return Number(saved);
+    }
+    return Math.ceil(currentMonth / 3);
+  });
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("selectedMonth", selectedMonth.toString());
@@ -46,6 +54,12 @@ export function usePersistentDate() {
     }
   }, [selectedPeriod]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedQuarter", selectedQuarter.toString());
+    }
+  }, [selectedQuarter]);
+
   return {
     selectedMonth,
     setSelectedMonth,
@@ -53,5 +67,7 @@ export function usePersistentDate() {
     setSelectedYear,
     selectedPeriod,
     setSelectedPeriod,
+    selectedQuarter,
+    setSelectedQuarter,
   };
 }

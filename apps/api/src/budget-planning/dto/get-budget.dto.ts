@@ -14,4 +14,7 @@ export class GetBudgetDto {
 
   @IsOptional()
   year?: number;
+
+  @IsOptional()
+  quarter?: number;
 }

@@ -1,6 +1,6 @@
 import { IsString, IsEnum, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IndustryEnum, CurrencyEnum } from '../../common/enums/company.enum';
+import { IndustryEnum, CurrencyEnum, FinancialYearTypeEnum } from '../../common/enums/company.enum';
 
 export class CreateCompanyDto {
   @ApiProperty({ description: 'The name of the company', example: 'Nexus FinTech Global' })
@@ -27,4 +27,9 @@ export class CreateCompanyDto {
   @IsBoolean()
   @IsOptional()
   isPrimary?: boolean;
+
+  @ApiPropertyOptional({ description: 'The financial year type of the company', enum: FinancialYearTypeEnum, example: FinancialYearTypeEnum.APR_TO_MAR })
+  @IsEnum(FinancialYearTypeEnum)
+  @IsOptional()
+  financialYearType?: string;
 }

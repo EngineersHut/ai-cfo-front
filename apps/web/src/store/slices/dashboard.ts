@@ -88,6 +88,7 @@ interface DashboardState {
   };
   rawSummary: any;
   visibility: Record<string, boolean>;
+  loading: boolean;
 }
 
 const initialState: DashboardState = {
@@ -117,6 +118,7 @@ const initialState: DashboardState = {
   },
   rawSummary: {},
   visibility: getInitialVisibility(),
+  loading: false,
 };
 
 const slice = createSlice({
@@ -142,6 +144,9 @@ const slice = createSlice({
     resetDashboardConfigState(state) {
       state.visibility = getInitialVisibility();
     },
+    setDashboardLoading(state, action) {
+      state.loading = action.payload;
+    },
     getDashboardDataSuccess(state, action) {
       const apiData = action.payload;
       if (!apiData) return;
@@ -166,6 +171,7 @@ export const {
   setDashboardVisibilityBulkState,
   resetDashboardConfigState,
   getDashboardDataSuccess,
+  setDashboardLoading,
 } = slice.actions;
 
 export const fetchDashboardConfig = () => {
@@ -246,15 +252,19 @@ export const fetchDashboardData = (
   month?: number,
   year?: number,
   period?: string,
+  quarter?: number,
 ) => {
   return async () => {
+    dispatch(setDashboardLoading(true));
     try {
       const queryParts: string[] = [];
-      if (period && period !== "monthly") {
-        queryParts.push(`period=${period}`);
-      } else {
-        if (month !== undefined) queryParts.push(`month=${month}`);
-        if (year !== undefined) queryParts.push(`year=${year}`);
+      if (period) queryParts.push(`period=${period}`);
+      if (year !== undefined) queryParts.push(`year=${year}`);
+      if (period === "quarterly" && quarter !== undefined) {
+        queryParts.push(`quarter=${quarter}`);
+      }
+      if (period === "monthly" && month !== undefined) {
+        queryParts.push(`month=${month}`);
       }
 
       const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
@@ -267,6 +277,8 @@ export const fetchDashboardData = (
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data from API", error);
+    } finally {
+      dispatch(setDashboardLoading(false));
     }
   };
 };

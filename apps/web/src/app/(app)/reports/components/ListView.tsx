@@ -26,11 +26,32 @@ interface ListViewProps {
     onSearchChange?: (val: string) => void;
 }
 
-const getPeriodString = (dateStr?: string) => {
-    if (!dateStr) return 'N/A';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+const getPeriodString = (startStr?: string, endStr?: string, periodStr?: string) => {
+    if (startStr && endStr) {
+        const start = new Date(startStr);
+        const end = new Date(endStr);
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+            // Check if they are the same month and year
+            if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+                return start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            } else {
+                return "Custom Range";
+            }
+        }
+    }
+    
+    if (startStr) {
+        const date = new Date(startStr);
+        if (!isNaN(date.getTime())) return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+    
+    if (periodStr) {
+        const date = new Date(periodStr);
+        if (!isNaN(date.getTime())) return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        return periodStr;
+    }
+    
+    return 'N/A';
 };
 
 const getReportTypeLabel = (type?: string) => {
@@ -90,7 +111,13 @@ const getDateRangeString = (startStr?: string, endStr?: string) => {
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
         return `${startStr} - ${endStr}`;
     }
-    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
+    
+    // If it's a single month, we don't really need a date range, but we can show start-end days
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+         return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    }
+    
     return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;
 };
 
@@ -164,7 +191,7 @@ export default function ListView({
                                     {report.reportName || 'N/A'}
                                 </td>
                                 <td className="px-[24px] py-[16px] text-[14px] font-medium text-[#0a092e] dark:text-slate-200 font-inter leading-[20px] w-[180px] border-r border-[#f1f5f9] dark:border-slate-700">
-                                    {getPeriodString(report.periodStartDate || report.period)}
+                                    {getPeriodString(report.periodStartDate, report.periodEndDate, report.period)}
                                 </td>
                                 <td className="px-[24px] py-[16px] text-center text-[14px] font-medium text-[#0a092e] dark:text-slate-200 font-inter leading-[20px] w-[180px] border-r border-[#f1f5f9] dark:border-slate-700">
                                     {getReportTypeLabel(report.reportType || report.type)}

@@ -47,4 +47,5 @@ export interface DashboardStateProps {
     cashflow: { value: string; unit: string; trend: string; sub: string };
   };
   visibility: Record<string, boolean>;
+  loading?: boolean;
 }

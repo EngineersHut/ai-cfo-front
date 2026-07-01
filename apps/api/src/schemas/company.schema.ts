@@ -5,7 +5,7 @@ export type CompanyDocument = HydratedDocument<Company>;
 
 import { BaseDocument } from './base.schema';
 
-import { IndustryEnum, CurrencyEnum } from '../common/enums/company.enum';
+import { IndustryEnum, CurrencyEnum, FinancialYearTypeEnum } from '../common/enums/company.enum';
 
 @Schema()
 export class Company extends BaseDocument {
@@ -23,6 +23,9 @@ export class Company extends BaseDocument {
 
   @Prop({ required: true, enum: CurrencyEnum })
   currency!: string;
+
+  @Prop({ required: false, enum: FinancialYearTypeEnum, default: FinancialYearTypeEnum.APR_TO_MAR })
+  financialYearType!: string;
 
   @Prop({ default: false })
   isPrimary!: boolean;

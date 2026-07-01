@@ -85,26 +85,50 @@ export class ReportSyncService {
     // Group reports by year-month
     const monthlyReportsMap = new Map<string, any[]>();
     for (const report of reports) {
-      const month =
-        report.month != null
-          ? report.month
-          : report.periodStartDate
-            ? new Date(report.periodStartDate).getMonth() + 1
-            : new Date(report.createdAt).getMonth() + 1;
-      const year =
-        report.year ||
-        (report.periodStartDate
-          ? new Date(report.periodStartDate).getFullYear()
-          : new Date(report.createdAt).getFullYear());
-      if (targetMonth && targetYear && (month !== targetMonth || year !== targetYear)) {
-        continue;
-      }
+      if (report.periodStartDate && report.periodEndDate) {
+        let currentYear = new Date(report.periodStartDate).getFullYear();
+        let currentMonth = new Date(report.periodStartDate).getMonth() + 1;
+        const endYear = new Date(report.periodEndDate).getFullYear();
+        const endMonth = new Date(report.periodEndDate).getMonth() + 1;
 
-      const key = `${year}-${month}`;
-      if (!monthlyReportsMap.has(key)) {
-        monthlyReportsMap.set(key, []);
+        while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+          if (targetMonth && targetYear && (currentMonth !== targetMonth || currentYear !== targetYear)) {
+            // skip
+          } else {
+            const key = `${currentYear}-${currentMonth}`;
+            if (!monthlyReportsMap.has(key)) {
+              monthlyReportsMap.set(key, []);
+            }
+            monthlyReportsMap.get(key)!.push(report);
+          }
+          currentMonth++;
+          if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+          }
+        }
+      } else {
+        const month =
+          report.month != null
+            ? report.month
+            : report.periodStartDate
+              ? new Date(report.periodStartDate).getMonth() + 1
+              : new Date(report.createdAt).getMonth() + 1;
+        const year =
+          report.year ||
+          (report.periodStartDate
+            ? new Date(report.periodStartDate).getFullYear()
+            : new Date(report.createdAt).getFullYear());
+        if (targetMonth && targetYear && (month !== targetMonth || year !== targetYear)) {
+          continue;
+        }
+
+        const key = `${year}-${month}`;
+        if (!monthlyReportsMap.has(key)) {
+          monthlyReportsMap.set(key, []);
+        }
+        monthlyReportsMap.get(key)!.push(report);
       }
-      monthlyReportsMap.get(key)!.push(report);
     }
 
     // Find all existing periods in dashboard to identify which ones need to be deleted
@@ -142,14 +166,27 @@ export class ReportSyncService {
       }
     }
 
-    // Process each month using LLM consolidation
+    // Group months into batches based on identical report lists to minimize AI calls
+    const batches = new Map<string, { months: {month: number, year: number}[], reports: any[] }>();
+
     for (const [key, monthReports] of monthlyReportsMap.entries()) {
       const [yearStr, monthStr] = key.split("-");
       const year = parseInt(yearStr, 10);
       const month = parseInt(monthStr, 10);
+      
+      // Create signature based on report _ids
+      const signature = monthReports.map(r => r._id.toString()).sort().join(',');
+      
+      if (!batches.has(signature)) {
+        batches.set(signature, { months: [], reports: monthReports });
+      }
+      batches.get(signature)!.months.push({ month, year });
+    }
 
-      // Read content for all reports of this month
-      const reportsData = monthReports
+    // Process each batch using LLM consolidation
+    for (const batch of batches.values()) {
+      // Read content for all reports of this batch
+      const reportsData = batch.reports
         .map((report) => ({
           name: report.reportName || "Unnamed Report",
           content: this.getReportContent(
@@ -163,25 +200,60 @@ export class ReportSyncService {
         continue;
       }
 
-      // Call LLM to consolidate
-      try {
-        console.log(
-          `Consolidating ${reportsData.length} reports for ${key} using Gemini...`,
-        );
-        const consolidated =
-          await this.aiService.generateConsolidatedMonthlyMetrics(
-            reportsData,
-            industry,
+      if (batch.months.length === 1) {
+        // Single month batch - call the standard monthly AI method
+        const m = batch.months[0];
+        try {
+          console.log(
+            `Consolidating ${reportsData.length} reports for single month ${m.year}-${m.month} using Gemini...`,
           );
+          const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+          const targetMonthName = MONTH_NAMES[m.month - 1];
 
-        await this.upsertSingleConsolidated(
-          companyId,
-          month,
-          year,
-          consolidated,
-        );
-      } catch (error) {
-        console.error(`Failed to consolidate reports for month ${key}`, error);
+          const consolidated =
+            await this.aiService.generateConsolidatedMonthlyMetrics(
+              reportsData,
+              industry,
+              targetMonthName,
+              m.year
+            );
+
+          await this.upsertSingleConsolidated(
+            companyId,
+            m.month,
+            m.year,
+            consolidated,
+          );
+        } catch (error) {
+          console.error(`Failed to consolidate reports for single month ${m.year}-${m.month}`, error);
+        }
+      } else {
+        // Multi-month batch - call the new batch AI method
+        try {
+          console.log(
+            `Consolidating ${reportsData.length} reports for ${batch.months.length} months in batch using Gemini...`,
+          );
+          
+          const consolidatedBatch =
+            await this.aiService.generateConsolidatedMultiMonthMetrics(
+              reportsData,
+              industry,
+              batch.months
+            );
+
+          if (consolidatedBatch && consolidatedBatch.monthlyData) {
+            for (const data of consolidatedBatch.monthlyData) {
+              await this.upsertSingleConsolidated(
+                companyId,
+                data.month,
+                data.year,
+                data,
+              );
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to consolidate reports for multi-month batch`, error);
+        }
       }
     }
   }

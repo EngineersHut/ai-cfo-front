@@ -12,6 +12,7 @@ import KPICard from '@/components/common/KPICard';
 import DetailedMetricsCard from '@/components/common/DetailedMetricsCard';
 import { healthData } from '@/data/dashboardData';
 import { useDispatch, useSelector } from '@/store';
+import SkeletonLoader from '@/components/common/SkeletonLoader';
 import { fetchOperationalData } from '@/store/slices/operational';
 import { useEffect } from 'react';
 import { usePersistentDate } from '@/hooks/usePersistentDate';
@@ -90,6 +91,20 @@ const MONTHS = [
 
 const YEARS = [2024, 2025, 2026];
 
+const QUARTERS_APR_TO_MAR = [
+  { value: 1, label: "Q1 (Apr - Jun)" },
+  { value: 2, label: "Q2 (Jul - Sep)" },
+  { value: 3, label: "Q3 (Oct - Dec)" },
+  { value: 4, label: "Q4 (Jan - Mar)" },
+];
+
+const QUARTERS_JAN_TO_DEC = [
+  { value: 1, label: "Q1 (Jan - Mar)" },
+  { value: 2, label: "Q2 (Apr - Jun)" },
+  { value: 3, label: "Q3 (Jul - Sep)" },
+  { value: 4, label: "Q4 (Oct - Dec)" },
+];
+
 export default function OperationalOverview() {
     const {
         selectedMonth,
@@ -98,6 +113,8 @@ export default function OperationalOverview() {
         setSelectedYear,
         selectedPeriod,
         setSelectedPeriod,
+        selectedQuarter,
+        setSelectedQuarter,
     } = usePersistentDate();
     const [isMounted, setIsMounted] = useState(false);
 
@@ -106,7 +123,8 @@ export default function OperationalOverview() {
     }, []);
 
     const dispatch = useDispatch();
-    const { data } = useSelector((state) => state.operational);
+    const { data, loading } = useSelector((state: any) => state.operational);
+    const { companies } = useSelector((state: any) => state.company);
     console.log("DEBUG operational data:", data);
     const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
     const [companyType, setCompanyType] = useState<string>(IndustryEnum.TRANSPORTATION_AND_LOGISTICS);
@@ -135,11 +153,15 @@ export default function OperationalOverview() {
         return () => clearInterval(interval);
     }, [currentCompanyId, companyType]);
 
+    const currentCompany = companies?.find((c: any) => c._id === currentCompanyId);
+    const financialYearType = currentCompany?.financialYearType || "apr_to_mar";
+    const currentQuarters = financialYearType === "jan_to_dec" ? QUARTERS_JAN_TO_DEC : QUARTERS_APR_TO_MAR;
+
     useEffect(() => {
         if (currentCompanyId) {
-            dispatch(fetchOperationalData(currentCompanyId, selectedPeriod, selectedMonth, selectedYear));
+            dispatch(fetchOperationalData(currentCompanyId, selectedPeriod, selectedMonth, selectedYear, selectedQuarter));
         }
-    }, [currentCompanyId, selectedPeriod, selectedMonth, selectedYear, dispatch]);
+    }, [currentCompanyId, selectedPeriod, selectedMonth, selectedYear, selectedQuarter, dispatch]);
 
     const activeHeader = OPERATIONAL_HEADER_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_HEADER_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? { title: 'Operational Overview', subtitle: '' };
     const currentKPIs = OPERATIONAL_KPI_CONFIGS[companyType as IndustryEnum] ?? OPERATIONAL_KPI_CONFIGS[IndustryEnum.TRANSPORTATION_AND_LOGISTICS] ?? [];
@@ -464,10 +486,10 @@ export default function OperationalOverview() {
                     </button>
                   </div>
 
-                  {/* Month & Year Selectors (Only for Monthly, rendered below) */}
-                  {selectedPeriod === "monthly" && (
-                    <div className="flex items-center gap-2">
-                      {/* Month Dropdown */}
+                  {/* Dynamic Filters (Conditional based on Period) */}
+                  <div className="flex items-center gap-2">
+                    {/* Month Dropdown */}
+                    {selectedPeriod === "monthly" && (
                       <div className="relative">
                         <select
                           value={selectedMonth}
@@ -480,33 +502,57 @@ export default function OperationalOverview() {
                             </option>
                           ))}
                         </select>
-                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                           <ChevronDown size={14} className="stroke-[2.5]" />
                         </div>
                       </div>
-
-                      {/* Year Dropdown */}
+                    )}
+        
+                    {/* Quarter Dropdown */}
+                    {selectedPeriod === "quarterly" && (
                       <div className="relative">
                         <select
-                          value={selectedYear}
-                          onChange={(e) => setSelectedYear(Number(e.target.value))}
-                          className="h-[38px] pl-[10px] pr-[36px] py-[8px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-200 shadow-sm hover:border-[#cbd5e1] dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                          value={selectedQuarter}
+                          onChange={(e) => setSelectedQuarter(Number(e.target.value))}
+                          className="h-[38px] pl-[10px] pr-[36px] py-[8px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-200 shadow-sm hover:border-[#cbd5e1] dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 cursor-pointer appearance-none transition-all duration-200 min-w-[145px] font-inter"
                         >
-                          {YEARS.map((year) => (
-                            <option key={year} value={year}>
-                              {year}
+                          {currentQuarters.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
                             </option>
                           ))}
                         </select>
-                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 dark:text-slate-500">
+                        <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                           <ChevronDown size={14} className="stroke-[2.5]" />
                         </div>
                       </div>
+                    )}
+        
+                    {/* Year Dropdown */}
+                    <div className="relative">
+                      <select
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                        className="h-[38px] pl-[10px] pr-[36px] py-[8px] bg-white dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-200 shadow-sm hover:border-[#cbd5e1] dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 cursor-pointer appearance-none transition-all duration-200 min-w-[100px] font-inter"
+                      >
+                        {YEARS.map((year) => (
+                          <option key={year} value={year}>
+                            {financialYearType === "jan_to_dec" || selectedPeriod === "monthly" ? year : `${year}-${String(year + 1).slice(2)}`}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={14} className="stroke-[2.5]" />
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
             </div>
 
+            {loading ? (
+                <SkeletonLoader />
+            ) : (
+                <>
             {/* Summary Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {currentKPIs.map((metric: any, i: number) => {
@@ -651,6 +697,8 @@ export default function OperationalOverview() {
                 data={driverPerformance}
                 className="lg:col-span-2"
             />
+                </>
+            )}
         </div>
     );
 }

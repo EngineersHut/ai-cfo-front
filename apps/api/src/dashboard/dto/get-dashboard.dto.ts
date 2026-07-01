@@ -25,4 +25,10 @@ export class GetDashboardDto {
   @Type(() => Number)
   @IsNumber()
   year?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  quarter?: number;
 }

@@ -25,4 +25,10 @@ export class GetGrowthOverviewDto {
   @Type(() => Number)
   @IsNumber()
   year?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  quarter?: number;
 }

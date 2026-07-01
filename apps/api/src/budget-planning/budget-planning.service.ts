@@ -206,7 +206,7 @@ export class BudgetPlanningService {
       if (!resolvedMonth) resolvedMonth = new Date().getMonth() + 1;
       if (!resolvedYear) resolvedYear = new Date().getFullYear();
 
-      const q = Math.ceil(resolvedMonth / 3);
+      const q = queryDto.quarter || Math.ceil(resolvedMonth / 3);
       const currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
 
       // Fetch all actuals for the quarter
