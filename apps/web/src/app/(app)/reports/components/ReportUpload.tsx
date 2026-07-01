@@ -55,6 +55,7 @@ const reportTypeOptions = [
 ];
 
 const monthOptions = [
+  { label: "All", value: "0" },
   { label: "January", value: "1" },
   { label: "February", value: "2" },
   { label: "March", value: "3" },
@@ -214,7 +215,9 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               >
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${
-                    index < analysisStep ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
+                    index < analysisStep
+                      ? "bg-indigo-600"
+                      : "bg-slate-200 dark:bg-slate-700"
                   }`}
                 >
                   {index < analysisStep ? (
@@ -227,7 +230,9 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
                 </div>
                 <span
                   className={`text-[18px] font-normal font-inter leading-[24px] tracking-[0%] transition-colors duration-500 ${
-                    index <= analysisStep ? "text-[#0f172a] dark:text-slate-200" : "text-slate-400 dark:text-slate-500"
+                    index <= analysisStep
+                      ? "text-[#0f172a] dark:text-slate-200"
+                      : "text-slate-400 dark:text-slate-500"
                   }`}
                 >
                   {step}
@@ -535,7 +540,10 @@ export default function ReportUpload({ onCancel }: ReportUploadProps) {
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
             <button className="mt-4 w-[140px] h-[40px] pt-[4px] pr-[16px] pb-[4px] pl-[12px] gap-[6px] bg-white dark:bg-slate-700 border border-[#e2e8f0] dark:border-slate-600 rounded-[8px] text-[14px] font-normal text-[#0f172a] dark:text-slate-100 font-inter leading-[20px] tracking-[0%] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.08)] hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center pointer-events-none">
-              <Paperclip size={16} className="text-[#64748b] dark:text-slate-400" />
+              <Paperclip
+                size={16}
+                className="text-[#64748b] dark:text-slate-400"
+              />
               Browse Files
             </button>
           </div>

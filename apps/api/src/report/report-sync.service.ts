@@ -86,10 +86,11 @@ export class ReportSyncService {
     const monthlyReportsMap = new Map<string, any[]>();
     for (const report of reports) {
       const month =
-        report.month ||
-        (report.periodStartDate
-          ? new Date(report.periodStartDate).getMonth() + 1
-          : new Date(report.createdAt).getMonth() + 1);
+        report.month != null
+          ? report.month
+          : report.periodStartDate
+            ? new Date(report.periodStartDate).getMonth() + 1
+            : new Date(report.createdAt).getMonth() + 1;
       const year =
         report.year ||
         (report.periodStartDate
@@ -181,6 +182,23 @@ export class ReportSyncService {
         );
       } catch (error) {
         console.error(`Failed to consolidate reports for month ${key}`, error);
+      }
+    }
+  }
+
+  // || ---------------------- Insert Yearly Breakdown ---------------------|| //
+  async insertYearlyBreakdown(companyId: string, months: any[]) {
+    if (!months || !Array.isArray(months) || months.length === 0) return;
+    
+    console.log(`Inserting yearly breakdown for ${months.length} months into dashboards...`);
+    
+    for (const m of months) {
+      if (m.month && m.year) {
+        try {
+          await this.upsertSingleConsolidated(companyId, m.month, m.year, m);
+        } catch (error) {
+          console.error(`Failed to insert yearly breakdown for month ${m.month}/${m.year}`, error);
+        }
       }
     }
   }
