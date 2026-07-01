@@ -7,6 +7,7 @@ export class AiService {
   private readonly logger = new Logger(AiService.name);
   private anthropic: Anthropic;
 
+  // || ---------------------- Initialize Anthropic Client Constructor ---------------------|| //
   constructor() {
     const apiKey =
       process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || "";
@@ -20,6 +21,7 @@ export class AiService {
     });
   }
 
+  // || ---------------------- Call Claude LLM API Helper Function ---------------------|| //
   private async callClaude(
     prompt: string,
     systemMessage = "You are an expert AI Chief Financial Officer (CFO).",
@@ -49,11 +51,13 @@ export class AiService {
     }
   }
 
+  // || ---------------------- Clean and Extract JSON String Helper Function ---------------------|| //
   private cleanJson(text: string): string {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? jsonMatch[0] : text;
   }
 
+  // || ---------------------- Extract Financial Metrics from Single Report ---------------------|| //
   async extractMetricsFromReport(
     csvContent: string,
     industry: string,
@@ -133,6 +137,7 @@ ${csvContent}
     }
   }
 
+  // || ---------------------- Generate Consolidated Monthly Metrics from Multiple Reports ---------------------|| //
   async generateConsolidatedMonthlyMetrics(
     reportsData: { name: string; content: string }[],
     industry: string,
@@ -249,4 +254,123 @@ ${reportsFormatted}
       throw error;
     }
   }
+
+  // || ---------------------- Generate Consolidated Monthly Metrics for a Whole Year ---------------------|| //
+  async generateYearConsolidatedMonthlyMetrics(
+    reportContent: string,
+    industry: string,
+    reportName?: string,
+    targetYear?: number,
+  ): Promise<any> {
+    try {
+      const yearInstruction = targetYear 
+        ? `\nCRITICAL RESTRICTION: You MUST ONLY extract data for the year ${targetYear}. Absolutely IGNORE any data for other years (e.g., ${targetYear + 1} or ${targetYear - 1}). If a month's data belongs to another year, do not include it.` 
+        : "";
+
+      const prompt = `
+I am providing you with the contents of a company's financial/operational report that covers the data for an entire year (or multiple months of the year).
+The company operates in the ${industry} industry.
+${reportName ? `Report Name: ${reportName}\n` : ""}${yearInstruction}
+
+Your task:
+Analyze the report and extract:
+1. A single consolidated yearly summary for the entire report period.
+2. A month-by-month breakdown of the key metrics for each month present in the report.
+
+CRITICAL RULES:
+1. Reconcile values intelligently: For each month, extract the specific monthly figures (revenue, expenses, profits, operational metrics).
+2. Ensure the response is ONLY a valid JSON object. No markdown formatting (do NOT wrap in \`\`\`json block), no explanation.
+3. Every field in the expected output JSON structure MUST be present. If a field's value cannot be calculated or found, set its value to null.
+
+EXPECTED JSON SCHEMA:
+{
+  "yearlySummary": {
+    "revenue": null, // Total revenue for the entire year/period
+    "grossProfit": null,
+    "netProfit": null,
+    "ebitda": null,
+    "totalExpenses": null,
+    "cashBalance": null, // Ending cash balance of the year/period
+    "grossMarginPercent": null,
+    "netProfitMarginPercent": null,
+    "financialHealthScore": null,
+    "insights": [] // Array of report-wide/yearly insights: { "title": "Insight Title", "description": "Insight description" }
+  },
+  "months": [
+    // Array of monthly consolidated objects, one for each month found in the report
+    {
+      "month": 1, // Month number (1-12)
+      "year": 2026, // Year number
+      "dashboardSummary": {
+        "revenue": null, // Total revenue for this month
+        "grossProfit": null,
+        "netProfit": null,
+        "ebitda": null,
+        "totalExpenses": null,
+        "cashBalance": null,
+        "cashInflow": null,
+        "cashOutflow": null,
+        "netCashFlow": null,
+        "grossMarginPercent": null,
+        "netProfitMarginPercent": null,
+        "ebitdaMarginPercent": null,
+        "expenseBreakdown": [], // Array of { "name": string, "value": number, "percentage": number, "tags": string, "note": string }
+        "financialHealthScore": null,
+        "auditCompliance": null,
+        "growthPercent": null,
+        "equityHealth": null
+      },
+      "growthAnalytics": {
+        "clientCount": null,
+        "newClients": null,
+        "employeeCount": null,
+        "monthlyGrowthPercent": null,
+        "revenuePerClient": null,
+        "revenuePerEmployee": null,
+        "scalingEfficiencyScore": null
+      },
+      "fleetAnalytics": { // Populate only if industry is FLEET_MANAGEMENT or fleet data is present
+        "totalVehicles": null,
+        "activeVehicles": null,
+        "inactiveVehicles": null,
+        "totalTrips": null,
+        "completedTrips": null,
+        "fuelCost": null,
+        "maintenanceCost": null,
+        "onTimePercent": null
+      }
+    }
+  ]
 }
+
+Here is the yearly report data:
+=================
+${reportContent}
+=================
+`;
+
+      const responseText = await this.callClaude(prompt);
+      this.logger.log(
+        "Successfully generated year consolidated monthly metrics response using Claude API",
+      );
+
+      const cleanedResponse = this.cleanJson(responseText);
+      const repairedResponse = jsonrepair(cleanedResponse);
+      const parsedJson = JSON.parse(repairedResponse);
+
+      // Console log the response as requested
+      console.log("=== YEAR CONSOLIDATED MONTHLY METRICS RESPONSE ===");
+      console.dir(parsedJson, { depth: null, colors: true });
+      console.log("=================================================");
+
+      return parsedJson;
+    } catch (error) {
+      this.logger.error(
+        "Failed to generate year consolidated monthly metrics using Claude",
+        error,
+      );
+      throw error;
+    }
+  }
+}
+

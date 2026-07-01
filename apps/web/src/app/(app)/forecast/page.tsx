@@ -518,7 +518,7 @@ export default function ForecastPage() {
               </h3>
             </div>
             <div className="flex items-center gap-[6px]">
-              <button
+              {/* <button
                 onClick={() => setActiveChart("line")}
                 className={`w-[44px] h-[44px] flex items-center justify-center p-[4px_12px] rounded-[8px] border transition-all duration-200 ${
                   activeChart === "line"
@@ -547,7 +547,7 @@ export default function ForecastPage() {
                 }`}
               >
                 <PieChart size={18} />
-              </button>
+              </button> */}
             </div>
           </div>
 

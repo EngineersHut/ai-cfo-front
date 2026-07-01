@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectModel, InjectConnection } from "@nestjs/mongoose";
 import { Model, Connection, Types } from "mongoose";
-import { Subject } from 'rxjs';
+import { Subject } from "rxjs";
 import {
   DashboardSummary,
   DashboardSummaryDocument,
@@ -32,7 +32,7 @@ import * as xlsx from "xlsx";
 import { ReportSyncService } from "./report-sync.service";
 import { ReportMapperService } from "./mappers/report.mapper";
 import { AiService } from "../ai/ai.service";
-import { NotificationService } from '../notification/notification.service';
+import { NotificationService } from "../notification/notification.service";
 @Injectable()
 export class ReportService {
   public reportStatus$ = new Subject<any>();
@@ -72,22 +72,36 @@ export class ReportService {
     let dbMonth: number | null = null;
     let dbYear: number | null = null;
 
+    const isYearly =
+      createReportDto.month != null &&
+      (Number(createReportDto.month) === 0 ||
+        String(createReportDto.month).toLowerCase() === "all");
+
     if (createReportDto.year != null && createReportDto.month != null) {
       const parsedYear = parseInt(createReportDto.year as any, 10);
-      const parsedMonthOneIndexed = parseInt(createReportDto.month as any, 10);
-
       dbYear = parsedYear;
-      dbMonth = parsedMonthOneIndexed; // Frontend sends 1-indexed (e.g. 1 for Jan, 6 for June)
 
-      periodStartDate = new Date(parsedYear, parsedMonthOneIndexed - 1, 1);
-      periodEndDate = new Date(parsedYear, parsedMonthOneIndexed, 0);
+      if (isYearly) {
+        dbMonth = null;
+        periodStartDate = new Date(parsedYear, 0, 1);
+        periodEndDate = new Date(parsedYear, 11, 31);
+      } else {
+        const parsedMonthOneIndexed = parseInt(
+          createReportDto.month as any,
+          10,
+        );
+        dbMonth = parsedMonthOneIndexed; // Frontend sends 1-indexed (e.g. 1 for Jan, 6 for June)
+
+        periodStartDate = new Date(parsedYear, parsedMonthOneIndexed - 1, 1);
+        periodEndDate = new Date(parsedYear, parsedMonthOneIndexed, 0);
+      }
     }
 
     const reportId = uuidv4();
     const reportData = {
       _id: reportId,
       ...createReportDto, // Contains reportName, reportType, etc.
-      month: dbMonth !== null ? dbMonth : undefined, // Override DTO's string with number
+      month: isYearly ? 0 : dbMonth !== null ? dbMonth : undefined, // Override DTO's string with number
       year: dbYear !== null ? dbYear : undefined, // Override DTO's string with number
       collectionType: "report",
       periodStartDate,
@@ -128,9 +142,9 @@ export class ReportService {
     // Notify user that report is processing
     await this.notificationService.createNotification(
       userId,
-      'Report Processing',
+      "Report Processing",
       `Your report "${createReportDto.reportName}" is currently being analyzed.`,
-      'INFO'
+      "INFO",
     );
 
     // Emit event for SSE clients
@@ -175,17 +189,58 @@ export class ReportService {
           const csvContent = xlsx.utils.sheet_to_csv(sheet);
 
           if (csvContent && csvContent.trim().length > 0) {
-            // Send CSV to LLM
-            console.log("Sending report to Claude for extraction...");
-            const llmResponse = await this.aiService.extractMetricsFromReport(
-              csvContent,
-              company.industry,
-            );
-            console.log("LLM Extracted Data:", llmResponse);
+            const isYearly =
+              createReportDto.month != null &&
+              (Number(createReportDto.month) === 0 ||
+                String(createReportDto.month).toLowerCase() === "all");
 
-            // Map structured JSON to AnalyticsSchema
-            analytics = this.reportMapperService.mapLlmToAnalytics(llmResponse);
-            aiInsights = llmResponse.aiInsights || [];
+            if (isYearly) {
+              // Send CSV to LLM (yearly)
+              console.log("Sending yearly report to Claude for extraction...");
+              const llmResponse =
+                await this.aiService.generateYearConsolidatedMonthlyMetrics(
+                  csvContent,
+                  company.industry,
+                  createReportDto.reportName,
+                  dbYear,
+                );
+              console.log(
+                "LLM Extracted Yearly Data:",
+                JSON.stringify(llmResponse, null, 2),
+              );
+
+              // Map structured yearlySummary JSON to AnalyticsSchema
+              analytics = this.reportMapperService.mapLlmToAnalytics({
+                summary: llmResponse.yearlySummary || {},
+                aiInsights: llmResponse.yearlySummary?.insights || [],
+              });
+              aiInsights = llmResponse.yearlySummary?.insights || [];
+              
+              // Save the month-by-month breakdown to the database
+              if (llmResponse.months && Array.isArray(llmResponse.months) && llmResponse.months.length > 0) {
+                console.log(`Saving monthly breakdown for ${llmResponse.months.length} months from yearly report...`);
+                await this.reportSyncService.insertYearlyBreakdown(
+                  company._id.toString(),
+                  llmResponse.months
+                );
+              }
+            } else {
+              // Send CSV to LLM (monthly)
+              console.log("Sending report to Claude for extraction...");
+              const llmResponse = await this.aiService.extractMetricsFromReport(
+                csvContent,
+                company.industry,
+              );
+              console.log(
+                "LLM Extracted Data:",
+                JSON.stringify(llmResponse, null, 2),
+              );
+
+              // Map structured JSON to AnalyticsSchema
+              analytics =
+                this.reportMapperService.mapLlmToAnalytics(llmResponse);
+              aiInsights = llmResponse.aiInsights || [];
+            }
           }
         }
       } else {
@@ -220,11 +275,20 @@ export class ReportService {
 
     // Run dashboard sync
     try {
-      await this.reportSyncService.syncToDashboards(
-        company._id.toString(),
-        dbMonth,
-        dbYear,
-      );
+      const isYearly =
+        createReportDto.month != null &&
+        (Number(createReportDto.month) === 0 ||
+          String(createReportDto.month).toLowerCase() === "all");
+
+      if (!isYearly) {
+        await this.reportSyncService.syncToDashboards(
+          company._id.toString(),
+          dbMonth,
+          dbYear,
+        );
+      } else {
+        console.log("Skipping monthly dashboard sync for yearly report");
+      }
     } catch (syncError) {
       console.error("Failed to sync dashboards in background", syncError);
       // If dashboard sync fails, we mark the report as failed so the user knows
@@ -246,16 +310,16 @@ export class ReportService {
     if (status === ReportStatusEnum.ANALYZED) {
       await this.notificationService.createNotification(
         userId,
-        'Report Analyzed',
+        "Report Analyzed",
         `Analysis for "${createReportDto.reportName}" has been successfully completed.`,
-        'SUCCESS'
+        "SUCCESS",
       );
     } else {
       await this.notificationService.createNotification(
         userId,
-        'Report Analysis Failed',
+        "Report Analysis Failed",
         `We encountered an error while analyzing "${createReportDto.reportName}".`,
-        'ERROR'
+        "ERROR",
       );
     }
 
@@ -347,13 +411,20 @@ export class ReportService {
     let rMonth = report.month;
     let rYear = report.year;
 
-    if (!rMonth || !rYear) {
-      if (report.periodStartDate) {
-        rMonth = new Date(report.periodStartDate).getMonth() + 1;
-        rYear = new Date(report.periodStartDate).getFullYear();
-      } else if (report.createdAt) {
-        rMonth = new Date(report.createdAt).getMonth() + 1;
-        rYear = new Date(report.createdAt).getFullYear();
+    const isReportYearly =
+      rMonth === 0 ||
+      rMonth === "all" ||
+      String(rMonth).toLowerCase() === "all";
+
+    if (!isReportYearly) {
+      if (rMonth === undefined || rMonth === null || !rYear) {
+        if (report.periodStartDate) {
+          rMonth = new Date(report.periodStartDate).getMonth() + 1;
+          rYear = new Date(report.periodStartDate).getFullYear();
+        } else if (report.createdAt) {
+          rMonth = new Date(report.createdAt).getMonth() + 1;
+          rYear = new Date(report.createdAt).getFullYear();
+        }
       }
     }
 
@@ -653,13 +724,22 @@ export class ReportService {
     );
 
     // Recalculate Dashboard since report has changed
-    const rMonth = updatePayload.month || report.month;
-    const rYear = updatePayload.year || report.year;
-    await this.reportSyncService.syncToDashboards(
-      company._id.toString(),
-      rMonth,
-      rYear,
-    );
+    const rMonth =
+      updatePayload.month !== undefined ? updatePayload.month : report.month;
+    const rYear =
+      updatePayload.year !== undefined ? updatePayload.year : report.year;
+    const isYearly =
+      rMonth === 0 ||
+      rMonth === "all" ||
+      String(rMonth).toLowerCase() === "all";
+
+    if (!isYearly) {
+      await this.reportSyncService.syncToDashboards(
+        company._id.toString(),
+        rMonth,
+        rYear,
+      );
+    }
 
     return result;
   }
@@ -688,40 +768,84 @@ export class ReportService {
       },
     );
 
+    const isReportYearly =
+      report.month === 0 ||
+      report.month === "all" ||
+      String(report.month).toLowerCase() === "all";
+
+    if (isReportYearly) {
+      return {
+        success: true,
+        message: "Report deleted successfully",
+        reanalyzing: false,
+      };
+    }
+
     // Recalculate Dashboard since a report was removed
-    const reportMonth = report.month || (report.periodStartDate ? new Date(report.periodStartDate).getMonth() + 1 : (report.createdAt ? new Date(report.createdAt).getMonth() + 1 : new Date().getMonth() + 1));
-    const reportYear = report.year || (report.periodStartDate ? new Date(report.periodStartDate).getFullYear() : (report.createdAt ? new Date(report.createdAt).getFullYear() : new Date().getFullYear()));
+    const reportMonth =
+      report.month ||
+      (report.periodStartDate
+        ? new Date(report.periodStartDate).getMonth() + 1
+        : report.createdAt
+          ? new Date(report.createdAt).getMonth() + 1
+          : new Date().getMonth() + 1);
+    const reportYear =
+      report.year ||
+      (report.periodStartDate
+        ? new Date(report.periodStartDate).getFullYear()
+        : report.createdAt
+          ? new Date(report.createdAt).getFullYear()
+          : new Date().getFullYear());
 
     // Find remaining reports for this month
-    const allReports = await collection.find({ collectionType: "report", deletedAt: null }).toArray();
-    const remainingReportIds = allReports.filter(r => {
-      const m = r.month || (r.periodStartDate ? new Date(r.periodStartDate).getMonth() + 1 : (r.createdAt ? new Date(r.createdAt).getMonth() + 1 : new Date().getMonth() + 1));
-      const y = r.year || (r.periodStartDate ? new Date(r.periodStartDate).getFullYear() : (r.createdAt ? new Date(r.createdAt).getFullYear() : new Date().getFullYear()));
-      return m === reportMonth && y === reportYear && r._id.toString() !== id;
-    }).map(r => r._id);
+    const allReports = await collection
+      .find({ collectionType: "report", deletedAt: null })
+      .toArray();
+    const remainingReportIds = allReports
+      .filter((r) => {
+        const m =
+          r.month ||
+          (r.periodStartDate
+            ? new Date(r.periodStartDate).getMonth() + 1
+            : r.createdAt
+              ? new Date(r.createdAt).getMonth() + 1
+              : new Date().getMonth() + 1);
+        const y =
+          r.year ||
+          (r.periodStartDate
+            ? new Date(r.periodStartDate).getFullYear()
+            : r.createdAt
+              ? new Date(r.createdAt).getFullYear()
+              : new Date().getFullYear());
+        return m === reportMonth && y === reportYear && r._id.toString() !== id;
+      })
+      .map((r) => r._id);
 
     if (remainingReportIds.length > 0) {
       // Return a flag indicating re-analysis is happening
     }
 
     // Run sync in background
-    this.reportSyncService.syncToDashboards(
-      company._id.toString(),
-      reportMonth,
-      reportYear,
-    ).then(async () => {
-      if (remainingReportIds.length > 0) {
-        await this.notificationService.createNotification(
-          userId,
-          'Re-analysis Complete',
-          `Data for ${reportMonth}/${reportYear} has been re-analyzed successfully.`,
-          'SUCCESS'
-        );
-      }
-    }).catch(async (e) => {
-      console.error("Failed to re-sync dashboards after delete", e);
-    });
+    this.reportSyncService
+      .syncToDashboards(company._id.toString(), reportMonth, reportYear)
+      .then(async () => {
+        if (remainingReportIds.length > 0) {
+          await this.notificationService.createNotification(
+            userId,
+            "Re-analysis Complete",
+            `Data for ${reportMonth}/${reportYear} has been re-analyzed successfully.`,
+            "SUCCESS",
+          );
+        }
+      })
+      .catch(async (e) => {
+        console.error("Failed to re-sync dashboards after delete", e);
+      });
 
-    return { success: true, message: "Report deleted successfully", reanalyzing: remainingReportIds.length > 0 };
+    return {
+      success: true,
+      message: "Report deleted successfully",
+      reanalyzing: remainingReportIds.length > 0,
+    };
   }
 }
