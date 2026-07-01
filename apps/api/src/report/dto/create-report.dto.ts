@@ -28,6 +28,16 @@ export class CreateReportDto {
   @IsOptional()
   year?: number;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  periodStartDate?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  periodEndDate?: string;
+
   // --- Financial & Growth Data (Optional, mapped from Excel or passed from frontend) ---
   @ApiPropertyOptional()
   @IsOptional()

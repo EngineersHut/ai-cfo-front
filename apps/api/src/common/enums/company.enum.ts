@@ -31,3 +31,8 @@ export enum CurrencyEnum {
   USD = "usd",
   EUR = "eur",
 }
+
+export enum FinancialYearTypeEnum {
+  JAN_TO_DEC = "jan_to_dec",
+  APR_TO_MAR = "apr_to_mar",
+}

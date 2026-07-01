@@ -141,6 +141,8 @@ ${csvContent}
   async generateConsolidatedMonthlyMetrics(
     reportsData: { name: string; content: string }[],
     industry: string,
+    targetMonthName: string = "the specified month",
+    targetYear: number = new Date().getFullYear()
   ): Promise<any> {
     try {
       const reportsFormatted = reportsData
@@ -153,6 +155,11 @@ The company operates in the ${industry} industry.
 
 Your task:
 Analyze all the provided reports, reconcile the metrics to avoid double-counting or conflicts, and generate a single unified set of monthly metrics according to the exact schema details below.
+
+CRITICAL INSTRUCTIONS FOR MULTI-MONTH REPORTS:
+You must extract the metrics SPECIFICALLY FOR THE MONTH OF **${targetMonthName} ${targetYear}**. 
+If the reports provide a breakdown by month, locate and extract only the data for ${targetMonthName} ${targetYear}. 
+If the reports only provide totals for a longer period (e.g., Q1, Yearly) and do not break it down by month, you MUST distribute the values for this specific month (for example, by dividing a quarterly total by 3, or a yearly total by 12) so the data reflects just this single month.
 
 CRITICAL RULES:
 1. Reconcile values intelligently: For example, if Report 1 and Report 2 both show a cash balance or revenue, do not simply sum them up if they represent the same account or standard metrics. Only sum them if they are separate/non-overlapping transaction components.
@@ -261,16 +268,21 @@ ${reportsFormatted}
     industry: string,
     reportName?: string,
     targetYear?: number,
+    periodStartDate?: string,
+    periodEndDate?: string,
   ): Promise<any> {
     try {
-      const yearInstruction = targetYear 
-        ? `\nCRITICAL RESTRICTION: You MUST ONLY extract data for the year ${targetYear}. Absolutely IGNORE any data for other years (e.g., ${targetYear + 1} or ${targetYear - 1}). If a month's data belongs to another year, do not include it.` 
-        : "";
+      let periodInstruction = "";
+      if (periodStartDate && periodEndDate) {
+        periodInstruction = `\nCRITICAL RESTRICTION: You MUST ONLY extract data for the exact period between ${periodStartDate} and ${periodEndDate}. Absolutely IGNORE any data that falls outside this date range.`;
+      } else if (targetYear) {
+        periodInstruction = `\nCRITICAL RESTRICTION: You MUST ONLY extract data for the year ${targetYear}. Absolutely IGNORE any data for other years (e.g., ${targetYear + 1} or ${targetYear - 1}). If a month's data belongs to another year, do not include it.`;
+      }
 
       const prompt = `
 I am providing you with the contents of a company's financial/operational report that covers the data for an entire year (or multiple months of the year).
 The company operates in the ${industry} industry.
-${reportName ? `Report Name: ${reportName}\n` : ""}${yearInstruction}
+${reportName ? `Report Name: ${reportName}\n` : ""}${periodInstruction}
 
 Your task:
 Analyze the report and extract:
@@ -366,11 +378,91 @@ ${reportContent}
       return parsedJson;
     } catch (error) {
       this.logger.error(
-        "Failed to generate year consolidated monthly metrics using Claude",
+        "Failed to generate year consolidated monthly metrics",
         error,
       );
       throw error;
     }
   }
+
+  // || ---------------------- Generate Consolidated Multi-Month Metrics ---------------------|| //
+  async generateConsolidatedMultiMonthMetrics(
+    reportsData: { name: string; content: string }[],
+    industry: string,
+    targetMonths: { month: number; year: number }[]
+  ): Promise<any> {
+    try {
+      const reportsFormatted = reportsData
+        .map((r, i) => `--- REPORT #${i + 1} (${r.name}) ---\n${r.content}\n`)
+        .join("\n");
+
+      const monthsList = targetMonths.map(m => {
+        const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return `${MONTH_NAMES[m.month - 1]} ${m.year}`;
+      }).join(", ");
+
+      const prompt = `
+I am providing you with the contents of multiple financial or operational reports uploaded for a company.
+The company operates in the ${industry} industry.
+
+Your task:
+Analyze all the provided reports, reconcile the metrics to avoid double-counting or conflicts, and generate a unified set of monthly metrics for the following specific months:
+**${monthsList}**
+
+CRITICAL INSTRUCTIONS FOR MULTI-MONTH REPORTS:
+You must extract or distribute the data for EVERY SINGLE MONTH listed above. 
+If the reports provide a breakdown by month, locate and extract the data for each month. 
+If the reports only provide totals for a longer period (e.g., Q1, Yearly) and do not break it down by month, you MUST distribute the values evenly across the months in this period (for example, by dividing a quarterly total by 3, or a yearly total by 12) so that each month gets its proportional share.
+
+CRITICAL RULES:
+1. Reconcile values intelligently: For example, if Report 1 and Report 2 both show a cash balance or revenue, do not simply sum them up if they represent the same account or standard metrics. Only sum them if they are separate/non-overlapping transaction components.
+2. Every field in the expected output JSON structure MUST be present for EACH month.
+3. If a field's value cannot be calculated or found, set its value to null. Do NOT skip any fields.
+4. Response must be ONLY a valid JSON object. No markdown formatting (do NOT wrap in \`\`\`json block), no explanation.
+
+EXPECTED JSON SCHEMA:
+{
+  "monthlyData": [
+    {
+      "month": 1, // Number representing the month (1 for January, 12 for December)
+      "year": 2026,
+      "dashboardSummary": {
+        "revenue": null, "grossProfit": null, "netProfit": null, "ebitda": null, "totalExpenses": null, "cashBalance": null, "cashInflow": null, "cashOutflow": null, "netCashFlow": null, "grossMarginPercent": null, "netProfitMarginPercent": null, "ebitdaMarginPercent": null, "expenseBreakdown": [], "financialHealthScore": null, "auditCompliance": null, "growthPercent": null, "equityHealth": null
+      },
+      "growthAnalytics": {
+        "clientCount": null, "newClients": null, "employeeCount": null, "monthlyGrowthPercent": null, "quarterlyGrowthPercent": null, "yearlyGrowthPercent": null, "revenuePerClient": null, "revenuePerEmployee": null, "employeeGrowthPercent": null, "clientGrowthPercent": null, "growthHealthScore": null, "revenueGrowthScore": null, "clientRetentionScore": null, "scalingEfficiencyScore": null, "growthTrend": [], "insights": []
+      },
+      "fleetAnalytics": {
+        "totalVehicles": null, "activeVehicles": null, "inactiveVehicles": null, "fleetUtilizationPercent": null, "totalTrips": null, "completedTrips": null, "cancelledTrips": null, "fuelCost": null, "maintenanceCost": null, "costPerTrip": null, "costPerKm": null, "totalDeliveries": null, "onTimeDeliveries": null, "onTimePercent": null, "driverEfficiencyOverall": null, "costEfficiency": null
+      },
+      "budgetPlanning": {
+        "totalRevenueBudget": null, "totalDirectCostsBudget": null, "totalOperatingExpensesBudget": null, "lineItems": []
+      }
+    }
+    // ... Repeat exactly this structure for EVERY month requested in the list
+  ]
 }
 
+Here are the reports data:
+=================
+${reportsFormatted}
+=================
+      `;
+
+      const responseText = await this.callClaude(prompt);
+      this.logger.log(
+        "Successfully generated batch multi-month metrics using Claude API",
+      );
+      try {
+        return JSON.parse(jsonrepair(this.cleanJson(responseText)));
+      } catch (parseError) {
+        this.logger.error("Failed to parse Claude output", parseError);
+        console.log("responseText was:", responseText);
+        throw parseError;
+      }
+    } catch (error) {
+      this.logger.error("Failed to consolidate reports with Claude", error);
+      throw error;
+    }
+  }
+}

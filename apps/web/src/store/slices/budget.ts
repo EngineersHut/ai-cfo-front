@@ -50,19 +50,26 @@ export const {
   updatePlanningItemSuccess
 } = slice.actions;
 
-export const fetchBudgetData = (month?: number, year?: number, period?: string) => {
+export const fetchBudgetData = (month?: number, year?: number, period?: string, quarter?: number) => {
   return async () => {
     dispatch(slice.actions.getBudgetLoading(true));
     try {
       let url = '/api/budget-planning';
       const params: string[] = [];
-      if (month !== undefined && year !== undefined) {
-        params.push(`month=${month}`);
-        params.push(`year=${year}`);
-      }
+      
       if (period) {
         params.push(`period=${period.toLowerCase()}`);
       }
+      if (year !== undefined) {
+        params.push(`year=${year}`);
+      }
+      if (period === 'quarterly' && quarter !== undefined) {
+        params.push(`quarter=${quarter}`);
+      }
+      if (period === 'monthly' && month !== undefined) {
+        params.push(`month=${month}`);
+      }
+      
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }

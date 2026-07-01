@@ -21,6 +21,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
         subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
         currency: 'usd',
         isPrimary: false,
+        financialYearType: 'apr_to_mar',
     })
     useEffect(() => {
         if (isOpen) {
@@ -31,6 +32,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                     subIndustry: companyData.subIndustry || IndustryToSubIndustryMap[companyData.industry || IndustryEnum.TECHNOLOGY_AND_IT]?.[0] || '',
                     currency: companyData.currency || 'usd',
                     isPrimary: companyData.isPrimary || false,
+                    financialYearType: companyData.financialYearType || 'apr_to_mar',
                 });
             } else {
                 setFormData({
@@ -39,6 +41,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                     subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
                     currency: 'usd',
                     isPrimary: false,
+                    financialYearType: 'apr_to_mar',
                 });
             }
         }
@@ -51,6 +54,7 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
             subIndustry: IndustryToSubIndustryMap[IndustryEnum.TECHNOLOGY_AND_IT][0],
             currency: 'usd',
             isPrimary: false,
+            financialYearType: 'apr_to_mar',
         });
         handleClose()
     }
@@ -157,6 +161,22 @@ function AddcompanyModal({ isOpen, handleClose, companyData }: AddEditClientProp
                                 <option value="usd">USD - US Dollar</option>
                                 <option value="inr">INR - Indian Rupee</option>
                                 <option value="eur">EUR - Euro</option>
+                            </select>
+                            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
+                        </div>
+                    </div>
+
+                    {/* Financial Year Type Dropdown */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-normal text-[#2e2e37] dark:text-slate-300 font-inter leading-[16px] tracking-[0%]">Financial Year Type</label>
+                        <div className="relative group w-full">
+                            <select
+                                value={formData.financialYearType}
+                                onChange={(e) => handleChange('financialYearType', e.target.value)}
+                                className="w-full h-[40px] px-[10px] py-[8px] appearance-none rounded-[8px] border border-[#e2e8f0] dark:border-slate-600 bg-white dark:bg-slate-700 font-inter text-[14px] text-[#0f172a] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
+                            >
+                                <option value="jan_to_dec">1 Jan to 31 Dec</option>
+                                <option value="apr_to_mar">1 April to 31 March</option>
                             </select>
                             <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 pointer-events-none transition-colors" />
                         </div>

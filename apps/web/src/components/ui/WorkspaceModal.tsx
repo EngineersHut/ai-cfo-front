@@ -14,7 +14,8 @@ export default function WorkspaceModal() {
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
-    currency: 'USD $'
+    currency: 'USD $',
+    financialYearType: 'apr_to_mar'
   });
 
   const handleClose = () => {
@@ -31,7 +32,7 @@ export default function WorkspaceModal() {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} height="406px" width="398px" className="!bg-white dark:!bg-white !border-slate-200 dark:!border-slate-200">
+    <Modal isOpen={isOpen} onClose={handleClose} height="480px" width="398px" className="!bg-white dark:!bg-white !border-slate-200 dark:!border-slate-200">
       <div className="px-8 h-full flex flex-col relative" style={{ fontFamily: "'Inter', sans-serif" }}>
 
 
@@ -101,6 +102,27 @@ export default function WorkspaceModal() {
                 <option value="EUR €">EUR €</option>
                 <option value="INR ₹">INR ₹</option>
                 <option value="GBP £">GBP £</option>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <ChevronDown size={20} />
+              </div>
+            </div>
+          </div>
+
+          {/* Financial Year Type */}
+          <div>
+            <label className="block font-inter font-normal text-[12px] leading-[16px] text-slate-600 mb-1.5 ml-0.5">
+              Financial Year Type*
+            </label>
+            <div className="relative w-[334px]">
+              <select
+                name="financialYearType"
+                value={formData.financialYearType}
+                onChange={handleChange}
+                className="w-full h-[38px] px-[10px] py-[8px] border border-slate-200 rounded-[8px] text-[14px] focus:outline-none focus:border-blue-500 appearance-none bg-white cursor-pointer shadow-sm text-slate-600"
+              >
+                <option value="jan_to_dec">1 Jan to 31 Dec</option>
+                <option value="apr_to_mar">1 April to 31 March</option>
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                 <ChevronDown size={20} />

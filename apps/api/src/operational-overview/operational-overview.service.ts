@@ -39,9 +39,9 @@ export class OperationalOverviewService {
       return this.getEmptyOverview();
     }
     const companyId = company._id.toString();
-    const { month, year, period } = queryDto;
+    const { month, year, period, quarter } = queryDto;
 
-    return this.getFleetOperationalOverview(companyId, month, year, period);
+    return this.getFleetOperationalOverview(companyId, month, year, period, quarter);
   }
 
   private getEmptyOverview() {
@@ -90,19 +90,23 @@ export class OperationalOverviewService {
     companyId: string,
     month?: number,
     year?: number,
-    period?: string,
+    period?: OperationalPeriodEnum,
+    quarter?: number,
   ) {
-    const [allFleetData] = await Promise.all([
-      this.fleetModel
+    const [allDashboardData, allFleetData] = await Promise.all([
+      this.dashboardModel
         .find({ companyId })
         .sort({ year: -1, month: -1 })
         .exec(),
+      this.fleetModel.find({ companyId }).sort({ year: -1, month: -1 }).exec(),
     ]);
 
     const targetYear =
-      year || (allFleetData[0]?.year as number) || new Date().getFullYear();
+      year || (allDashboardData[0]?.year as number) || new Date().getFullYear();
     const targetMonth =
-      month || (allFleetData[0]?.month as number) || new Date().getMonth() + 1;
+      month ||
+      (allDashboardData[0]?.month as number) ||
+      new Date().getMonth() + 1;
 
     let currentMonths: number[] = [];
     let prevMonths: number[] = [];
@@ -112,20 +116,19 @@ export class OperationalOverviewService {
     if (period === "yearly") {
       currentMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
       prevMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-      currentYears = [new Date().getFullYear()];
-      prevYears = [new Date().getFullYear() - 1];
+      currentYears = [targetYear];
+      prevYears = [targetYear - 1];
     } else if (period === "quarterly") {
-      const currentMonthVal = new Date().getMonth() + 1;
-      const q = Math.ceil(currentMonthVal / 3);
+      const q = quarter || Math.ceil((new Date().getMonth() + 1) / 3);
       currentMonths = [(q - 1) * 3 + 1, (q - 1) * 3 + 2, (q - 1) * 3 + 3];
-      currentYears = [new Date().getFullYear()];
+      currentYears = [targetYear];
 
       if (q === 1) {
         prevMonths = [10, 11, 12];
-        prevYears = [new Date().getFullYear() - 1];
+        prevYears = [targetYear - 1];
       } else {
         prevMonths = [(q - 2) * 3 + 1, (q - 2) * 3 + 2, (q - 2) * 3 + 3];
-        prevYears = [new Date().getFullYear()];
+        prevYears = [targetYear];
       }
     } else {
       // Monthly (default)

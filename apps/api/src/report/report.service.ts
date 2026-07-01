@@ -77,7 +77,14 @@ export class ReportService {
       (Number(createReportDto.month) === 0 ||
         String(createReportDto.month).toLowerCase() === "all");
 
-    if (createReportDto.year != null && createReportDto.month != null) {
+    const isDateRange = 
+      createReportDto.periodStartDate != null &&
+      createReportDto.periodEndDate != null;
+
+    if (isDateRange) {
+      periodStartDate = new Date(createReportDto.periodStartDate as string);
+      periodEndDate = new Date(createReportDto.periodEndDate as string);
+    } else if (createReportDto.year != null && createReportDto.month != null) {
       const parsedYear = parseInt(createReportDto.year as any, 10);
       dbYear = parsedYear;
 
@@ -194,15 +201,23 @@ export class ReportService {
               (Number(createReportDto.month) === 0 ||
                 String(createReportDto.month).toLowerCase() === "all");
 
-            if (isYearly) {
-              // Send CSV to LLM (yearly)
-              console.log("Sending yearly report to Claude for extraction...");
+            const isDateRange =
+              createReportDto.periodStartDate != null &&
+              createReportDto.periodEndDate != null;
+
+            if (isYearly || isDateRange) {
+              // Send CSV to LLM (yearly or custom date range)
+              console.log(
+                "Sending multi-month report to Claude for extraction...",
+              );
               const llmResponse =
                 await this.aiService.generateYearConsolidatedMonthlyMetrics(
                   csvContent,
                   company.industry,
                   createReportDto.reportName,
                   dbYear,
+                  createReportDto.periodStartDate,
+                  createReportDto.periodEndDate,
                 );
               console.log(
                 "LLM Extracted Yearly Data:",
@@ -215,13 +230,19 @@ export class ReportService {
                 aiInsights: llmResponse.yearlySummary?.insights || [],
               });
               aiInsights = llmResponse.yearlySummary?.insights || [];
-              
+
               // Save the month-by-month breakdown to the database
-              if (llmResponse.months && Array.isArray(llmResponse.months) && llmResponse.months.length > 0) {
-                console.log(`Saving monthly breakdown for ${llmResponse.months.length} months from yearly report...`);
+              if (
+                llmResponse.months &&
+                Array.isArray(llmResponse.months) &&
+                llmResponse.months.length > 0
+              ) {
+                console.log(
+                  `Saving monthly breakdown for ${llmResponse.months.length} months from yearly report...`,
+                );
                 await this.reportSyncService.insertYearlyBreakdown(
                   company._id.toString(),
-                  llmResponse.months
+                  llmResponse.months,
                 );
               }
             } else {
